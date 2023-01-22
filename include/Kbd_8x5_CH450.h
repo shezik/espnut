@@ -25,7 +25,7 @@ class Kbd_8x5_CH450 {
             @param 'sda_' I2C SDA
             @param 'scl_' I2C SCL
             @param 'freq_' (optional) Comm frequency.
-            Default 5000, aggressively 1E6
+            Default 5000, aggressively 1E6 (what the hell)
         */
         Kbd_8x5_CH450(uint8_t sda_, uint8_t scl_, unsigned int freq_ = 5000);
         bool init();

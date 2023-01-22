@@ -6,6 +6,7 @@
         "proc_nut.h": "c",
         "stl_uninitialized.h": "c",
         "stl_algobase.h": "c",
-        "util.h": "c"
+        "util.h": "c",
+        "cstdlib": "cpp"
     }
 }
