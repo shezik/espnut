@@ -6,14 +6,14 @@
 
 class KeyQueue
 {
-    private:
+    protected:
         int queue[KeyQueueMaxSize];
         uint8_t availableKeys = 0;
     public:
         bool isRingBuffer = false;
-        KeyQueue();
         int getLastKeycode();
         void removeLastKeycode();
         bool queueKeycode(int newcode);
         uint8_t count();
+        void clear();
 };

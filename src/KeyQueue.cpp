@@ -4,10 +4,6 @@
 
 #include "KeyQueue.h"
 
-KeyQueue::KeyQueue(){
-
-}
-
 int KeyQueue::getLastKeycode() {
     return availableKeys ? queue[availableKeys - 1] : -1;
         // Please, check if there is any keycode left in the queue
@@ -33,4 +29,8 @@ bool KeyQueue::queueKeycode(int newcode) {
 
 uint8_t KeyQueue::count() {
     return availableKeys;
+}
+
+void KeyQueue::clear() {
+    availableKeys = 0;
 }

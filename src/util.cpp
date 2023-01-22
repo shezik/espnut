@@ -57,6 +57,8 @@ void trim_trailing_whitespace (char *s)
 
 void exit (int ret)
 {
-	printf_log("Program returned %d\nSystem halt.\n", ret);
-	while (1);  // dead loop
+	printf_log("Program returned %d\nSystem halt. Press any key to reset.\n", ret);
+	extern KeyboardMan keyboardMan;  // Instantiated in main.cpp
+	keyboardMan.blockingWaitForKey();
+	ESP.restart();
 }
