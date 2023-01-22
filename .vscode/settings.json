@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "littlefs.h": "c",
+        "fs.h": "c",
+        "memory": "cpp",
+        "proc_nut.h": "c",
+        "stl_uninitialized.h": "c",
+        "stl_algobase.h": "c",
+        "util.h": "c"
+    }
+}
