@@ -27,6 +27,8 @@
 #pragma once
 
 #include <Arduino.h>
+#include <Esp.h>
+#include "KeyboardMan.h"
 
 void exit(int ret);
 void *alloc(size_t size);
@@ -38,7 +40,7 @@ void trim_trailing_whitespace(char *s);
 #define fprintf(stream, format, ...)       \
     do                                     \
     {                                      \
-        printf_log(format, ##__VA_ARGS__); \
+        printf_log(#stream ": " format, ##__VA_ARGS__); \
     } while (0)
 
 #define printf_log(format, ...)                            \
@@ -59,7 +61,7 @@ void trim_trailing_whitespace(char *s);
         extern void appendLog(char *);                                                                                                         \
         extern void U8g2DrawAndSendDialog(char *);                                                                                             \
         char buf[PRINTF_BUF_LEN];                                                                                                              \
-        snprintf(buf, sizeof(buf), "\nFatal error at file %s, func %s, line %s: \n"##format, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
+        snprintf(buf, sizeof(buf), "\nFatal error at file %s, func %s, line %s: \n" format, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
         printf("%s", buf);                                                                                                                     \
         appendLog(buf);                                                                                                                        \
         U8g2DrawAndSendDialog(buf);                                                                                                            \
@@ -68,5 +70,5 @@ void trim_trailing_whitespace(char *s);
 
 /*
 #define warning(format, ...) \
-    printf("\nWarning: \n"##format##"\n", ##__VA_ARGS__)
+    printf("\nWarning: \n" format "\n", ##__VA_ARGS__)
 */
