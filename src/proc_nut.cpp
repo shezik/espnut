@@ -1397,7 +1397,7 @@ bool nut_execute_instruction (nut_reg_t *nut_reg)
 {	
 	do
     {
-#if 1
+#if 0  // !! Originally 1
 		(void) nut_execute_cycle (nut_reg);
 #else
 		if (! nut_execute_cycle (nut_reg))
