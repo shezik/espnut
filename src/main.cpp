@@ -4,13 +4,17 @@
 #include "util.h"
 #include "Kbd_8x5_CH450.h"
 #include "KeyboardMan.h"
+#include "DispInterface.h"
+#include "NutEmuInterface.h"
 #include "U8g2lib.h"
 #include "GEM.h"
 #include "Configuration.h"
 
 U8G2_DISPLAY_TYPE u8g2(U8G2_R2, VSPI_CLK, VSPI_DATA, VSPI_CS, VSPI_DC, U8G2_RESET_PIN);
+DispInterface dispInterface(u8g2);
 Kbd_8x5_CH450 keyboard(CH450_SDA, CH450_SCL, CH450_DELAY);
 KeyboardMan keyboardMan(keyboard, CH450_INT);  // Referred to in util.cpp
+NutEmuInterface nutEmuInterface(keyboardMan, dispInterface);
 
 void appendLog(char *str) {
     

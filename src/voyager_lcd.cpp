@@ -26,6 +26,7 @@
 #include "voyager_lcd.h"
 #include "proc_nut.h"
 #include "display.h"
+#include "NutEmuInterface.h"
 
 #define VOYAGER_DISPLAY_BLINK_DIVISOR 150
 
@@ -182,7 +183,7 @@ void voyager_display_event_fn(nut_reg_t *nut_reg, event_t event)
 		if (display->count == 0)
 		{
 			voyager_display_update(nut_reg, display);
-			// !! CALL DISPLAY CALLBACK HERE
+			static_cast<NutEmuInterface *>(nut_reg->display)->updateDisplayCallback();
 			display->count = 15;
 		}
 		else
@@ -191,7 +192,7 @@ void voyager_display_event_fn(nut_reg_t *nut_reg, event_t event)
 	case event_sleep:
 		// force display update
 		voyager_display_update(nut_reg, display);
-		// !! CALL DISPLAY CALLBACK HERE
+		static_cast<NutEmuInterface *>(nut_reg->display)->updateDisplayCallback();
 		display->count = 15;
 
 		if (display->enable)
@@ -212,7 +213,7 @@ void voyager_display_event_fn(nut_reg_t *nut_reg, event_t event)
 	case event_restore_completed:
 		// force display update
 		voyager_display_update(nut_reg, display);
-		// !! CALL DISPLAY CALLBACK HERE
+		static_cast<NutEmuInterface *>(nut_reg->display)->updateDisplayCallback();
 		display->count = 15;
 		break;
 	default:
