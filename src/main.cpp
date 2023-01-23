@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <LittleFS.h>
+#include <WiFi.h>
 #include "util.h"
 #include "Kbd_8x5_CH450.h"
 #include "KeyboardMan.h"
@@ -20,7 +21,14 @@ void U8g2DrawAndSendDialog(char *message) {
 }
 
 void setup() {
+    setCpuFrequencyMhz(getXtalFrequencyMhz() == 40 ? 40 : 80);
     Serial.begin(115200);
+
+    WiFi.disconnect(true, true);
+    WiFi.setSleep(WIFI_PS_MAX_MODEM);
+    WiFi.mode(WIFI_OFF);
+    btStop();
+    
     u8g2.setBusClock(U8G2_BUS_CLK);
     u8g2.begin();
     keyboardMan.init();
