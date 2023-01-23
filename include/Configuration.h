@@ -17,3 +17,4 @@
 #define VSPI_CS 5
 #define U8G2_RESET_PIN U8X8_PIN_NONE
 #define U8G2_BUS_CLK 4000000  // Visit https://github.com/olikraus/u8g2/wiki/u8g2reference#setbusclock
+#define DISPLAY_POWER_CONTROL 32  // !! Arbitrary value

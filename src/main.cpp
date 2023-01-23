@@ -15,7 +15,7 @@ U8G2_DISPLAY_TYPE u8g2(U8G2_R2, VSPI_CLK, VSPI_DATA, VSPI_CS, VSPI_DC, U8G2_RESE
 DispInterface dispInterface(u8g2);  // Referred to in util.h
 Kbd_8x5_CH450 keyboard(CH450_SDA, CH450_SCL, CH450_DELAY);
 KeyboardMan keyboardMan(keyboard, CH450_INT);  // Referred to in util.cpp
-PowerMgr powerMgr(keyboardMan, CH450_INT);
+PowerMgr powerMgr(keyboardMan, CH450_INT, DISPLAY_POWER_CONTROL);
 NutEmuInterface nutEmuInterface(keyboardMan, dispInterface, powerMgr);
 
 void appendLog(char *str) {
@@ -26,7 +26,7 @@ void setup() {
     setCpuFrequencyMhz(getXtalFrequencyMhz() == 40 ? 40 : 80);
     Serial.begin(115200);
 
-    powerMgr.deepSleepCleanup();
+    powerMgr.init();
     powerMgr.enterModemSleep();
     
     u8g2.setBusClock(U8G2_BUS_CLK);
