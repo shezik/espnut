@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
-#include "KeyboardMan.h"
+#include "KeyboardMgr.h"
 #include "DispInterface.h"
 #include "proc_nut.h"
 #include "PowerMgr.h"
@@ -17,7 +17,7 @@
 
 class NutEmuInterface {
     protected:
-        KeyboardMan &kbdMan;  // Named differently to avoid collision with keyboardMan in main.cpp
+        KeyboardMgr &kbdMgr;  // Named differently to avoid collision with keyboardMgr in main.cpp
         DispInterface &disp;
         PowerMgr &pm;
         nut_reg_t *nv;
@@ -25,7 +25,7 @@ class NutEmuInterface {
         double wordsPerMs;
         int64_t lastRunTime;
     public:
-        NutEmuInterface(KeyboardMan &, DispInterface &, PowerMgr &);
+        NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
         bool newProcessor(int, int, char *);
         void tick();
         bool saveState(char *);

@@ -1,7 +1,7 @@
-#include "KeyboardMan.h"
+#include "KeyboardMgr.h"
 
 static void keyboardCallback(void *ptr) {
-    KeyboardMan *context = static_cast<KeyboardMan *>(ptr);
+    KeyboardMgr *context = static_cast<KeyboardMgr *>(ptr);
 
     if (!context->busy) {
         context->busy = true;
@@ -20,32 +20,32 @@ static void keyboardCallback(void *ptr) {
     }
 }
 
-KeyboardMan::KeyboardMan(Kbd_8x5_CH450 &keyboard_, uint8_t interruptPin_)
+KeyboardMgr::KeyboardMgr(Kbd_8x5_CH450 &keyboard_, uint8_t interruptPin_)
     : keyboard(keyboard_)
     , interruptPin(interruptPin_)
 {
     // Do nothing
 }
 
-void KeyboardMan::init() {
+void KeyboardMgr::init() {
     pinMode(interruptPin, INPUT_PULLUP);  // CH450 keyboard interrupt (active low)
 }
 
-void KeyboardMan::enableInterrupt() {
+void KeyboardMgr::enableInterrupt() {
     if (!isInterruptEnabled)
         attachInterruptArg(interruptPin, keyboardCallback, this, FALLING);
 }
 
-void KeyboardMan::disableInterrupt() {
+void KeyboardMgr::disableInterrupt() {
     if (isInterruptEnabled)
         detachInterrupt(interruptPin);
 }
 
-bool KeyboardMan::getInterruptState() {
+bool KeyboardMgr::getInterruptState() {
     return isInterruptEnabled;
 }
 
-void KeyboardMan::blockingWaitForKey() {
+void KeyboardMgr::blockingWaitForKey() {
     if (isInterruptEnabled) {
 	    clear();
 	    while (1) {
@@ -62,7 +62,7 @@ void KeyboardMan::blockingWaitForKey() {
     }
 }
 
-void KeyboardMan::checkForRelease() {
+void KeyboardMgr::checkForRelease() {
     busy = true;
 
     if (pendingRelease && !keyboard.toState(keyboard.getKeyData())) {
@@ -77,7 +77,7 @@ void KeyboardMan::checkForRelease() {
 // Setting sendInterruptOnWake to false disables the internal keyboard scanner so no interrupt will be sent on wake.
 // However the chip still wakes up on key press even if the keyboard scanner is turned off.
 // You can re-enable the keyboard scanner by calling Kbd_8x5_CH450::init().
-bool KeyboardMan::chipEnterSleep(bool sendInterruptOnWake) {
+bool KeyboardMgr::chipEnterSleep(bool sendInterruptOnWake) {
     busy = true;
     bool result = keyboard.sendConfig(true, sendInterruptOnWake);
     busy = false;

@@ -28,7 +28,7 @@
 
 #include <Arduino.h>
 #include <Esp.h>
-#include "KeyboardMan.h"
+#include "KeyboardMgr.h"
 #include "DispInterface.h"
 
 void exit(int ret);

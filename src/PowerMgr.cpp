@@ -1,7 +1,7 @@
 #include "PowerMgr.h"
 
-PowerMgr::PowerMgr(KeyboardMan &kbdMan_, uint8_t wakeUpInterruptPin_, uint8_t displayPowerPin_)
-    : kbdMan(kbdMan_)
+PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t displayPowerPin_)
+    : kbdMgr(kbdMgr_)
     , wakeUpInterruptPin(wakeUpInterruptPin_)
     , displayPowerPin(displayPowerPin_)
 {
@@ -18,8 +18,8 @@ bool PowerMgr::enterModemSleep() {
 }
 
 void PowerMgr::enterDeepSleep() {
-    kbdMan.disableInterrupt();
-    kbdMan.chipEnterSleep(true);
+    kbdMgr.disableInterrupt();
+    kbdMgr.chipEnterSleep(true);
     adc_power_release();
     rtc_gpio_pullup_en((gpio_num_t) wakeUpInterruptPin);
     esp_sleep_enable_ext0_wakeup((gpio_num_t) wakeUpInterruptPin, 0);

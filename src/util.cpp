@@ -58,7 +58,7 @@ void trim_trailing_whitespace (char *s)
 void exit (int ret)
 {
 	printf_log("Program returned %d\nSystem halt. Press any key to reset.\n", ret);
-	extern KeyboardMan keyboardMan;  // Instantiated in main.cpp
-	keyboardMan.blockingWaitForKey();
+	extern KeyboardMgr keyboardMgr;  // Instantiated in main.cpp
+	keyboardMgr.blockingWaitForKey();
 	ESP.restart();  // THIS FUNCTION DOES NOT RETURN STFU
 }

@@ -7,13 +7,13 @@
 
 void keyboardCallback();
 
-class KeyboardMan : public KeyQueue {
+class KeyboardMgr : public KeyQueue {
     protected:
         uint8_t interruptPin;
         bool isInterruptEnabled = false;
     public:
         Kbd_8x5_CH450 &keyboard;                // We are not using getter and setters
-        KeyboardMan(Kbd_8x5_CH450 &, uint8_t);  // on these variables because function
+        KeyboardMgr(Kbd_8x5_CH450 &, uint8_t);  // on these variables because function
         bool busy = false;                      // calls take time and these are being
         bool pendingRelease = false;            // used in our time-sensivive ISR.
         void init();

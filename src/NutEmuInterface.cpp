@@ -1,7 +1,7 @@
 #include "NutEmuInterface.h"
 
-NutEmuInterface::NutEmuInterface(KeyboardMan &kbdMan_, DispInterface &disp_, PowerMgr &pm_)
-    : kbdMan(kbdMan_)
+NutEmuInterface::NutEmuInterface(KeyboardMgr &kbdMgr_, DispInterface &disp_, PowerMgr &pm_)
+    : kbdMgr(kbdMgr_)
     , disp(disp_)
     , pm(pm_)
 {
@@ -50,11 +50,11 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize, char *filena
 
 void NutEmuInterface::tick() {
     static int keycode;
-    if (kbdMan.count()) {
-        kbdMan.busy = true;
-        keycode = kbdMan.getLastKeycode();
-        kbdMan.removeLastKeycode();
-        kbdMan.busy = false;
+    if (kbdMgr.count()) {
+        kbdMgr.busy = true;
+        keycode = kbdMgr.getLastKeycode();
+        kbdMgr.removeLastKeycode();
+        kbdMgr.busy = false;
         if (keycode < 0) {
             nut_release_key(nv);
         } else {
