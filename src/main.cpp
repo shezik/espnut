@@ -11,16 +11,12 @@
 #include "Configuration.h"
 
 U8G2_DISPLAY_TYPE u8g2(U8G2_R2, VSPI_CLK, VSPI_DATA, VSPI_CS, VSPI_DC, U8G2_RESET_PIN);
-DispInterface dispInterface(u8g2);
+DispInterface dispInterface(u8g2);  // Referred to in util.h
 Kbd_8x5_CH450 keyboard(CH450_SDA, CH450_SCL, CH450_DELAY);
 KeyboardMan keyboardMan(keyboard, CH450_INT);  // Referred to in util.cpp
 NutEmuInterface nutEmuInterface(keyboardMan, dispInterface);
 
 void appendLog(char *str) {
-    
-}
-
-void U8g2DrawAndSendDialog(char *message) {
     
 }
 

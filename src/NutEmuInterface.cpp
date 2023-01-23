@@ -69,5 +69,6 @@ bool NutEmuInterface::loadState(char *filename) {
 }
 
 void NutEmuInterface::updateDisplayCallback() {
+    yield();
     disp.updateDisplay(nv);
 }

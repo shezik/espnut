@@ -9,3 +9,7 @@ DispInterface::DispInterface(U8G2_DISPLAY_TYPE &u8g2_)
 void DispInterface::updateDisplay(nut_reg_t *nv) {
 
 }
+
+void DispInterface::drawAndSendDialog(char *messsage) {
+
+}

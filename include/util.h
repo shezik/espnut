@@ -29,6 +29,7 @@
 #include <Arduino.h>
 #include <Esp.h>
 #include "KeyboardMan.h"
+#include "DispInterface.h"
 
 void exit(int ret);
 void *alloc(size_t size);
@@ -37,9 +38,9 @@ void trim_trailing_whitespace(char *s);
 #define PRINTF_BUF_LEN 256
 
 // An alias of printf_log
-#define fprintf(stream, format, ...)       \
-    do                                     \
-    {                                      \
+#define fprintf(stream, format, ...)                    \
+    do                                                  \
+    {                                                   \
         printf_log(#stream ": " format, ##__VA_ARGS__); \
     } while (0)
 
@@ -55,17 +56,17 @@ void trim_trailing_whitespace(char *s);
 
 // Uses 'do while (0)' to wrap up multiple lines nicely, and limit scope of variables!
 // Print, log and show crash message, then halt
-#define fatal(ret, format, ...)                                                                                                                \
-    do                                                                                                                                         \
-    {                                                                                                                                          \
-        extern void appendLog(char *);                                                                                                         \
-        extern void U8g2DrawAndSendDialog(char *);                                                                                             \
-        char buf[PRINTF_BUF_LEN];                                                                                                              \
+#define fatal(ret, format, ...)                                                                                                               \
+    do                                                                                                                                        \
+    {                                                                                                                                         \
+        extern void appendLog(char *);                                                                                                        \
+        extern DispInterface dispInterface;                                                                                                   \
+        char buf[PRINTF_BUF_LEN];                                                                                                             \
         snprintf(buf, sizeof(buf), "\nFatal error at file %s, func %s, line %s: \n" format, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-        printf("%s", buf);                                                                                                                     \
-        appendLog(buf);                                                                                                                        \
-        U8g2DrawAndSendDialog(buf);                                                                                                            \
-        exit(ret);                                                                                                                             \
+        printf("%s", buf);                                                                                                                    \
+        appendLog(buf);                                                                                                                       \
+        dispInterface.drawAndSendDialog(buf);                                                                                                 \
+        exit(ret);                                                                                                                            \
     } while (0)
 
 /*
