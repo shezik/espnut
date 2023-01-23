@@ -7,7 +7,7 @@ class Kbd_8x5_CH450 {
     private:
         uint8_t sda;
         uint8_t scl;
-        float delayms;
+        uint8_t delayms;
         void startComm();
         void stopComm();
         bool writeByte(uint8_t data);
@@ -24,10 +24,10 @@ class Kbd_8x5_CH450 {
         /*
             @param 'sda_' I2C SDA
             @param 'scl_' I2C SCL
-            @param 'freq_' (optional) Comm frequency.
-            Default 5000, aggressively 1E6 (what the hell)
+            @param 'delayms_' (optional) Controls delays in I2C communication.
+            Default 1, aggressively 0 (still burns a little time in function calls)
         */
-        Kbd_8x5_CH450(uint8_t sda_, uint8_t scl_, unsigned int freq_ = 5000);
+        Kbd_8x5_CH450(uint8_t sda_, uint8_t scl_, uint8_t delayms_ = 1);
         bool init();
         uint8_t getKeyData();
         bool toState(uint8_t rawdata);

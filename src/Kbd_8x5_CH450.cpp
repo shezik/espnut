@@ -1,9 +1,9 @@
 #include "Kbd_8x5_CH450.h"
 
-Kbd_8x5_CH450::Kbd_8x5_CH450(uint8_t sda_, uint8_t scl_, unsigned int freq_)
+Kbd_8x5_CH450::Kbd_8x5_CH450(uint8_t sda_, uint8_t scl_, uint8_t delayms_)
     : sda(sda_)
     , scl(scl_)
-    , delayms(500 / freq_)
+    , delayms(delayms_)
 {
     // do nothing
 }
