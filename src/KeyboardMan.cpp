@@ -4,6 +4,8 @@ static void keyboardCallback(void *ptr) {
     KeyboardMan *context = static_cast<KeyboardMan *>(ptr);
 
     if (!context->busy) {
+        context->busy = true;
+
         if (context->pendingRelease) {
             context->queueKeycode(-1);  // handle simultaneous keypresses  * CH450 doesn't even support that but I'd like to implement it anyway.
                                         //                                 * Q: Does the original calculator support simultaneous keypresses?
@@ -13,6 +15,8 @@ static void keyboardCallback(void *ptr) {
             context->pendingRelease = true;
         }
         context->queueKeycode(context->keyboard.toKeycode(context->keyboard.getKeyData()));
+        
+        context->busy = false;
     }
 }
 
