@@ -11,6 +11,8 @@ class KeyboardMan : public KeyQueue {
     private:
         uint8_t interruptPin;
         bool isInterruptEnabled = false;
+        bool pendingRelease = false;
+        bool busy = false;
     public:
         Kbd_8x5_CH450 &keyboard;
         KeyboardMan(Kbd_8x5_CH450, uint8_t);
@@ -19,4 +21,5 @@ class KeyboardMan : public KeyQueue {
         void disableInterrupt();
         bool getInterruptState();
         void blockingWaitForKey();
+        void checkForRelease();
 };

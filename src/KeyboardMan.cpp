@@ -2,20 +2,15 @@
 
 static void keyboardCallback(void *ptr) {
     KeyboardMan *context = static_cast<KeyboardMan *>(ptr);
-    static bool keyIsDown = false;
 
-    if (!digitalRead(34)) {
-        if (keyIsDown) {
-            context->queueKeycode(-1);  // should we handle multiple keypresses like this? (CH450 doesn't even support that but I'd like to know anyway.)
+    if (!context->busy) {
+        if (context->pendingRelease) {
+            context->queueKeycode(-1);  // handle simultaneous keypresses  * CH450 doesn't even support that but I'd like to implement it anyway.
+                                        //                                 * Does the original calculator support simultaneous keypresses?
         } else {
-            keyIsDown = true;
+            context->pendingRelease = true;
         }
         context->queueKeycode(context->keyboard.toKeycode(context->keyboard.getKeyData()));
-    }
-
-    if (keyIsDown && !context->keyboard.toState(context->keyboard.getKeyData())) {
-        context->queueKeycode(-1);
-        keyIsDown = false;
     }
 }
 
@@ -57,6 +52,18 @@ void KeyboardMan::blockingWaitForKey() {
 	    			removeLastKeycode();
 	    		}
 	    	}
+            yield();
 	    }
     }
+}
+
+void KeyboardMan::checkForRelease() {
+    busy = true;
+
+    if (pendingRelease && !context->keyboard.toState(context->keyboard.getKeyData())) {
+        context->queueKeycode(-1);
+        pendingRelease = false;
+    }
+
+    busy = false;
 }
