@@ -22,4 +22,5 @@ class KeyboardMan : public KeyQueue {
         bool getInterruptState();
         void blockingWaitForKey();
         void checkForRelease();
+        bool chipEnterSleep(bool sendInterruptOnWake = true);
 };
