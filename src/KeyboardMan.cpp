@@ -6,7 +6,9 @@ static void keyboardCallback(void *ptr) {
     if (!context->busy) {
         if (context->pendingRelease) {
             context->queueKeycode(-1);  // handle simultaneous keypresses  * CH450 doesn't even support that but I'd like to implement it anyway.
-                                        //                                 * Does the original calculator support simultaneous keypresses?
+                                        //                                 * Q: Does the original calculator support simultaneous keypresses?
+                                        //                                   A: Yes. "The real hardware has two-key rollover", according to nonpareil-0.78/src/keyboard.c.
+                                        //                                      And we are going to implement that later. !!
         } else {
             context->pendingRelease = true;
         }
@@ -14,16 +16,15 @@ static void keyboardCallback(void *ptr) {
     }
 }
 
-KeyboardMan::KeyboardMan(Kbd_8x5_CH450 keyboard_, uint8_t interruptPin_)
+KeyboardMan::KeyboardMan(Kbd_8x5_CH450 &keyboard_, uint8_t interruptPin_)
     : keyboard(keyboard_)
     , interruptPin(interruptPin_)
 {
     // Do nothing
 }
 
-bool KeyboardMan::init() {
+void KeyboardMan::init() {
     pinMode(interruptPin, INPUT);  // CH450 keyboard interrupt (active low)
-    return keyboard.init();
 }
 
 void KeyboardMan::enableInterrupt() {
@@ -60,8 +61,8 @@ void KeyboardMan::blockingWaitForKey() {
 void KeyboardMan::checkForRelease() {
     busy = true;
 
-    if (pendingRelease && !context->keyboard.toState(context->keyboard.getKeyData())) {
-        context->queueKeycode(-1);
+    if (pendingRelease && !keyboard.toState(keyboard.getKeyData())) {
+        queueKeycode(-1);
         pendingRelease = false;
     }
 

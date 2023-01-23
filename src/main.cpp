@@ -31,6 +31,7 @@ void setup() {
     
     u8g2.setBusClock(U8G2_BUS_CLK);
     u8g2.begin();
+    keyboard.init();
     keyboardMan.init();
     keyboardMan.enableInterrupt();
 

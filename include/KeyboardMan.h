@@ -8,15 +8,15 @@
 void keyboardCallback();
 
 class KeyboardMan : public KeyQueue {
-    private:
+    protected:
         uint8_t interruptPin;
         bool isInterruptEnabled = false;
-        bool pendingRelease = false;
-        bool busy = false;
     public:
-        Kbd_8x5_CH450 &keyboard;
-        KeyboardMan(Kbd_8x5_CH450, uint8_t);
-        bool init();
+        Kbd_8x5_CH450 &keyboard;                // We are not using getter and setters
+        KeyboardMan(Kbd_8x5_CH450 &, uint8_t);  // on these variables because function
+        bool busy = false;                      // calls take time and these are being
+        bool pendingRelease = false;            // used in our time-sensivive ISR.
+        void init();
         void enableInterrupt();
         void disableInterrupt();
         bool getInterruptState();
