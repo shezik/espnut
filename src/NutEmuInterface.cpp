@@ -1,8 +1,9 @@
 #include "NutEmuInterface.h"
 
-NutEmuInterface::NutEmuInterface(KeyboardMan &kbdMan_, DispInterface &disp_)
+NutEmuInterface::NutEmuInterface(KeyboardMan &kbdMan_, DispInterface &disp_, PowerMgr &pm_)
     : kbdMan(kbdMan_)
     , disp(disp_)
+    , pm(pm_)
 {
     // Do nothing
 }
@@ -29,6 +30,10 @@ void NutEmuInterface::sim_run() {
                 yield();
             if (!nut_execute_instruction(nv))
                 break;
+        }
+
+        if (instructionCount) {  // instructionCount > 0 indicates that the processor went to bed
+            pm.enterDeepSleep();
         }
 
         lastRunTime = esp_timer_get_time();

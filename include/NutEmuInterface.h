@@ -4,6 +4,7 @@
 #include "KeyboardMan.h"
 #include "DispInterface.h"
 #include "proc_nut.h"
+#include "PowerMgr.h"
 
 // In arch.c
 #define ARCH_NUT_WORD_LENGTH 56
@@ -18,12 +19,13 @@ class NutEmuInterface {
     protected:
         KeyboardMan &kbdMan;  // Named differently to avoid collision with keyboardMan in main.cpp
         DispInterface &disp;
+        PowerMgr &pm;
         nut_reg_t *nv;
         void sim_run();
         double wordsPerMs;
         int64_t lastRunTime;
     public:
-        NutEmuInterface(KeyboardMan &, DispInterface &);
+        NutEmuInterface(KeyboardMan &, DispInterface &, PowerMgr &);
         bool newProcessor(int, int, char *);
         void tick();
         bool saveState(char *);
