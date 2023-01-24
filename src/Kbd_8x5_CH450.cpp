@@ -84,15 +84,15 @@ bool Kbd_8x5_CH450::init(bool ifSendConfig) {
     pinMode(sda, OUTPUT);  // Always change pinMode back to OUTPUT state after fiddling 
     pinMode(scl, OUTPUT);  // with it (changing its mode). We assume it is at OUTPUT state by default.
     
-    return ifSendConfig ? sendConfig(false, true) : true;
+    return ifSendConfig ? sendConfig(false) : true;
 }
 
-bool Kbd_8x5_CH450::sendConfig(bool enterSleep, bool enableKbdScan) {
+bool Kbd_8x5_CH450::sendConfig(bool enterSleep) {
 
     startComm();
     bool resultA = writeByte(0b01001000);  // magic byte to change settings
-    bool resultB = writeByte((0b00000000 | (enterSleep << 7)) | (enableKbdScan << 1));  // 0: disable sleep; 00: full intensity (useless here);
-                                                                                     // 000: separator; 1: enable keyboard scanner; 0: disable LED segments driver
+    bool resultB = writeByte(0b00000010 | (enterSleep << 7));  // 0: disable sleep; 00: full intensity (useless here);
+                                                               // 000: separator; 1: enable keyboard scanner; 0: disable LED segments driver
     stopComm();
     
     return resultA && resultB;

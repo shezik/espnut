@@ -29,7 +29,7 @@ class Kbd_8x5_CH450 {
         */
         Kbd_8x5_CH450(uint8_t sda_, uint8_t scl_, uint8_t delayms_ = 1);
         bool init(bool ifSendConfig);
-        bool sendConfig(bool enterSleep = false, bool enableKbdScan = true);
+        bool sendConfig(bool enterSleep = false);
         uint8_t getKeyData();
         bool toState(uint8_t rawdata);
         uint8_t toKeycode(uint8_t rawdata);

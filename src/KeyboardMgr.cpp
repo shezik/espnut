@@ -74,12 +74,9 @@ void KeyboardMgr::checkForRelease() {
 }
 
 // To wake up, press any key between SEG0 and SEG3 (keycode 02H+40H to 1FH+40H) or send any command to the chip. Either triggers interrupt. (?)
-// Setting sendInterruptOnWake to false disables the internal keyboard scanner so no interrupt will be sent on wake.
-// However the chip still wakes up on key press even if the keyboard scanner is turned off.
-// You can re-enable the keyboard scanner by calling Kbd_8x5_CH450::init().
-bool KeyboardMgr::chipEnterSleep(bool sendInterruptOnWake) {
+bool KeyboardMgr::chipEnterSleep() {
     busy = true;
-    bool result = keyboard.sendConfig(true, sendInterruptOnWake);
+    bool result = keyboard.sendConfig(true);
     busy = false;
     return result;
 }

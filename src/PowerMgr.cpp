@@ -20,7 +20,7 @@ bool PowerMgr::enterModemSleep() {
 
 void PowerMgr::enterDeepSleep() {
     kbdMgr.disableInterrupt();
-    kbdMgr.chipEnterSleep(true);
+    kbdMgr.chipEnterSleep();
     setDisplayPower(false);
     setBacklightPower(false);
     adc_power_release();
