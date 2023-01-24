@@ -57,6 +57,9 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize, char *filena
     lastRunTime = esp_timer_get_time() - JIFFY_MSEC;  // In ms. Could be negative but that does not matter.
     wordsPerMs = clockFrequency / (1.0E3 * ARCH_NUT_WORD_LENGTH);
 
+    if (nv) {
+        nut_free_processor(nv); nv = NULL;  // !! Check if there's any memory leak
+    }
     nv = nut_new_processor(ramSize, (void *) this);  // void *nut_reg->display is reused for storing NutEmuInterface *
     return nut_read_object_file(nv, filename);
 }

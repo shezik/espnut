@@ -20,7 +20,7 @@ class NutEmuInterface {
         KeyboardMgr &kbdMgr;  // Named differently to avoid collision with keyboardMgr in main.cpp
         DispInterface &disp;
         PowerMgr &pm;
-        nut_reg_t *nv;
+        nut_reg_t *nv = NULL;
         void sim_run();
         double wordsPerMs;
         int64_t lastRunTime;

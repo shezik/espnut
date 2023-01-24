@@ -1717,6 +1717,7 @@ nut_reg_t * nut_new_processor (int ram_size, void *display)
 }
 
 
+// Remember to set your copy of pointer to NULL after calling this!
 void nut_free_processor (nut_reg_t *nut_reg)
 {
 	////remove_chip (sim->first_chip);
