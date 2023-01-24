@@ -35,4 +35,6 @@ class NutEmuInterface {
 
         void updateDisplayCallback();
         void setDisplayPowerSave(bool);
+
+        bool checkRestoreFlag();
 };

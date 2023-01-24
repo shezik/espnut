@@ -106,3 +106,7 @@ void NutEmuInterface::setDisplayPowerSave(bool state) {
     if (state)  // Actively turn off backlight, don't actively turn on
         pm.setBacklightPower(false);
 }
+
+bool NutEmuInterface::checkRestoreFlag() {
+
+}
