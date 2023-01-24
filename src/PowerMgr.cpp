@@ -34,6 +34,8 @@ bool PowerMgr::wokenUpFromDeepSleep() {
 }
 
 void PowerMgr::init() {
+    setFrequency(FALLBACK_CPU_FREQUENCY_MHZ);  // !! Only if we had a config manager...
+
     // Deep Sleep Cleanup
     esp_sleep_wakeup_cause_t wakeupReason = esp_sleep_get_wakeup_cause();
     if (wakeupReason == ESP_SLEEP_WAKEUP_EXT0) {
@@ -83,4 +85,35 @@ void PowerMgr::setBacklightTimeout(uint16_t ms) {
 void PowerMgr::feedBacklightTimeout() {
     setBacklightPower(true);
     nextBacklightOff = esp_timer_get_time() + backlightTimeout;
+}
+
+bool PowerMgr::setFrequency(uint32_t freq) {
+    if (setCpuFrequencyMhz(freq)) {
+        frequency = freq;
+        return true;
+    } else
+        return false;
+}
+
+bool PowerMgr::reduceFrequency() {
+    bool result;
+    switch (getXtalFrequencyMhz()) {
+        case 40:
+            result = setCpuFrequencyMhz(10);
+            break;
+        case 26:
+            result = setCpuFrequencyMhz(13);
+            break;
+        case 24:
+            result = setCpuFrequencyMhz(12);
+            break;
+        default:
+            result = setCpuFrequencyMhz(80);
+            break;
+    }
+    return result;
+}
+
+bool PowerMgr::restoreFrequency() {
+    return setCpuFrequencyMhz(frequency);
 }

@@ -32,13 +32,19 @@ void NutEmuInterface::sim_run() {
                 break;
         }
 
-        // nv->awake  nv->display_chip->enable
-        //     1                 0              Display toggle?
-        //     1                 1              Normal state
-        //     0                 1              Light sleep
-        //     0                 0              Deep sleep
-        if (!nv->awake && !nv->display_chip->enable) {
-            pm.enterDeepSleep();
+        // nv->awake  displayStateStabilized
+        //     1                0             Display toggle? Maybe another type of 'light sleep'.
+        //     1                1             Normal state
+        //     0                1             Light sleep
+        //     0                0             Deep sleep, should only respond to ON key.
+        if (!nv->awake) {
+            if (displayStateStabilized) {
+                frequencyReduced = pm.reduceFrequency();
+            } else {
+                pm.enterDeepSleep();
+            }
+        } else if (frequencyReduced) {
+            pm.restoreFrequency();
         }
 
         lastRunTime = esp_timer_get_time();
@@ -80,8 +86,14 @@ bool NutEmuInterface::loadState(char *filename) {
 
 void NutEmuInterface::updateDisplayCallback() {
     yield();  // dunno if necessary
-    setDisplayPowerSave(false);
-    disp.updateDisplay(nv);
+
+    displayStateStabilized = nv->display_chip->enable;  // Now the value is the most reliable
+
+    if (displayStateStabilized) {
+        setDisplayPowerSave(false);
+        disp.updateDisplay(nv);
+    } else
+        setDisplayPowerSave(true);
 }
 
 void NutEmuInterface::setDisplayPowerSave(bool state) {

@@ -22,7 +22,6 @@ void appendLog(char *str) {
 }
 
 void setup() {
-    setCpuFrequencyMhz(getXtalFrequencyMhz() == 40 ? 40 : 80);
     Serial.begin(115200);
 
     powerMgr.init();  // Reset wakeUpInterruptPin pin mode, detect last deep sleep (ext0), power up display, 

@@ -15,6 +15,7 @@ class PowerMgr {
         uint8_t displayBacklightPin;
         uint16_t backlightTimeout;  // In ms
         int64_t nextBacklightOff;  // In ms
+        uint32_t frequency;
         bool woken = false;
     public:
         PowerMgr(KeyboardMgr &, uint8_t, uint8_t, uint8_t);
@@ -30,4 +31,7 @@ class PowerMgr {
         uint16_t getBacklightTimeout();
         void setBacklightTimeout(uint16_t);
         void feedBacklightTimeout();
+        bool setFrequency(uint32_t);
+        bool reduceFrequency();
+        bool restoreFrequency();
 };

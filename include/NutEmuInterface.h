@@ -24,6 +24,8 @@ class NutEmuInterface {
         void sim_run();
         double wordsPerMs;
         int64_t lastRunTime;
+        bool displayStateStabilized = false;
+        bool frequencyReduced = false;
     public:
         NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
         bool newProcessor(int, int, char *);

@@ -22,3 +22,4 @@
 #define DISPLAY_POWER_CONTROL 32  // !! Arbitrary value
 #define DISPLAY_BACKLIGHT_CONTROL 33  // !! Arbitrary value
 #define FALLBACK_BACKLIGHT_TIMEOUT 10000  // Fallback value, 10 seconds
+#define FALLBACK_CPU_FREQUENCY_MHZ 240
