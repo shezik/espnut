@@ -208,3 +208,4 @@ bool nut_read_object_file (nut_reg_t *nut_reg, const char *fn);
 void nut_press_key (nut_reg_t *nut_reg, int keycode);
 void nut_release_key (nut_reg_t *nut_reg);
 bool nut_execute_instruction (nut_reg_t *nut_reg);
+void nut_free_processor (nut_reg_t *nut_reg);

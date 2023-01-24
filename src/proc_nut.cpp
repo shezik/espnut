@@ -167,7 +167,7 @@ bool nut_write_rom (nut_reg_t *nut_reg,
 
 
 static uint8_t nut_free_rom(nut_reg_t *nut_reg) {
-	uint8_t count = 0;
+	uint16_t count = 0;
 	
 	for (uint8_t page = 0; page < MAX_PAGE; page++)
 		for (uint8_t bank = 0; bank < MAX_BANK; bank++)
