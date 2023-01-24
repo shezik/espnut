@@ -12,4 +12,5 @@ class DispInterface {
         DispInterface(U8G2_DISPLAY_TYPE &);
         void updateDisplay(nut_reg_t *);
         void drawAndSendDialog(char *);
+        void setU8g2PowerSave(uint8_t);
 };

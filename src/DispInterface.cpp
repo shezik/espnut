@@ -13,3 +13,7 @@ void DispInterface::updateDisplay(nut_reg_t *nv) {
 void DispInterface::drawAndSendDialog(char *messsage) {
 
 }
+
+void DispInterface::setU8g2PowerSave(uint8_t state) {
+    u8g2.setPowerSave(state);
+}
