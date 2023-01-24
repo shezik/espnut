@@ -40,6 +40,8 @@ void NutEmuInterface::sim_run() {
         if (!nv->awake) {
             if (displayStateStabilized) {
                 frequencyReduced = pm.reduceFrequency();
+                // CH450 should not sleep since only a few dedicated rows of keys are able to bring it up
+                // Polling will work but why the hassle?
             } else {
                 pm.enterDeepSleep();
             }
@@ -87,13 +89,13 @@ bool NutEmuInterface::loadState(char *filename) {
 void NutEmuInterface::updateDisplayCallback() {
     yield();  // dunno if necessary
 
-    displayStateStabilized = nv->display_chip->enable;  // Now the value is the most reliable
+    displayStateStabilized = nv->display_chip->enable;  // The value is the most reliable NOW
 
     if (displayStateStabilized) {
         setDisplayPowerSave(false);
         disp.updateDisplay(nv);
     } else
-        setDisplayPowerSave(true);
+        setDisplayPowerSave(true);  // I believe this counts as updating display rather than managing power ;)
 }
 
 void NutEmuInterface::setDisplayPowerSave(bool state) {

@@ -25,7 +25,7 @@ void setup() {
     Serial.begin(115200);
 
     powerMgr.init();  // Reset wakeUpInterruptPin pin mode, detect last deep sleep (ext0), power up display, 
-                      // init and turn on backlight
+                      // init and turn on backlight, set CPU frequency
     powerMgr.enterModemSleep();
     
     u8g2.setBusClock(U8G2_BUS_CLK);
