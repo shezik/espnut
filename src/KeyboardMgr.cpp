@@ -1,6 +1,7 @@
 #include "KeyboardMgr.h"
 
 static void keyboardCallback(void *ptr) {
+    static uint8_t keyData;
     KeyboardMgr *context = static_cast<KeyboardMgr *>(ptr);
 
     if (!context->busy) {
@@ -11,11 +12,17 @@ static void keyboardCallback(void *ptr) {
                                         //                                 * Q: Does the original calculator support simultaneous keypresses?
                                         //                                   A: Yes. "The real hardware has two-key rollover", according to nonpareil-0.78/src/keyboard.c.
                                         //                                      ~And we are going to implement that later. !!~  Actually that's not possible with CH450 if you read the datasheet. :(
+        }
+
+        keyData = context->keyboard.getKeyData();
+        context->queueKeycode(context->keyboard.toKeycode(keyData));
+        if (!context->keyboard.toState(keyData)) {
+            context->queueKeycode(-1);
+            context->pendingRelease = false;
         } else {
             context->pendingRelease = true;
         }
-        context->queueKeycode(context->keyboard.toKeycode(context->keyboard.getKeyData()));
-        
+
         context->busy = false;
     }
 }
