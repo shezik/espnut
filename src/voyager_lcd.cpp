@@ -141,7 +141,7 @@ static void voyager_display_update(nut_reg_t *nut_reg, voyager_display_reg_t *di
 	{
 		nut_reg->display_segments[digit] = 0;
 		if (display->enable &&
-			((!display->blink) || (display->blink_state)))
+			((!display->blink) || (display->blink_state)))  // !! Important conditions
 		{
 			for (segment = 0; segment <= 9; segment++)
 			{
@@ -179,7 +179,7 @@ void voyager_display_event_fn(nut_reg_t *nut_reg, event_t event)
 	case event_reset:
 		voyager_display_reset(display);
 		break;
-	case event_cycle:
+	case event_cycle:  // This is how the display gets updated
 		if (display->count == 0)
 		{
 			voyager_display_update(nut_reg, display);
@@ -206,8 +206,10 @@ void voyager_display_event_fn(nut_reg_t *nut_reg, event_t event)
 #endif /* AUTO_POWER_OFF */
 		}
 		else
+		{
 			/* going to deep sleep */
 			nut_reg->carry = 1;
+		}
 		break;
 	case event_wake:
 	case event_restore_completed:

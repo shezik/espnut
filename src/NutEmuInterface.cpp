@@ -33,6 +33,11 @@ void NutEmuInterface::sim_run() {
         }
 
         if (instructionCount) {  // instructionCount > 0 indicates that the processor went to bed
+        // nv->awake  nv->display_chip->enable
+        //     1                 0              Display toggle?
+        //     1                 1              Normal state
+        //     0                 1              Light sleep
+        //     0                 0              Deep sleep
             pm.enterDeepSleep();
         }
 
@@ -75,5 +80,6 @@ bool NutEmuInterface::loadState(char *filename) {
 
 void NutEmuInterface::updateDisplayCallback() {
     yield();
+    yield();  // dunno if necessary
     disp.updateDisplay(nv);
 }

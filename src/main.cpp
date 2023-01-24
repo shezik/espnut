@@ -1,14 +1,13 @@
 #include <Arduino.h>
 #include <LittleFS.h>
-#include <WiFi.h>
 #include "util.h"
-#include "Kbd_8x5_CH450.h"
-#include "KeyboardMgr.h"
-#include "DispInterface.h"
-#include "NutEmuInterface.h"
-#include "PowerMgr.h"
 #include "U8g2lib.h"
 #include "GEM.h"
+#include "DispInterface.h"
+#include "Kbd_8x5_CH450.h"
+#include "KeyboardMgr.h"
+#include "PowerMgr.h"
+#include "NutEmuInterface.h"
 #include "Configuration.h"
 
 U8G2_DISPLAY_TYPE u8g2(U8G2_R2, VSPI_CLK, VSPI_DATA, VSPI_CS, VSPI_DC, U8G2_RESET_PIN);
@@ -34,7 +33,7 @@ void setup() {
     u8g2.begin();
     keyboard.init();  // Set CH450_SDA/SCL pin mode & init CH450
     keyboardMgr.init();  // Set keyboard interrupt pin mode
-    keyboardMgr.enableInterrupt();  // Starts watching for key presses
+    keyboardMgr.enableInterrupt();  // Start watching for key presses
 
     if (!LittleFS.begin(/*FORMAT_LITTLEFS_IF_FAILED*/))
         fatal(1, "Failed to init LittleFS.\n");

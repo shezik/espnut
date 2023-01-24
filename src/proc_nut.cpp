@@ -1245,13 +1245,13 @@ static void nut_init_ops (nut_reg_t *nut_reg)
 	nut_reg->op_fcn [0x220] = op_keys_to_c;
 	nut_reg->op_fcn [0x260] = op_set_hex;
 	nut_reg->op_fcn [0x2a0] = op_set_dec;
-	// 0x2e0 = display off (Nut, Voyager)
-	// 0x320 = display toggle (Nut, Voyager)
+	// 0x2e0 = display off (Nut, Voyager)  * Defined in voyager_lcd.cpp
+	// 0x320 = display toggle (Nut, Voyager)  * Defined in voyager_lcd.cpp
 	nut_reg->op_fcn [0x360] = op_return_if_carry;
 	nut_reg->op_fcn [0x3a0] = op_return_if_no_carry;
 	nut_reg->op_fcn [0x3e0] = op_return;
 	
-	// 0x030 = display blink (Voyager)
+	// 0x030 = display blink (Voyager)  * Defined in voyager_lcd.cpp
 	// 0x030 = ROMBLK (Hepax)
 	nut_reg->op_fcn [0x070] = op_c_to_n;
 	nut_reg->op_fcn [0x0b0] = op_n_to_c;
@@ -1405,7 +1405,7 @@ bool nut_execute_instruction (nut_reg_t *nut_reg)
 #endif
     }
 	while (nut_reg->inst_state != norm);
-	return true;
+	return true;  // nut_reg->awake could be false here, i.e. the last cycle set it to false?
 }
 
 
@@ -1481,8 +1481,9 @@ void nut_press_key (nut_reg_t *nut_reg, int keycode)
 	printf_log ("key %o press, addr %04x, state %s\n", keycode, nut_reg->prev_pc, kbd_state_name [nut_reg->kb_state]);
 #endif
 	
-#if 0
-	if ((! nut_reg->awake) && (! nut_reg->display_enable) && (keycode != 0x18))
+#if 1  // !! Interesting. This confirms that deep sleep is when the processor and the display are both turned off.
+	   //    Originally 0.
+	if ((! nut_reg->awake) && (! nut_reg->/*display_enable*/display_chip->enable) && (keycode != 0x18))  // 0x18 = 24, ON key
 		return;
 #endif
 	nut_reg->key_buf = keycode;
