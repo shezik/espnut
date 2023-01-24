@@ -37,4 +37,5 @@ class NutEmuInterface {
         void setDisplayPowerSave(bool);
 
         bool checkRestoreFlag();
+        void resetProcessor(bool);
 };

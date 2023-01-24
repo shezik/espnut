@@ -209,3 +209,4 @@ void nut_press_key (nut_reg_t *nut_reg, int keycode);
 void nut_release_key (nut_reg_t *nut_reg);
 bool nut_execute_instruction (nut_reg_t *nut_reg);
 void nut_free_processor (nut_reg_t *nut_reg);
+void do_event(nut_reg_t *nut_reg, event_t event);  // Maybe the other identical 'do_event_int' stands for 'internal do event'...

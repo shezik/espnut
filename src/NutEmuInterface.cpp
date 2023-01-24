@@ -78,6 +78,7 @@ void NutEmuInterface::tick() {
         }
     }
 
+    // !! check for run flag here
     sim_run();
 }
 
@@ -109,4 +110,10 @@ void NutEmuInterface::setDisplayPowerSave(bool state) {
 
 bool NutEmuInterface::checkRestoreFlag() {
 
+}
+
+void NutEmuInterface::resetProcessor(bool obdurate) {
+    do_event(nv, event_reset);
+    if (obdurate)
+        do_event(nv, event_clear_memory);
 }
