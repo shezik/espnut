@@ -30,5 +30,7 @@ class NutEmuInterface {
         void tick();
         bool saveState(char *);
         bool loadState(char *);
+
         void updateDisplayCallback();
+        void setDisplayPowerSave(bool);
 };

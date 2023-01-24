@@ -79,7 +79,13 @@ bool NutEmuInterface::loadState(char *filename) {
 }
 
 void NutEmuInterface::updateDisplayCallback() {
-    yield();
     yield();  // dunno if necessary
+    setDisplayPowerSave(false);
     disp.updateDisplay(nv);
+}
+
+void NutEmuInterface::setDisplayPowerSave(bool state) {
+    disp.setU8g2PowerSave(state);
+    if (state)  // Actively turn off backlight, don't actively turn on
+        pm.setBacklightPower(false);
 }
