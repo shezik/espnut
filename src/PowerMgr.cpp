@@ -1,9 +1,10 @@
 #include "PowerMgr.h"
 
-PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t displayPowerPin_)
+PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t displayPowerPin_, uint8_t displayBacklightPin_)
     : kbdMgr(kbdMgr_)
     , wakeUpInterruptPin(wakeUpInterruptPin_)
     , displayPowerPin(displayPowerPin_)
+    , displayBacklightPin(displayBacklightPin_)
 {
     // Do nothing
 }
@@ -20,6 +21,8 @@ bool PowerMgr::enterModemSleep() {
 void PowerMgr::enterDeepSleep() {
     kbdMgr.disableInterrupt();
     kbdMgr.chipEnterSleep(true);
+    setDisplayPower(false);
+    setBacklightPower(false);
     adc_power_release();
     rtc_gpio_pullup_en((gpio_num_t) wakeUpInterruptPin);
     esp_sleep_enable_ext0_wakeup((gpio_num_t) wakeUpInterruptPin, 0);
@@ -39,7 +42,15 @@ void PowerMgr::init() {
     }
 
     pinMode(displayPowerPin, OUTPUT);
+    pinMode(displayBacklightPin, OUTPUT);
     setDisplayPower(true);
+    setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT);  // !! Should be removed after implementing ConfigMgr
+    feedBacklightTimeout();
+}
+
+void PowerMgr::tick() {
+    if (getBacklightPower() && esp_timer_get_time() >= nextBacklightOff)
+        setBacklightPower(false);
 }
 
 bool PowerMgr::getDisplayPower() {
@@ -48,4 +59,28 @@ bool PowerMgr::getDisplayPower() {
 
 void PowerMgr::setDisplayPower(bool state) {
     digitalWrite(displayPowerPin, state ? HIGH : LOW);
+}
+
+bool PowerMgr::getBacklightPower() {
+    return digitalRead(displayBacklightPin);
+}
+
+void PowerMgr::setBacklightPower(bool state) {
+    digitalWrite(displayBacklightPin, state ? HIGH : LOW);
+}
+
+uint16_t PowerMgr::getBacklightTimeout() {
+    return backlightTimeout;
+}
+
+void PowerMgr::setBacklightTimeout(uint16_t ms) {
+    nextBacklightOff += (ms - backlightTimeout);  // Modify next backlight off time without feeding. No worries about sign.
+    backlightTimeout = ms;
+}
+
+// Normally you turn on backlight with this function
+// Of course you can manually override with setBacklightPower(true) but why?
+void PowerMgr::feedBacklightTimeout() {
+    setBacklightPower(true);
+    nextBacklightOff = esp_timer_get_time() + backlightTimeout;
 }

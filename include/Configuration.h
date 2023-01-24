@@ -17,4 +17,8 @@
 #define VSPI_CS 5
 #define U8G2_RESET_PIN U8X8_PIN_NONE
 #define U8G2_BUS_CLK 4000000  // Visit https://github.com/olikraus/u8g2/wiki/u8g2reference#setbusclock
+
+// PowerMgr
 #define DISPLAY_POWER_CONTROL 32  // !! Arbitrary value
+#define DISPLAY_BACKLIGHT_CONTROL 33  // !! Arbitrary value
+#define FALLBACK_BACKLIGHT_TIMEOUT 10000  // Fallback value, 10 seconds
