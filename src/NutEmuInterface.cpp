@@ -50,7 +50,7 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize, char *filena
     wordsPerMs = clockFrequency / (1.0E3 * ARCH_NUT_WORD_LENGTH);
 
     nv = nut_new_processor(ramSize, (void *) this);  // void *nut_reg->display is reused for storing NutEmuInterface *
-    nut_read_object_file(nv, filename);
+    return nut_read_object_file(nv, filename);
 }
 
 void NutEmuInterface::tick() {
