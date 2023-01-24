@@ -45,3 +45,4 @@ typedef struct
 
 
 void voyager_display_init (struct nut_reg_t *nut_reg);
+void voyager_display_deinit(struct nut_reg_t *nut_reg);

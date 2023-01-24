@@ -166,6 +166,21 @@ bool nut_write_rom (nut_reg_t *nut_reg,
 }
 
 
+static uint8_t nut_free_rom(nut_reg_t *nut_reg) {
+	uint8_t count = 0;
+	
+	for (uint8_t page = 0; page < MAX_PAGE; page++)
+		for (uint8_t bank = 0; bank < MAX_BANK; bank++)
+			if (nut_reg->rom[page][bank]) {
+				free(nut_reg->rom[page][bank]);
+				nut_reg->rom[page][bank] = NULL;  // Boo!
+				count++;
+			}
+	
+	return count;
+}
+
+
 static inline uint8_t arithmetic_base (nut_reg_t *nut_reg)
 {
 	return nut_reg->decimal ? 10 : 16;
@@ -1624,6 +1639,11 @@ static void nut_new_pf_addr_space (nut_reg_t *nut_reg, int max_pf)
 }
 
 
+static void nut_free_pf_addr_space(nut_reg_t *nut_reg) {
+	free(nut_reg->pf_exists); nut_reg->pf_exists = NULL;
+}
+
+
 static void nut_new_ram_addr_space (nut_reg_t *nut_reg, int max_ram)
 {	
 	nut_reg->max_ram = max_ram;
@@ -1631,6 +1651,14 @@ static void nut_new_ram_addr_space (nut_reg_t *nut_reg, int max_ram)
 	nut_reg->ram          = (reg_t *)			alloc (max_ram * sizeof (reg_t));
 	nut_reg->ram_read_fn  = (ram_access_fn_t **)alloc (max_ram * sizeof (ram_access_fn_t *));
 	nut_reg->ram_write_fn = (ram_access_fn_t **)alloc (max_ram * sizeof (ram_access_fn_t *));
+}
+
+
+static void nut_free_ram_addr_space(nut_reg_t *nut_reg) {
+	free(nut_reg->ram_exists);   nut_reg->ram_exists = NULL;
+	free(nut_reg->ram);          nut_reg->ram = NULL;
+	free(nut_reg->ram_read_fn);  nut_reg->ram_read_fn = NULL;
+	free(nut_reg->ram_write_fn); nut_reg->ram_write_fn = NULL;
 }
 
 
@@ -1692,6 +1720,11 @@ nut_reg_t * nut_new_processor (int ram_size, void *display)
 void nut_free_processor (nut_reg_t *nut_reg)
 {
 	////remove_chip (sim->first_chip);
+	nut_free_rom(nut_reg);
+	nut_free_pf_addr_space(nut_reg);
+	nut_free_ram_addr_space(nut_reg);
+	voyager_display_deinit(nut_reg);
+	free(nut_reg);
 }
 
 

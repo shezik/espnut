@@ -234,3 +234,7 @@ void voyager_display_init(nut_reg_t *nut_reg)
 
 	nut_reg->display_chip = display;
 }
+
+void voyager_display_deinit(nut_reg_t *nut_reg) {
+	free(nut_reg->display_chip); nut_reg->display_chip = NULL;
+}
