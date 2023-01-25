@@ -87,3 +87,32 @@ bool KeyboardMgr::chipEnterSleep() {
     busy = false;
     return result;
 }
+
+void KeyboardMgr::skipReleaseCheck() {
+    // There's no need to tackle with ISR to get this feature working.
+    // The ISR either returns with one keycode (key wasn't released immediately) or with the keycode and a '-1' (which can be cleared with clear()).
+    // We just need to make sure after clearing the queue, checkForRelease() doesn't add a '-1' to it later.
+    // Maybe call clear() after this?
+    pendingRelease = false;
+}
+
+int KeyboardMgr::getPositiveKeycode() {
+    busy = true;
+    int keycode;
+
+    while (1) {
+        if (count()) {
+            keycode = getLastKeycode();
+            removeLastKeycode();
+            if (keycode > 0) {
+                break;
+            }  // else continue;
+        } else {
+            keycode = -1;
+            break;
+        }
+    }
+
+    busy = false;
+    return keycode;
+}

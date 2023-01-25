@@ -23,4 +23,6 @@ class KeyboardMgr : public KeyQueue {
         void blockingWaitForKey();
         void checkForRelease();
         bool chipEnterSleep();
+        void skipReleaseCheck();
+        int getPositiveKeycode();
 };
