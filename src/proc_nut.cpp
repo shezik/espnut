@@ -1626,8 +1626,10 @@ static void nut_new_rom_addr_space (nut_reg_t *nut_reg,
 									int max_bank,
 									int max_page,
 									int page_size)
-{
-	;
+{	
+	for (uint8_t page = 0; page < max_page; page++)
+		for (uint8_t bank = 0; bank < max_bank; bank++)
+				nut_reg->rom[page][bank] = NULL;
 }
 
 

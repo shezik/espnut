@@ -153,7 +153,7 @@ typedef struct nut_reg_t
 	int bank_group [MAX_PAGE];  // defines which pages bank switch together
 	uint8_t active_bank [MAX_PAGE];  // bank number from 0..MAX_BANK-1
 	//bool rom_writeable [MAX_PAGE][MAX_BANK];
-	rom_word_t *rom [MAX_PAGE][MAX_BANK] = {NULL};  // HOW COULD YOU NOT INITIALIZE
+	rom_word_t *rom [MAX_PAGE][MAX_BANK];  // Initializes in nut_new_rom_addr_space()  // Constant (if you load the same rom)
 	//bool *rom_breakpoint [MAX_PAGE][MAX_BANK];
 	// source_code_line_info_t *source_code_line_info [MAX_PAGE][MAX_BANK];
 	
