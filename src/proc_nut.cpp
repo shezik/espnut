@@ -1710,6 +1710,7 @@ nut_reg_t * nut_new_processor (int ram_size, void *display)
 	do_event_int (nut_reg, event_reset);
 	//voyager_display_event_fn (nut_reg, event_reset);
 	
+	// Are these two ever used?
 	nut_reg->max_rom  = MAX_PAGE * N_PAGE_SIZE;
 	nut_reg->max_bank = MAX_BANK;
 	
