@@ -6,7 +6,18 @@ PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t di
     , displayPowerPin(displayPowerPin_)
     , displayBacklightPin(displayBacklightPin_)
 {
-    // Do nothing
+    pmContext = this;
+}
+
+PowerMgr::~PowerMgr() {
+    pmContext = nullptr;
+}
+
+void keyPressCallback() {
+    if (pmContext) {
+        pmContext->feedBacklightTimeout();
+        pmContext->feedDeepSleepTimeout();
+    }
 }
 
 bool PowerMgr::enterModemSleep() {
@@ -48,11 +59,20 @@ void PowerMgr::init() {
     setDisplayPower(true);
     setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT);  // !! Should be removed after implementing ConfigMgr
     feedBacklightTimeout();
+    feedDeepSleepTimeout();
 }
 
 void PowerMgr::tick() {
-    if (getBacklightPower() && esp_timer_get_time() >= nextBacklightOff)
+    int64_t timeNow = esp_timer_get_time();
+
+    if (getBacklightPower() && timeNow >= nextBacklightOff)
         setBacklightPower(false);
+    
+    if (timeNow >= nextDeepSleep) {
+        if (deepSleepCallback)
+            deepSleepCallback();
+        enterDeepSleep();
+    }
 }
 
 bool PowerMgr::getDisplayPower() {
@@ -87,6 +107,19 @@ void PowerMgr::feedBacklightTimeout() {
     nextBacklightOff = esp_timer_get_time() + backlightTimeout;
 }
 
+uint32_t PowerMgr::getDeepSleepTimeout() {
+    return deepSleepTimeout;
+}
+
+void PowerMgr::setDeepSleepTimeout(uint32_t ms) {
+    nextDeepSleep += (ms - deepSleepTimeout);
+    deepSleepTimeout = ms;
+}
+
+void PowerMgr::feedDeepSleepTimeout() {
+    nextDeepSleep = esp_timer_get_time() + deepSleepTimeout;
+}
+
 bool PowerMgr::setFrequency(uint32_t freq) {
     if (setCpuFrequencyMhz(freq)) {
         frequency = freq;
@@ -116,4 +149,8 @@ bool PowerMgr::reduceFrequency() {
 
 bool PowerMgr::restoreFrequency() {
     return setCpuFrequencyMhz(frequency);
+}
+
+void PowerMgr::registerDeepSleepCallback(void (*callback)()) {
+    deepSleepCallback = callback;
 }

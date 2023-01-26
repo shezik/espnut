@@ -7,6 +7,10 @@
 #include <driver/adc.h>
 #include "Configuration.h"
 
+class PowerMgr;
+static PowerMgr *pmContext = nullptr;
+static void keyPressCallback();
+
 class PowerMgr {
     protected:
         KeyboardMgr &kbdMgr;
@@ -14,11 +18,15 @@ class PowerMgr {
         uint8_t displayPowerPin;
         uint8_t displayBacklightPin;
         uint16_t backlightTimeout;  // In ms
-        int64_t nextBacklightOff;  // In ms
+        int64_t nextBacklightOff;   // In ms
+        uint32_t deepSleepTimeout;   // In ms
+        int64_t nextDeepSleep;       // In ms
         uint32_t frequency;
         bool woken = false;
+        void (*deepSleepCallback)() = nullptr;
     public:
         PowerMgr(KeyboardMgr &, uint8_t, uint8_t, uint8_t);
+        ~PowerMgr();
         bool enterModemSleep();
         void enterDeepSleep();
         bool wokenUpFromDeepSleep();
@@ -31,7 +39,11 @@ class PowerMgr {
         uint16_t getBacklightTimeout();
         void setBacklightTimeout(uint16_t);
         void feedBacklightTimeout();
+        uint32_t getDeepSleepTimeout();
+        void setDeepSleepTimeout(uint32_t);
+        void feedDeepSleepTimeout();
         bool setFrequency(uint32_t);
         bool reduceFrequency();
         bool restoreFrequency();
+        void registerDeepSleepCallback(void (*)());
 };
