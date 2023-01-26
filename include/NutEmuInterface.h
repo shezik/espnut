@@ -28,6 +28,7 @@ class NutEmuInterface {
         bool frequencyReduced = false;
     public:
         NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
+        ~NutEmuInterface();
         bool newProcessor(int, int, char *);
         void tick();
         bool saveState(char *);
@@ -38,4 +39,6 @@ class NutEmuInterface {
 
         bool checkRestoreFlag();
         void resetProcessor(bool);
+
+        void deinit();
 };

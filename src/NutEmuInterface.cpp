@@ -8,6 +8,10 @@ NutEmuInterface::NutEmuInterface(KeyboardMgr &kbdMgr_, DispInterface &disp_, Pow
     // Do nothing
 }
 
+NutEmuInterface::~NutEmuInterface() {
+    deinit();
+}
+
 void NutEmuInterface::sim_run() {
     // Does not need to persist value between calls.
     // Static'd simply to save time (how long?)
@@ -57,32 +61,42 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize, char *filena
     lastRunTime = esp_timer_get_time() - JIFFY_MSEC;  // In ms. Could be negative but that does not matter.
     wordsPerMs = clockFrequency / (1.0E3 * ARCH_NUT_WORD_LENGTH);
 
-    if (nv) {
-        nut_free_processor(nv); nv = NULL;  // !! Check if there's any memory leak
-    }
+    deinit();
     nv = nut_new_processor(ramSize, (void *) this);  // void *nut_reg->display is reused for storing NutEmuInterface *
     return nut_read_object_file(nv, filename);
 }
 
+void NutEmuInterface::deinit() {
+    if (nv) {
+        nut_free_processor(nv); nv = nullptr;  // !! Check if there's any memory leak
+    }
+}
+
 void NutEmuInterface::tick() {
     static int keycode;
-    if (kbdMgr.count()) {
-        kbdMgr.busy = true;
-        keycode = kbdMgr.getLastKeycode();
-        kbdMgr.removeLastKeycode();
-        kbdMgr.busy = false;
-        if (keycode < 0) {
-            nut_release_key(nv);
-        } else {
-            nut_press_key(nv, keycode);
-        }
-    }
 
-    // !! check for run flag here
-    sim_run();
+    if (nv) {
+        if (kbdMgr.count()) {
+            kbdMgr.busy = true;
+            keycode = kbdMgr.getLastKeycode();
+            kbdMgr.removeLastKeycode();
+            kbdMgr.busy = false;
+            if (keycode < 0) {
+                nut_release_key(nv);
+            } else {
+                nut_press_key(nv, keycode);
+            }
+        }
+
+        // !! check for run flag here
+        sim_run();
+    }
 }
 
 bool NutEmuInterface::saveState(char *filename) {
+    if (!nv)
+        return false;
+
     File file = LittleFS.open(filename, "w");
     if (!file)
         return false;
@@ -127,6 +141,9 @@ bool NutEmuInterface::saveState(char *filename) {
 }
 
 bool NutEmuInterface::loadState(char *filename) {
+    if (!nv)
+        return false;
+
     File file = LittleFS.open(filename, "r");
     if (!file)
         return false;
@@ -193,7 +210,9 @@ bool NutEmuInterface::checkRestoreFlag() {
 }
 
 void NutEmuInterface::resetProcessor(bool obdurate) {
-    do_event(nv, event_reset);
-    if (obdurate)
-        do_event(nv, event_clear_memory);
+    if (nv) {
+        do_event(nv, event_reset);
+        if (obdurate)
+            do_event(nv, event_clear_memory);
+    }
 }
