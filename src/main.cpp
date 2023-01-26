@@ -42,6 +42,6 @@ void setup() {
 }
 
 void loop() {
-    keyboardMgr.checkForRelease();
+    keyboardMgr.tick();
     powerMgr.tick();  // Check for backlight timeout
 }

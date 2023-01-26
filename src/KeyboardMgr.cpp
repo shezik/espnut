@@ -1,27 +1,12 @@
 #include "KeyboardMgr.h"
 
-static void keyboardCallback(void *ptr) {
-    static uint8_t keyData;
+void keyboardCallback(void *ptr) {
     KeyboardMgr *context = static_cast<KeyboardMgr *>(ptr);
 
     if (!context->busy) {
         context->busy = true;
 
-        if (context->pendingRelease) {
-            context->queueKeycode(-1);  // handle simultaneous keypresses  * CH450 doesn't even support that but I'd like to implement it anyway.
-                                        //                                 * Q: Does the original calculator support simultaneous keypresses?
-                                        //                                   A: Yes. "The real hardware has two-key rollover", according to nonpareil-0.78/src/keyboard.c.
-                                        //                                      ~And we are going to implement that later. !!~  Actually that's not possible with CH450 if you read the datasheet. :(
-        }
-
-        keyData = context->keyboard.getKeyData();
-        context->queueKeycode(context->keyboard.toKeycode(keyData));
-        if (!context->keyboard.toState(keyData)) {
-            context->queueKeycode(-1);
-            context->pendingRelease = false;
-        } else {
-            context->pendingRelease = true;
-        }
+        context->handleKeyPress();
 
         context->busy = false;
     }
@@ -53,12 +38,19 @@ bool KeyboardMgr::getInterruptState() {
 }
 
 void KeyboardMgr::blockingWaitForKey() {
+    bool prevBusy = busy;
+    busy = true;
+
     if (isInterruptEnabled) {
 	    clear();
 	    while (1) {
-	    	if (count()) {  // Keys are registered via interrupts
+            if (!digitalRead(interruptPin))
+                    handleKeyPress();  // We poll instead of using interrupts
+
+	    	if (count()) {
 	    		if (getLastKeycode() != -1) {
                     clear();
+                    busy = prevBusy;
 	    			return;
 	    		} else {
 	    			removeLastKeycode();
@@ -69,15 +61,27 @@ void KeyboardMgr::blockingWaitForKey() {
     }
 }
 
-void KeyboardMgr::checkForRelease() {
+void KeyboardMgr::tick() {
     busy = true;
 
-    if (pendingRelease && !keyboard.toState(keyboard.getKeyData())) {
-        queueKeycode(-1);
-        pendingRelease = false;
+    if (isInterruptEnabled && !digitalRead(interruptPin)) {
+        // This happens because ISR executed while busy == true (I guess.)
+        // tick() should be called frequently.
+        handleKeyPress();
+    } else {
+        checkForRelease();
     }
 
     busy = false;
+}
+
+void KeyboardMgr::checkForRelease() {
+    if (pendingRelease && !keyboard.toState(keyboard.getKeyData())) {
+        queueKeycode(-1);
+        pendingRelease = false;
+        if (keyPressCallback)
+            keyPressCallback();
+    }
 }
 
 // To wake up, press any key between SEG0 and SEG3 (keycode 02H+40H to 1FH+40H) or send any command to the chip. Either triggers interrupt. (?)
@@ -115,4 +119,31 @@ int KeyboardMgr::getPositiveKeycode() {
 
     busy = false;
     return keycode;
+}
+
+void KeyboardMgr::handleKeyPress() {
+    static uint8_t keyData;
+
+    if (pendingRelease) {
+        queueKeycode(-1);  // handle simultaneous keypresses  * CH450 doesn't even support that but I'd like to implement it anyway.
+                           //                                 * Q: Does the original calculator support simultaneous keypresses?
+                           //                                   A: Yes. "The real hardware has two-key rollover", according to nonpareil-0.78/src/keyboard.c.
+                           //                                      ~And we are going to implement that later. !!~  Actually that's not possible with CH450 if you read the datasheet. :(
+    }
+
+    keyData = keyboard.getKeyData();
+    queueKeycode(keyboard.toKeycode(keyData));
+    if (!keyboard.toState(keyData)) {
+        queueKeycode(-1);
+        pendingRelease = false;
+    } else {
+        pendingRelease = true;
+    }
+
+    if (keyPressCallback)
+        keyPressCallback();
+}
+
+void KeyboardMgr::registerKeyPressCallback(void (*callback)()) {
+    keyPressCallback = callback;
 }
