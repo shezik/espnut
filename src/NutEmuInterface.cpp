@@ -69,6 +69,8 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize, char *filena
     wordsPerMs = clockFrequency / (1.0E3 * ARCH_NUT_WORD_LENGTH);
 
     deinit();
+    strncpy(romFilename, filename, sizeof(romFilename) - 1);
+    romFilename[sizeof(romFilename)] = '\0';
     nv = nut_new_processor(ramSize, (void *) this);  // void *nut_reg->display is reused for storing NutEmuInterface *
     pm.registerDeepSleepCallback(deepSleepCallback);
     return nut_read_object_file(nv, filename);
@@ -79,6 +81,7 @@ void NutEmuInterface::deinit() {
         nut_free_processor(nv); nv = nullptr;  // !! Check if there's any memory leak
     }
     pm.registerDeepSleepCallback(nullptr);
+    romFilename[0] = '\0';
 }
 
 void NutEmuInterface::tick() {
@@ -214,8 +217,20 @@ void NutEmuInterface::setDisplayPowerSave(bool state) {
         pm.setBacklightPower(false);
 }
 
-bool NutEmuInterface::checkRestoreFlag() {
+char *NutEmuInterface::checkRestoreFlag() {
+    static char buf[32];
+    unsigned int size;
 
+    File flag = LittleFS.open(RESTORE_FLAG_FILENAME, "r");
+    if (!flag)
+        return nullptr;
+    
+    size = flag.readBytesUntil('\n', buf, sizeof(buf) - 1);
+    buf[size] = '\0';
+    
+    flag.close();
+    LittleFS.remove(RESTORE_FLAG_FILENAME);
+    return buf;
 }
 
 void NutEmuInterface::resetProcessor(bool obdurate) {
@@ -227,5 +242,11 @@ void NutEmuInterface::resetProcessor(bool obdurate) {
 }
 
 void NutEmuInterface::deepSleepPrepare() {
-    // !! saveState and flag and whatnot
+    if (nv && strlen(romFilename)) {
+        saveState(RESTORE_STATE_FILENAME);
+        File flag = LittleFS.open(RESTORE_FLAG_FILENAME, "w");
+        flag.write((uint8_t *) romFilename, strlen(romFilename));
+        flag.write('\n');
+        flag.close();
+    }
 }

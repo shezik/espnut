@@ -37,8 +37,7 @@ void setup() {
     if (!LittleFS.begin(/*FORMAT_LITTLEFS_IF_FAILED*/))
         fatal(1, "Failed to init LittleFS.\n");
 
-    nutEmuInterface.checkRestoreFlag();  // !! The flag is an empty file and when detected, it will be removed (to prevent softlocking if loading state fails) 
-                                         // and the saved state (fully written before the flag to ensure integrity) will be loaded automatically. Otherwise go to main menu.
+    char *romFilename = nutEmuInterface.checkRestoreFlag();
 }
 
 void loop() {
