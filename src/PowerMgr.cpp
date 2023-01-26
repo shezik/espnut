@@ -60,6 +60,7 @@ void PowerMgr::init() {
     setDisplayPower(true);
     setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT);  // !! Should be removed after implementing ConfigMgr
     feedBacklightTimeout();
+    setDeepSleepTimeout(FALLBACK_DEEP_SLEEP_TIMEOUT);  // !! Should be removed after implementing ConfigMgr
     feedDeepSleepTimeout();
     kbdMgr.registerKeyPressCallback(keyPressCallback);
 }
