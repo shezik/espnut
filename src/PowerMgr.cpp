@@ -10,6 +10,7 @@ PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t di
 }
 
 PowerMgr::~PowerMgr() {
+    kbdMgr.registerKeyPressCallback(nullptr);
     pmContext = nullptr;
 }
 
@@ -60,6 +61,7 @@ void PowerMgr::init() {
     setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT);  // !! Should be removed after implementing ConfigMgr
     feedBacklightTimeout();
     feedDeepSleepTimeout();
+    kbdMgr.registerKeyPressCallback(keyPressCallback);
 }
 
 void PowerMgr::tick() {
