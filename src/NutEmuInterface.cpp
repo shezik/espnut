@@ -83,11 +83,91 @@ void NutEmuInterface::tick() {
 }
 
 bool NutEmuInterface::saveState(char *filename) {
+    File file = LittleFS.open(filename, "w");
+    if (!file)
+        return false;
 
+    file.write((uint8_t *)  nv->a, sizeof(reg_t));
+    file.write((uint8_t *)  nv->b, sizeof(reg_t));
+    file.write((uint8_t *)  nv->c, sizeof(reg_t));
+    file.write((uint8_t *)  nv->m, sizeof(reg_t));
+    file.write((uint8_t *)  nv->n, sizeof(reg_t));
+    file.write((uint8_t *)  nv->g, sizeof(digit_t) * 2);
+    file.write((uint8_t)    nv->p);
+    file.write((uint8_t)    nv->q);
+    file.write((uint8_t)    nv->q_sel);
+    file.write(             nv->fo);
+    file.write((uint8_t)    nv->decimal);
+    file.write((uint8_t)    nv->carry);
+    file.write((uint8_t)    nv->prev_carry);
+    file.write((uint8_t *) &nv->prev_tef_last, sizeof(int));
+    file.write((uint8_t *)  nv->s,             sizeof(bool) * SSIZE);
+    file.write((uint8_t *) &nv->pc,            sizeof(rom_addr_t));
+    file.write((uint8_t *) &nv->prev_pc,       sizeof(rom_addr_t));
+    file.write((uint8_t *)  nv->stack,         sizeof(rom_addr_t) * STACK_DEPTH);
+    file.write((uint8_t *) &nv->cxisa_addr,    sizeof(rom_addr_t));
+    file.write((uint8_t *) &nv->inst_state,    sizeof(inst_state_t));
+    file.write((uint8_t *) &nv->first_word,    sizeof(rom_word_t));
+    file.write((uint8_t)    nv->long_branch_carry);
+    file.write((uint8_t)    nv->key_down);
+    file.write((uint8_t *) &nv->kb_state,                  sizeof(keyboard_state_t));
+    file.write((uint8_t *) &nv->kb_debounce_cycle_counter, sizeof(int));
+    file.write((uint8_t *) &nv->key_buf,                   sizeof(int));
+    file.write((uint8_t)    nv->awake);
+    file.write(             nv->active_bank, MAX_PAGE);
+    file.write((uint8_t *) &nv->ram_addr,    sizeof(uint16_t));
+    file.write((uint8_t *)  nv->ram,         sizeof(reg_t) * nv->max_ram);
+    file.write(             nv->pf_addr);
+    file.write(             nv->selprf);
+    file.write((uint8_t *)  nv->display_segments, sizeof(uint32_t) * MAX_DIGIT_POSITION);
+    file.write((uint8_t *) &nv->cycle_count,      sizeof(uint64_t));
+
+    file.close();
+    return true;
 }
 
 bool NutEmuInterface::loadState(char *filename) {
+    File file = LittleFS.open(filename, "r");
+    if (!file)
+        return false;
 
+    file.read((uint8_t *) nv->a, sizeof(reg_t));
+    file.read((uint8_t *) nv->b, sizeof(reg_t));
+    file.read((uint8_t *) nv->c, sizeof(reg_t));
+    file.read((uint8_t *) nv->m, sizeof(reg_t));
+    file.read((uint8_t *) nv->n, sizeof(reg_t));
+    file.read((uint8_t *) nv->g, sizeof(digit_t) * 2);
+    nv->p          = (digit_t) file.read();
+    nv->q          = (digit_t) file.read();
+    nv->q_sel      = (bool)    file.read();
+    nv->fo         =           file.read();
+    nv->decimal    = (bool)    file.read();
+    nv->carry      = (bool)    file.read();
+    nv->prev_carry = (bool)    file.read();
+    file.read((uint8_t *) &nv->prev_tef_last, sizeof(int));
+    file.read((uint8_t *)  nv->s,             sizeof(bool) * SSIZE);
+    file.read((uint8_t *) &nv->pc,            sizeof(rom_addr_t));
+    file.read((uint8_t *) &nv->prev_pc,       sizeof(rom_addr_t));
+    file.read((uint8_t *)  nv->stack,         sizeof(rom_addr_t) * STACK_DEPTH);
+    file.read((uint8_t *) &nv->cxisa_addr,    sizeof(rom_addr_t));
+    file.read((uint8_t *) &nv->inst_state,    sizeof(inst_state_t));
+    file.read((uint8_t *) &nv->first_word,    sizeof(rom_word_t));
+    nv->long_branch_carry = (bool) file.read();
+    nv->key_down          = (bool) file.read();
+    file.read((uint8_t *) &nv->kb_state,                  sizeof(keyboard_state_t));
+    file.read((uint8_t *) &nv->kb_debounce_cycle_counter, sizeof(int));
+    file.read((uint8_t *) &nv->key_buf,                   sizeof(int));
+    nv->awake = (bool) file.read();
+    file.read(             nv->active_bank, MAX_PAGE);
+    file.read((uint8_t *) &nv->ram_addr,    sizeof(uint16_t));
+    file.read((uint8_t *)  nv->ram,         sizeof(reg_t) * nv->max_ram);
+    nv->pf_addr = file.read();
+    nv->selprf  = file.read();
+    file.read((uint8_t *)  nv->display_segments, sizeof(uint32_t) * MAX_DIGIT_POSITION);
+    file.read((uint8_t *) &nv->cycle_count,      sizeof(uint64_t));
+
+    file.close();
+    return true;
 }
 
 void NutEmuInterface::updateDisplayCallback() {
