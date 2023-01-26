@@ -64,16 +64,19 @@ void NutEmuInterface::sim_run() {
     }
 }
 
+// Pass nullptr or left out filename to load from romFilename
 bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize, char *filename) {
     lastRunTime = esp_timer_get_time() - JIFFY_MSEC;  // In ms. Could be negative but that does not matter.
     wordsPerMs = clockFrequency / (1.0E3 * ARCH_NUT_WORD_LENGTH);
 
     deinit();
-    strncpy(romFilename, filename, sizeof(romFilename) - 1);
-    romFilename[sizeof(romFilename)] = '\0';
+    if (filename) {
+        strncpy(romFilename, filename, sizeof(romFilename) - 1);
+        romFilename[sizeof(romFilename)] = '\0';
+    }
     nv = nut_new_processor(ramSize, (void *) this);  // void *nut_reg->display is reused for storing NutEmuInterface *
     pm.registerDeepSleepCallback(deepSleepCallback);
-    return nut_read_object_file(nv, filename);
+    return nut_read_object_file(nv, romFilename);
 }
 
 void NutEmuInterface::deinit() {
@@ -81,7 +84,6 @@ void NutEmuInterface::deinit() {
         nut_free_processor(nv); nv = nullptr;  // !! Check if there's any memory leak
     }
     pm.registerDeepSleepCallback(nullptr);
-    romFilename[0] = '\0';
 }
 
 void NutEmuInterface::tick() {

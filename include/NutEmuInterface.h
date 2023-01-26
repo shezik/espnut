@@ -34,7 +34,7 @@ class NutEmuInterface {
     public:
         NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
         ~NutEmuInterface();
-        bool newProcessor(int, int, char *);
+        bool newProcessor(int, int, char * = nullptr);
         void tick();
         bool saveState(char *);
         bool loadState(char *, bool = false);
