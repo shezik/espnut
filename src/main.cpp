@@ -37,7 +37,7 @@ void setup() {
     if (!LittleFS.begin(/*FORMAT_LITTLEFS_IF_FAILED*/))
         fatal(1, "Failed to init LittleFS.\n");
 
-    char *romFilename = nutEmuInterface.checkRestoreFlag();
+    nutEmuInterface.checkRestoreFlag();
 }
 
 void loop() {

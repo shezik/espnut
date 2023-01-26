@@ -24,3 +24,7 @@
 #define FALLBACK_BACKLIGHT_TIMEOUT 10000  // Fallback value, 10 seconds
 #define FALLBACK_DEEP_SLEEP_TIMEOUT 300000  // Fallback value, 5 minutes
 #define FALLBACK_CPU_FREQUENCY_MHZ 240
+
+// Emulator
+#define RESTORE_FLAG_FILENAME "/.RESTORE"
+#define RESTORE_STATE_FILENAME "/.RESTORE_STATE"

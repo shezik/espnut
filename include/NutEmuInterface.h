@@ -30,13 +30,14 @@ class NutEmuInterface {
         int64_t lastRunTime;
         bool displayStateStabilized = false;
         bool frequencyReduced = false;
+        char romFilename[32] = {0};
     public:
         NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
         ~NutEmuInterface();
         bool newProcessor(int, int, char *);
         void tick();
         bool saveState(char *);
-        bool loadState(char *);
+        bool loadState(char *, bool = false);
 
         void updateDisplayCallback();
         void setDisplayPowerSave(bool);

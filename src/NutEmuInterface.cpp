@@ -113,6 +113,9 @@ bool NutEmuInterface::saveState(char *filename) {
     if (!file)
         return false;
 
+    file.write((uint8_t *) "STATE", 5);  // Magic
+    file.write((uint8_t *) romFilename, strlen(romFilename));
+    file.write('\0');
     file.write((uint8_t *)  nv->a, sizeof(reg_t));
     file.write((uint8_t *)  nv->b, sizeof(reg_t));
     file.write((uint8_t *)  nv->c, sizeof(reg_t));
@@ -152,12 +155,39 @@ bool NutEmuInterface::saveState(char *filename) {
     return true;
 }
 
-bool NutEmuInterface::loadState(char *filename) {
-    if (!nv)
-        return false;
+bool NutEmuInterface::loadState(char *filename, bool onlyUpdateRomFn) {
+    char magic[6];
+    char romFilename_[32];
+    uint8_t size;
 
     File file = LittleFS.open(filename, "r");
     if (!file)
+        return false;
+
+    file.readBytes(magic, 5);  // Magic string is 'STATE'
+    magic[6] = '\0';
+    if (strcmp(magic, "STATE")) {
+        file.close();
+        return false;
+    }
+
+    size = file.readBytesUntil('\0', romFilename_, sizeof(romFilename_) - 1);
+    romFilename_[size] = '\0';
+    if (size == sizeof(romFilename_) - 1) {  // Need to skip one '\0' in stream
+        if (!file.available() || file.read() != '\0') {
+            file.close();
+            return false;  // you've got a very, very long filename...
+        }
+    }
+    strcpy(romFilename, romFilename_);
+
+    if (onlyUpdateRomFn) {
+        file.close();
+        return true;
+    }
+
+    if (!nv)
+        file.close();
         return false;
 
     file.read((uint8_t *) nv->a, sizeof(reg_t));
@@ -217,20 +247,12 @@ void NutEmuInterface::setDisplayPowerSave(bool state) {
         pm.setBacklightPower(false);
 }
 
-char *NutEmuInterface::checkRestoreFlag() {
-    static char buf[32];
-    unsigned int size;
-
-    File flag = LittleFS.open(RESTORE_FLAG_FILENAME, "r");
-    if (!flag)
-        return nullptr;
+bool NutEmuInterface::checkRestoreFlag() {
+    if (!LittleFS.exists(RESTORE_FLAG_FILENAME))
+        return false;
     
-    size = flag.readBytesUntil('\n', buf, sizeof(buf) - 1);
-    buf[size] = '\0';
-    
-    flag.close();
     LittleFS.remove(RESTORE_FLAG_FILENAME);
-    return buf;
+    return loadState(RESTORE_STATE_FILENAME, true);
 }
 
 void NutEmuInterface::resetProcessor(bool obdurate) {
@@ -242,11 +264,9 @@ void NutEmuInterface::resetProcessor(bool obdurate) {
 }
 
 void NutEmuInterface::deepSleepPrepare() {
-    if (nv && strlen(romFilename)) {
+    if (nv) {
         saveState(RESTORE_STATE_FILENAME);
         File flag = LittleFS.open(RESTORE_FLAG_FILENAME, "w");
-        flag.write((uint8_t *) romFilename, strlen(romFilename));
-        flag.write('\n');
         flag.close();
     }
 }
