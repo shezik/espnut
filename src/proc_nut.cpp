@@ -1780,6 +1780,7 @@ bool nut_read_object_file (nut_reg_t *nut_reg, const char *fn)
 			   // the parse function profiles to match.
 	rom_word_t opcode;
 	int count = 0;
+	unsigned int size;
 	char buf [80];
 	
 	f = LittleFS.open (fn, "r");
@@ -1789,10 +1790,13 @@ bool nut_read_object_file (nut_reg_t *nut_reg, const char *fn)
 		return (false);
     }
 	
-	while (f.readBytesUntil('\n', buf, sizeof(buf)))
+	while (f.available())
     {
+		size = f.readBytesUntil('\n', buf, sizeof(buf) - 1);
+		buf[size] = '\0';
+
 		trim_trailing_whitespace (buf);  // Remove "\r" and so on
-		if (! buf [0])
+		if (! buf [0])  // empty line
 			continue;
 		if (nut_parse_object_line (buf, & bank, & addr, & opcode))
 		{
