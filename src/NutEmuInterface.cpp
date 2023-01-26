@@ -5,11 +5,17 @@ NutEmuInterface::NutEmuInterface(KeyboardMgr &kbdMgr_, DispInterface &disp_, Pow
     , disp(disp_)
     , pm(pm_)
 {
-    // Do nothing
+    neiContext = this;
 }
 
 NutEmuInterface::~NutEmuInterface() {
     deinit();
+    neiContext = nullptr;
+}
+
+void deepSleepCallback() {
+    if (neiContext)
+        neiContext->deepSleepPrepare();
 }
 
 void NutEmuInterface::sim_run() {
@@ -47,6 +53,7 @@ void NutEmuInterface::sim_run() {
                 // CH450 should not sleep since only a few dedicated rows of keys are able to bring it up
                 // Polling will work but why the hassle?
             } else {
+                deepSleepPrepare();
                 pm.enterDeepSleep();
             }
         } else if (frequencyReduced) {
@@ -63,6 +70,7 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize, char *filena
 
     deinit();
     nv = nut_new_processor(ramSize, (void *) this);  // void *nut_reg->display is reused for storing NutEmuInterface *
+    pm.registerDeepSleepCallback(deepSleepCallback);
     return nut_read_object_file(nv, filename);
 }
 
@@ -70,6 +78,7 @@ void NutEmuInterface::deinit() {
     if (nv) {
         nut_free_processor(nv); nv = nullptr;  // !! Check if there's any memory leak
     }
+    pm.registerDeepSleepCallback(nullptr);
 }
 
 void NutEmuInterface::tick() {
@@ -215,4 +224,8 @@ void NutEmuInterface::resetProcessor(bool obdurate) {
         if (obdurate)
             do_event(nv, event_clear_memory);
     }
+}
+
+void NutEmuInterface::deepSleepPrepare() {
+    // !! saveState and flag and whatnot
 }

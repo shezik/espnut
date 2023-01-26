@@ -15,6 +15,10 @@
 
 #define NEXT_RUN_TIME (lastRunTime + JIFFY_MSEC)
 
+class NutEmuInterface;
+static NutEmuInterface *neiContext = nullptr;
+static void deepSleepCallback();
+
 class NutEmuInterface {
     protected:
         KeyboardMgr &kbdMgr;  // Named differently to avoid collision with keyboardMgr in main.cpp
@@ -39,6 +43,7 @@ class NutEmuInterface {
 
         bool checkRestoreFlag();
         void resetProcessor(bool);
+        void deepSleepPrepare();
 
         void deinit();
 };
