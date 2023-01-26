@@ -1,4 +1,5 @@
-# espnut
+[![](markdownAssets/banner.png)](https://github.com/shezik/espnut)
+
 Eric Smith's Nonpareil emulator ported to ESP32. Supports HP Voyager calculators.  
 The successor of shezik/esp15c (now archived).
 
