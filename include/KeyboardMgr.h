@@ -5,7 +5,7 @@
 #include "Kbd_8x5_CH450.h"
 #include "KeyQueue.h"
 
-void keyboardCallback();
+static void keyboardCallback(void *ptr);
 
 class KeyboardMgr : public KeyQueue {
     protected:
