@@ -67,11 +67,14 @@ void NutEmuInterface::sim_run() {
 }
 
 // Pass nullptr or left out filename to load from romFilename
-bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize, char *filename) {
+bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filename) {
     lastRunTime = esp_timer_get_time() - JIFFY_MSEC;  // In ms. Could be negative but that does not matter.
     wordsPerMs = clockFrequency / (1.0E3 * ARCH_NUT_WORD_LENGTH);
 
     deinit();
+    if (ramSize_) {
+        ramSize = ramSize_;
+    }
     if (filename) {
         strncpy(romFilename, filename, sizeof(romFilename) - 1);
         romFilename[sizeof(romFilename)] = '\0';
@@ -120,12 +123,13 @@ bool NutEmuInterface::saveState(char *filename) {
     file.write((uint8_t *) "STATE", 5);  // Magic
     file.write((uint8_t *) romFilename, strlen(romFilename));
     file.write('\0');
-    file.write((uint8_t *)  nv->a, sizeof(reg_t));
-    file.write((uint8_t *)  nv->b, sizeof(reg_t));
-    file.write((uint8_t *)  nv->c, sizeof(reg_t));
-    file.write((uint8_t *)  nv->m, sizeof(reg_t));
-    file.write((uint8_t *)  nv->n, sizeof(reg_t));
-    file.write((uint8_t *)  nv->g, sizeof(digit_t) * 2);
+    file.write((uint8_t *) &ramSize, sizeof(int));
+    file.write((uint8_t *)  nv->a,   sizeof(reg_t));
+    file.write((uint8_t *)  nv->b,   sizeof(reg_t));
+    file.write((uint8_t *)  nv->c,   sizeof(reg_t));
+    file.write((uint8_t *)  nv->m,   sizeof(reg_t));
+    file.write((uint8_t *)  nv->n,   sizeof(reg_t));
+    file.write((uint8_t *)  nv->g,   sizeof(digit_t) * 2);
     file.write((uint8_t)    nv->p);
     file.write((uint8_t)    nv->q);
     file.write((uint8_t)    nv->q_sel);
@@ -159,7 +163,7 @@ bool NutEmuInterface::saveState(char *filename) {
     return true;
 }
 
-bool NutEmuInterface::loadState(char *filename, bool onlyUpdateRomFn) {
+bool NutEmuInterface::loadState(char *filename, bool onlyUpdateMetadata) {
     char magic[6];
     char romFilename_[32];
     uint8_t size;
@@ -185,7 +189,9 @@ bool NutEmuInterface::loadState(char *filename, bool onlyUpdateRomFn) {
     }
     strcpy(romFilename, romFilename_);
 
-    if (onlyUpdateRomFn) {
+    file.read((uint8_t *) &ramSize, sizeof(int));
+
+    if (onlyUpdateMetadata) {
         file.close();
         return true;
     }
