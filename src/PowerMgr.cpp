@@ -1,23 +1,25 @@
 #include "PowerMgr.h"
 
+PowerMgr *PowerMgr::context = nullptr;  // classic
+
 PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t displayPowerPin_, uint8_t displayBacklightPin_)
     : kbdMgr(kbdMgr_)
     , wakeUpInterruptPin(wakeUpInterruptPin_)
     , displayPowerPin(displayPowerPin_)
     , displayBacklightPin(displayBacklightPin_)
 {
-    pmContext = this;
+    context = this;
 }
 
 PowerMgr::~PowerMgr() {
     kbdMgr.registerKeyPressCallback(nullptr);
-    pmContext = nullptr;
+    context = nullptr;
 }
 
-void keyPressCallback() {
-    if (pmContext) {
-        pmContext->feedBacklightTimeout();
-        pmContext->feedDeepSleepTimeout();
+void PowerMgr::keyPressCallback() {
+    if (context) {
+        context->feedBacklightTimeout();
+        context->feedDeepSleepTimeout();
     }
 }
 

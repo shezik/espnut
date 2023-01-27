@@ -1,6 +1,6 @@
 #include "KeyboardMgr.h"
 
-void keyboardCallback(void *ptr) {
+void KeyboardMgr::keyboardCallback(void *ptr) {
     KeyboardMgr *context = static_cast<KeyboardMgr *>(ptr);
 
     if (!context->busy) {
@@ -25,7 +25,7 @@ void KeyboardMgr::init() {
 
 void KeyboardMgr::enableInterrupt() {
     if (!isInterruptEnabled)
-        attachInterruptArg(interruptPin, keyboardCallback, this, FALLING);
+        attachInterruptArg(interruptPin, KeyboardMgr::keyboardCallback, this, FALLING);
 }
 
 void KeyboardMgr::disableInterrupt() {

@@ -5,8 +5,6 @@
 #include "Kbd_8x5_CH450.h"
 #include "KeyQueue.h"
 
-static void keyboardCallback(void *ptr);
-
 class KeyboardMgr : public KeyQueue {
     protected:
         uint8_t interruptPin;
@@ -18,7 +16,7 @@ class KeyboardMgr : public KeyQueue {
         bool busy = false;                      // calls take time and these are being
         bool pendingRelease = false;            // used in our time-sensivive ISR.
         void (*keyPressCallback)() = nullptr;
-        // Don't call this outside.
+        // Don't call this outside if interrupt is enabled.
         void handleKeyPress();
 
         void init();
@@ -33,4 +31,6 @@ class KeyboardMgr : public KeyQueue {
         // Callback should be protected from the interrupt (if you are not using handleKeyPress())
         // Key release also counts!
         void registerKeyPressCallback(void (*)());
+
+        static void keyboardCallback(void *ptr);
 };

@@ -15,10 +15,6 @@
 
 #define NEXT_RUN_TIME (lastRunTime + JIFFY_MSEC)
 
-class NutEmuInterface;
-static NutEmuInterface *neiContext = nullptr;
-static void deepSleepCallback();
-
 class NutEmuInterface {
     protected:
         KeyboardMgr &kbdMgr;  // Named differently to avoid collision with keyboardMgr in main.cpp
@@ -31,6 +27,7 @@ class NutEmuInterface {
         bool displayStateStabilized = false;
         bool frequencyReduced = false;
         char romFilename[32] = {0};
+        static NutEmuInterface *context;
     public:
         NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
         ~NutEmuInterface();
@@ -47,4 +44,5 @@ class NutEmuInterface {
         void deepSleepPrepare();
 
         void deinit();
+        static void deepSleepCallback();
 };

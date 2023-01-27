@@ -1,21 +1,23 @@
 #include "NutEmuInterface.h"
 
+NutEmuInterface *NutEmuInterface::context = nullptr;
+
 NutEmuInterface::NutEmuInterface(KeyboardMgr &kbdMgr_, DispInterface &disp_, PowerMgr &pm_)
     : kbdMgr(kbdMgr_)
     , disp(disp_)
     , pm(pm_)
 {
-    neiContext = this;
+    context = this;
 }
 
 NutEmuInterface::~NutEmuInterface() {
     deinit();
-    neiContext = nullptr;
+    context = nullptr;
 }
 
-void deepSleepCallback() {
-    if (neiContext)
-        neiContext->deepSleepPrepare();
+void NutEmuInterface::deepSleepCallback() {
+    if (context)
+        context->deepSleepPrepare();
 }
 
 void NutEmuInterface::sim_run() {
