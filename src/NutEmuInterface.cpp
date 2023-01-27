@@ -239,6 +239,10 @@ bool NutEmuInterface::loadState(char *filename, bool onlyUpdateMetadata) {
     return true;
 }
 
+bool NutEmuInterface::isProcessorPresent() {
+    return nv;
+}
+
 void NutEmuInterface::updateDisplayCallback() {
     yield();  // dunno if necessary
 

@@ -36,6 +36,7 @@ class NutEmuInterface {
         void tick();
         bool saveState(char *);
         bool loadState(char *, bool = false);
+        bool isProcessorPresent();
 
         void updateDisplayCallback();
         void setDisplayPowerSave(bool);
