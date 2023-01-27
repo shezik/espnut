@@ -2,12 +2,12 @@
 #include <LittleFS.h>
 #include "util.h"
 #include "U8g2lib.h"
-#include "GEM.h"
 #include "DispInterface.h"
 #include "Kbd_8x5_CH450.h"
 #include "KeyboardMgr.h"
 #include "PowerMgr.h"
 #include "NutEmuInterface.h"
+#include "Menu.h"
 #include "Configuration.h"
 
 U8G2_DISPLAY_TYPE u8g2(U8G2_R2, VSPI_CLK, VSPI_DATA, VSPI_CS, VSPI_DC, U8G2_RESET_PIN);
