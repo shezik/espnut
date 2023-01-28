@@ -16,6 +16,7 @@ Kbd_8x5_CH450 keyboard(CH450_SDA, CH450_SCL, CH450_DELAY);
 KeyboardMgr keyboardMgr(keyboard, CH450_INT);  // Referred to in util.cpp
 PowerMgr powerMgr(keyboardMgr, CH450_INT, DISPLAY_POWER_CONTROL, DISPLAY_BACKLIGHT_CONTROL);
 NutEmuInterface nutEmuInterface(keyboardMgr, dispInterface, powerMgr);
+Menu menu(keyboardMgr, u8g2, powerMgr, nutEmuInterface);
 
 void appendLog(char *str) {
     
@@ -32,6 +33,8 @@ void setup() {
     u8g2.begin();
     keyboard.init(!powerMgr.wokenUpFromDeepSleep());  // Set CH450_SDA/SCL pin mode & init CH450. !! DO NOT INIT IF WOKEN UP BY IT, TO GET THE WAKING KEYCODE!
     keyboardMgr.init();  // Set keyboard interrupt pin mode
+    menu.init();  // Load user settings into classes
+    
     if (powerMgr.wokenUpFromDeepSleep())
         keyboardMgr.handleKeyPress();  // Get waking keycode
     keyboardMgr.enableInterrupt();  // Start watching for key presses
@@ -45,4 +48,6 @@ void setup() {
 void loop() {
     keyboardMgr.tick();
     powerMgr.tick();  // Check for backlight timeout
+    if (menu.tick())
+        nutEmuInterface.tick();
 }
