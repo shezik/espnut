@@ -33,6 +33,8 @@ bool PowerMgr::enterModemSleep() {
 }
 
 void PowerMgr::enterDeepSleep() {
+    if (deepSleepCallback)
+        deepSleepCallback();
     kbdMgr.disableInterrupt();
     kbdMgr.chipEnterSleep();
     setDisplayPower(false);
@@ -74,8 +76,6 @@ void PowerMgr::tick() {
         setBacklightPower(false);
     
     if (timeNow >= nextDeepSleep) {
-        if (deepSleepCallback)
-            deepSleepCallback();
         enterDeepSleep();
     }
 }

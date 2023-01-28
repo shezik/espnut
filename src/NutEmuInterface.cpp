@@ -55,8 +55,7 @@ void NutEmuInterface::sim_run() {
                 // CH450 should not sleep since only a few dedicated rows of keys are able to bring it up
                 // Polling will work but why the hassle?
             } else {
-                deepSleepPrepare();
-                pm.enterDeepSleep();
+                pm.enterDeepSleep();  // deepSleepPrepare() is registered as callback
             }
         } else if (frequencyReduced) {
             pm.restoreFrequency();
