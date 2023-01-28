@@ -26,10 +26,11 @@ class NutEmuInterface {
         int64_t lastRunTime;
         bool displayStateStabilized = false;
         bool frequencyReduced = false;
-        char romFilename[32] = {0};
         int ramSize = NULL;
         static NutEmuInterface *context;
     public:
+        char romFilename[32] = {0};
+
         NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
         ~NutEmuInterface();
         bool newProcessor(int, int = NULL, char * = nullptr);
