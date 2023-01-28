@@ -28,9 +28,8 @@ class NutEmuInterface {
         bool frequencyReduced = false;
         int ramSize = NULL;
         static NutEmuInterface *context;
-    public:
         char romFilename[32] = {0};
-
+    public:
         NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
         ~NutEmuInterface();
         bool newProcessor(int, int = NULL, char * = nullptr);
@@ -38,6 +37,7 @@ class NutEmuInterface {
         bool saveState(char *);
         bool loadState(char *, bool = false);
         bool isProcessorPresent();
+        char *getRomFilename();
 
         void updateDisplayCallback();
         void setDisplayPowerSave(bool);

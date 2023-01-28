@@ -242,6 +242,13 @@ bool NutEmuInterface::isProcessorPresent() {
     return nv;
 }
 
+char *NutEmuInterface::getRomFilename() {
+    static char romFilename_[32];
+
+    strcpy(romFilename_, romFilename);
+    return romFilename_;
+}
+
 void NutEmuInterface::updateDisplayCallback() {
     yield();  // dunno if necessary
 

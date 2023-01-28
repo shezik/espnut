@@ -164,7 +164,7 @@ void Menu::enterMenu() {
     saveStateBtn->hide(!isProcessorPresent);
     resetCPUBtn->hide(!isProcessorPresent);
     obdurateResetCPUBtn->hide(!isProcessorPresent);
-    if (isProcessorPresent && strcmp(emu.romFilename, romFilename)) {
+    if (isProcessorPresent && strcmp(emu.getRomFilename(), romFilename)) {
         // Change page title
         // mainPage->setTitle(blah blah);  // Keep buffer somewhere
     }
