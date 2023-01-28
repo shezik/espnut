@@ -15,6 +15,8 @@
 
 #define NEXT_RUN_TIME (lastRunTime + JIFFY_MSEC)
 
+#define ROM_FILENAME_LENGTH 32
+
 class NutEmuInterface {
     protected:
         KeyboardMgr &kbdMgr;  // Named differently to avoid collision with keyboardMgr in main.cpp
@@ -28,7 +30,7 @@ class NutEmuInterface {
         bool frequencyReduced = false;
         int ramSize = NULL;
         static NutEmuInterface *context;
-        char romFilename[32] = {0};
+        char romFilename[ROM_FILENAME_LENGTH] = {0};
     public:
         NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
         ~NutEmuInterface();

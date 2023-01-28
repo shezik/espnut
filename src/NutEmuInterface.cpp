@@ -164,7 +164,7 @@ bool NutEmuInterface::saveState(char *filename) {
 
 bool NutEmuInterface::loadState(char *filename, bool onlyUpdateMetadata) {
     char magic[6];
-    char romFilename_[32];
+    char romFilename_[ROM_FILENAME_LENGTH];
     uint8_t size;
 
     File file = LittleFS.open(filename, "r");
@@ -243,7 +243,7 @@ bool NutEmuInterface::isProcessorPresent() {
 }
 
 char *NutEmuInterface::getRomFilename() {
-    static char romFilename_[32];
+    static char romFilename_[ROM_FILENAME_LENGTH];
 
     strcpy(romFilename_, romFilename);
     return romFilename_;

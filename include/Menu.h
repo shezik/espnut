@@ -7,6 +7,8 @@
 #include "NutEmuInterface.h"
 #include "Configuration.h"
 
+#define FILE_LIST_LENGTH 64
+
 class Menu {
     protected:
         KeyboardMgr &kbdMgr;
@@ -39,7 +41,7 @@ class Menu {
         GEMItem *exitSettingsBtn = nullptr;
         // File manager page
         GEMPage *fileManagerPage = nullptr;
-        GEMItem *fileList[64] = {0};
+        GEMItem *fileList[FILE_LIST_LENGTH] = {0};
 
         uint8_t contrast;
         uint8_t backlightTimeoutSec;
@@ -49,7 +51,7 @@ class Menu {
 
         uint16_t holdDownCyclesCount = 0;
         bool showingMenu = false;
-        char romFilename[32] = {0}; // Used to determine whether to update title
+        char romFilename[ROM_FILENAME_LENGTH] = {0}; // Used to determine whether to update title
 
         static Menu *context;
     public:
