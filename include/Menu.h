@@ -49,7 +49,7 @@ class Menu {
 
         uint16_t holdDownCyclesCount = 0;
         bool showingMenu = false;
-        char romFilename[32] = {0}; // Used to determine whether to create a new page to update title
+        char romFilename[32] = {0}; // Used to determine whether to update title
 
         static Menu *context;
     public:

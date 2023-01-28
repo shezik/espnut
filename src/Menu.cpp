@@ -157,6 +157,7 @@ void Menu::exitSettingsPageCallback() {
 void Menu::enterMenu() {
     showingMenu = true;
     kbdMgr.clear();
+    kbdMgr.skipReleaseCheck();
 
     bool isProcessorPresent = emu.isProcessorPresent();
     resumeBtn->hide(!isProcessorPresent);
@@ -172,4 +173,5 @@ void Menu::enterMenu() {
 void Menu::exitMenu() {
     showingMenu = false;
     kbdMgr.clear();
+    kbdMgr.skipReleaseCheck();
 }
