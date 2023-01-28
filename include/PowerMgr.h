@@ -13,7 +13,7 @@ class PowerMgr {
         uint8_t wakeUpInterruptPin;
         uint8_t displayPowerPin;
         uint8_t displayBacklightPin;
-        uint16_t backlightTimeout;  // In ms
+        uint32_t backlightTimeout;  // In ms
         int64_t nextBacklightOff;   // In ms
         uint32_t deepSleepTimeout;   // In ms
         int64_t nextDeepSleep;       // In ms
@@ -34,7 +34,7 @@ class PowerMgr {
         bool getBacklightPower();
         void setBacklightPower(bool);
         uint16_t getBacklightTimeout();
-        void setBacklightTimeout(uint16_t);
+        void setBacklightTimeout(uint32_t);
         void feedBacklightTimeout();
         uint32_t getDeepSleepTimeout();
         void setDeepSleepTimeout(uint32_t);

@@ -60,9 +60,9 @@ void PowerMgr::init() {
     pinMode(displayPowerPin, OUTPUT);
     pinMode(displayBacklightPin, OUTPUT);
     setDisplayPower(true);
-    setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT);  // !! Should be removed after implementing ConfigMgr
+    setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT * 1000);  // !! Should be removed after implementing ConfigMgr
     feedBacklightTimeout();
-    setDeepSleepTimeout(FALLBACK_DEEP_SLEEP_TIMEOUT);  // !! Should be removed after implementing ConfigMgr
+    setDeepSleepTimeout(FALLBACK_DEEP_SLEEP_TIMEOUT * 1000 * 60);  // !! Should be removed after implementing ConfigMgr
     feedDeepSleepTimeout();
     kbdMgr.registerKeyPressCallback(keyPressCallback);
 }
@@ -100,7 +100,7 @@ uint16_t PowerMgr::getBacklightTimeout() {
     return backlightTimeout;
 }
 
-void PowerMgr::setBacklightTimeout(uint16_t ms) {
+void PowerMgr::setBacklightTimeout(uint32_t ms) {
     nextBacklightOff += (ms - backlightTimeout);  // Modify next backlight off time without feeding. No worries about sign.
     backlightTimeout = ms;
 }

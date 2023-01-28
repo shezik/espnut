@@ -21,8 +21,8 @@
 // PowerMgr
 #define DISPLAY_POWER_CONTROL 32  // !! Arbitrary value
 #define DISPLAY_BACKLIGHT_CONTROL 33  // !! Arbitrary value
-#define FALLBACK_BACKLIGHT_TIMEOUT 10000  // Fallback value, 10 seconds
-#define FALLBACK_DEEP_SLEEP_TIMEOUT 300000  // Fallback value, 5 minutes
+#define FALLBACK_BACKLIGHT_TIMEOUT 10  // Fallback value, in seconds
+#define FALLBACK_DEEP_SLEEP_TIMEOUT 5  // Fallback value, in minutes
 #define FALLBACK_CPU_FREQUENCY_MHZ 240
 
 // Emulator
