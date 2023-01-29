@@ -71,6 +71,7 @@ class Menu {
         // static void clearLogfileCallback();
         static void settingsChangedCallback();
         static void resetSettingsButtonCallback();
+        static void exitSettingsPageCallback(bool);
         static void exitSettingsPageCallback(GEMCallbackData);
         // static void fileSelectedCallback();
 };

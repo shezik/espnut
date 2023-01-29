@@ -58,7 +58,7 @@ void Menu::init() {
     showLogfileBtn = new GEMItem("Logs", [](){});
     settingsBtn = new GEMItem("Settings", [](){});
     powerOffBtn = new GEMItem("Power Off", [](){context->pm.enterDeepSleep();});
-    settingsPage = new GEMPage("Settings", exitSettingsPageCallback, false);
+    settingsPage = new GEMPage("Settings", [](){exitSettingsPageCallback(false);});
     contrastItem = new GEMItem("Contrast", contrast);
     backlightTimeoutItem = new GEMItem("Backlight Timeout (sec)", backlightTimeoutSec);
     powerOffTimeoutItem = new GEMItem("Power Off Timeout (min)", powerOffTimeoutMin);
@@ -166,8 +166,7 @@ void Menu::resetSettingsButtonCallback() {
     // !! Redraw menu here?
 }
 
-void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
-    bool doSave = callbackData.valBool;
+void Menu::exitSettingsPageCallback(bool doSave) {
     if (doSave) {
         context->saveSettings();
     } else {
@@ -176,6 +175,10 @@ void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
         context->applySettings();
     }
     // !! Go back to main menu
+}
+
+void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
+    exitSettingsPageCallback(callbackData.valBool);
 }
 
 void Menu::enterMenu() {
