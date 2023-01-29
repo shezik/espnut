@@ -66,12 +66,11 @@ class Menu {
         bool saveSettings();
         void loadDefaultSettings();
         void enterMenu();
-        void exitMenu();
+        static void exitMenu();
         // static void resetCPUCallback(GEMCallbackData);
         // static void clearLogfileCallback();
         static void settingsChangedCallback();
-        static void saveButtonCallback();  // Enable itself if settings are changed;
         static void resetSettingsButtonCallback();
-        static void exitSettingsPageCallback();
+        static void exitSettingsPageCallback(GEMCallbackData);
         // static void fileSelectedCallback();
 };

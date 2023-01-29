@@ -46,7 +46,29 @@ Menu::~Menu() {
 
 void Menu::init() {
     // Allocate GEM objects here
-    
+    // Any one-line function is written as lambda expression
+    gem = new GEM_u8g2(u8g2 /*!! More config here*/);
+    mainPage = new GEMPage(generateMainPageTitle(), exitMenu);
+    resumeBtn = new GEMItem("Resume", exitMenu);
+    saveStateBtn = new GEMItem("Save State", [](){});  // These are placeholders.
+    loadStateBtn = new GEMItem("Load State", [](){});
+    resetCPUBtn = new GEMItem("Reset CPU", [](){context->emu.resetProcessor();});
+    obdurateResetCPUBtn = new GEMItem("Reset CPU & Memory", [](){context->emu.resetProcessor(true);});
+    loadROMBtn = new GEMItem("Load ROM", [](){});
+    showLogfileBtn = new GEMItem("Logs", [](){});
+    settingsBtn = new GEMItem("Settings", [](){});
+    powerOffBtn = new GEMItem("Power Off", [](){context->pm.enterDeepSleep();});
+    settingsPage = new GEMPage("Settings", exitSettingsPageCallback, false);
+    contrastItem = new GEMItem("Contrast", contrast);
+    backlightTimeoutItem = new GEMItem("Backlight Timeout (sec)", backlightTimeoutSec);
+    powerOffTimeoutItem = new GEMItem("Power Off Timeout (min)", powerOffTimeoutMin);
+    unlockEmulationSpeedItem = new GEMItem("Unlock Speed", unlockSpeed);
+    enableLoggingItem = new GEMItem("Logging", enableLogging);
+    clearLogfileBtn = new GEMItem("Clear Logs", [](){});
+    saveSettingsBtn = new GEMItem("Exit & Save", exitSettingsPageCallback, true);
+    exitSettingsBtn = new GEMItem("Exit w/o Saving", exitSettingsPageCallback, false);
+    resetSettingsBtn = new GEMItem("Reset All", resetSettingsButtonCallback);
+    fileManagerPage = new GEMPage("Pick a file...", [](){});
 
     if (!loadSettings()) {
         loadDefaultSettings();
@@ -56,9 +78,16 @@ void Menu::init() {
 }
 
 bool Menu::tick() {
+    static int keycode;
+
     if (showingMenu) {
         if (gem->readyForKey()) {
-            // !! Translate keycode blah blah
+            keycode = kbdMgr.getPositiveKeycode();  // Key release is of no use here
+            switch (keycode) {
+                // !! Translate keycode blah blah
+                default:
+                    ;
+            }
         }
     } else if (kbdMgr.count() && kbdMgr.getLastKeycode() == 24) {  // 'ON' keycode
         holdDownCyclesCount++;
@@ -127,16 +156,7 @@ void Menu::loadDefaultSettings() {
 }
 
 void Menu::settingsChangedCallback() {
-    context->saveSettingsBtn->setReadonly(false);
-    // !! Redraw?
     context->applySettings();
-}
-
-void Menu::saveButtonCallback() {
-    context->saveSettingsBtn->setReadonly(true);
-    // !! Redraw?
-    // Settings are already applied on the go
-    context->saveSettings();
 }
 
 void Menu::resetSettingsButtonCallback() {
@@ -146,12 +166,16 @@ void Menu::resetSettingsButtonCallback() {
     // !! Redraw menu here?
 }
 
-void Menu::exitSettingsPageCallback() {
-    if (!context->saveSettingsBtn->getReadonly()) {
+void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
+    bool doSave = callbackData.valBool;
+    if (doSave) {
+        context->saveSettings();
+    } else {
         // Then restore previous settings
         context->loadSettings();
         context->applySettings();
     }
+    // !! Go back to main menu
 }
 
 void Menu::enterMenu() {
@@ -168,9 +192,10 @@ void Menu::enterMenu() {
 }
 
 void Menu::exitMenu() {
-    showingMenu = false;
-    kbdMgr.clear();
-    kbdMgr.skipReleaseCheck();
+    context->showingMenu = false;
+    context->u8g2.clear();
+    context->kbdMgr.clear();
+    context->kbdMgr.skipReleaseCheck();
 }
 
 char *Menu::generateMainPageTitle() {
