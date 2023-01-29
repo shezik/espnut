@@ -45,7 +45,7 @@ class NutEmuInterface {
         void setDisplayPowerSave(bool);
 
         bool checkRestoreFlag();
-        void resetProcessor(bool);
+        void resetProcessor(bool = false);
         void deepSleepPrepare();
 
         void deinit();
