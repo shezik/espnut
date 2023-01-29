@@ -51,7 +51,6 @@ class Menu {
 
         uint16_t holdDownCyclesCount = 0;
         bool showingMenu = false;
-        char romFilename[ROM_FILENAME_LENGTH] = {0}; // Used to determine whether to update title
 
         static Menu *context;
     public:
