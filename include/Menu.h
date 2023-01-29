@@ -67,9 +67,7 @@ class Menu {
         void loadDefaultSettings();
         void enterMenu();
         static void exitMenu();
-        // static void resetCPUCallback(GEMCallbackData);
         // static void clearLogfileCallback();
-        static void settingsChangedCallback();
         static void resetSettingsButtonCallback();
         static void exitSettingsPageCallback(bool);
         static void exitSettingsPageCallback(GEMCallbackData);

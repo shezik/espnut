@@ -47,6 +47,7 @@ Menu::~Menu() {
 void Menu::init() {
     // Allocate GEM objects here
     // Any one-line function is written as lambda expression
+    // It's quite interesting that static class methods can access protected members via the (class member) pointer 'context'.
     gem = new GEM_u8g2(u8g2 /*!! More config here*/);
     mainPage = new GEMPage(generateMainPageTitle(), exitMenu);
     resumeBtn = new GEMItem("Resume", exitMenu);
@@ -59,11 +60,11 @@ void Menu::init() {
     settingsBtn = new GEMItem("Settings", [](){});
     powerOffBtn = new GEMItem("Power Off", [](){context->pm.enterDeepSleep();});
     settingsPage = new GEMPage("Settings", [](){exitSettingsPageCallback(false);});
-    contrastItem = new GEMItem("Contrast", contrast);
-    backlightTimeoutItem = new GEMItem("Backlight Timeout (sec)", backlightTimeoutSec);
-    powerOffTimeoutItem = new GEMItem("Power Off Timeout (min)", powerOffTimeoutMin);
-    unlockEmulationSpeedItem = new GEMItem("Unlock Speed", unlockSpeed);
-    enableLoggingItem = new GEMItem("Logging", enableLogging);
+    contrastItem = new GEMItem("Contrast", contrast, [](){context->applySettings();});
+    backlightTimeoutItem = new GEMItem("Backlight Timeout (sec)", backlightTimeoutSec, [](){context->applySettings();});
+    powerOffTimeoutItem = new GEMItem("Power Off Timeout (min)", powerOffTimeoutMin, [](){context->applySettings();});
+    unlockEmulationSpeedItem = new GEMItem("Unlock Speed", unlockSpeed, [](){context->applySettings();});
+    enableLoggingItem = new GEMItem("Enable Logging", enableLogging, [](){context->applySettings();});
     clearLogfileBtn = new GEMItem("Clear Logs", [](){});
     saveSettingsBtn = new GEMItem("Exit & Save", exitSettingsPageCallback, true);
     exitSettingsBtn = new GEMItem("Exit w/o Saving", exitSettingsPageCallback, false);
@@ -153,10 +154,6 @@ void Menu::loadDefaultSettings() {
     powerOffTimeoutMin = FALLBACK_DEEP_SLEEP_TIMEOUT;
     unlockSpeed = FALLBACK_UNLOCK_SPEED;
     enableLogging = FALLBACK_ENABLE_LOGGING;
-}
-
-void Menu::settingsChangedCallback() {
-    context->applySettings();
 }
 
 void Menu::resetSettingsButtonCallback() {
