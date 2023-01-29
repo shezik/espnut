@@ -1,5 +1,7 @@
 #pragma once
 
+#define VERSION "1.0"
+
 // LittleFS
 #define FORMAT_LITTLEFS_IF_FAILED true
 

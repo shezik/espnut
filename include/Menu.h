@@ -8,6 +8,7 @@
 #include "Configuration.h"
 
 #define FILE_LIST_LENGTH 64
+#define MAIN_PAGE_TITLE_LENGTH 64
 
 class Menu {
     protected:
@@ -53,6 +54,8 @@ class Menu {
         bool showingMenu = false;
 
         static Menu *context;
+
+        char *generateMainPageTitle();
     public:
         Menu(KeyboardMgr &, U8G2_DISPLAY_TYPE &, PowerMgr &, NutEmuInterface &);
         ~Menu();

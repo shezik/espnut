@@ -166,7 +166,7 @@ void Menu::enterMenu() {
     obdurateResetCPUBtn->hide(!isProcessorPresent);
     if (isProcessorPresent) {
         // Change page title
-        // mainPage->setTitle(blah blah);  // Keep buffer somewhere
+        mainPage->setTitle(generateMainPageTitle());
     }
 }
 
@@ -174,4 +174,15 @@ void Menu::exitMenu() {
     showingMenu = false;
     kbdMgr.clear();
     kbdMgr.skipReleaseCheck();
+}
+
+char *Menu::generateMainPageTitle() {
+    static char title[MAIN_PAGE_TITLE_LENGTH];
+
+    if (strlen(emu.getRomFilename()))
+        snprintf(title, sizeof(title), "espnut v" VERSION " - %s", emu.getRomFilename());
+    else
+        snprintf(title, sizeof(title), "espnut v" VERSION);
+
+    return title;
 }
