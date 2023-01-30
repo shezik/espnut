@@ -162,7 +162,7 @@ bool NutEmuInterface::saveState(char *filename) {
     return true;
 }
 
-bool NutEmuInterface::loadState(char *filename, bool onlyUpdateMetadata) {
+bool NutEmuInterface::loadState(char *filename, bool doUpdateMetadata, bool doLoadState) {
     char magic[6];
     char romFilename_[ROM_FILENAME_LENGTH];
     uint8_t size;
@@ -186,11 +186,13 @@ bool NutEmuInterface::loadState(char *filename, bool onlyUpdateMetadata) {
             return false;  // you've got a very, very long filename...
         }
     }
-    strcpy(romFilename, romFilename_);
+    
+    if (doUpdateMetadata) {
+        strcpy(romFilename, romFilename_);
+        file.read((uint8_t *) &ramSize, sizeof(int));
+    }
 
-    file.read((uint8_t *) &ramSize, sizeof(int));
-
-    if (onlyUpdateMetadata) {
+    if (!doLoadState) {
         file.close();
         return true;
     }
@@ -272,7 +274,7 @@ bool NutEmuInterface::checkRestoreFlag() {
         return false;
     
     LittleFS.remove(RESTORE_FLAG_FILENAME);
-    return loadState(RESTORE_STATE_FILENAME, true);
+    return loadState(RESTORE_STATE_FILENAME, true, false);
 }
 
 void NutEmuInterface::resetProcessor(bool obdurate) {

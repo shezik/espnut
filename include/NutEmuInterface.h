@@ -37,7 +37,7 @@ class NutEmuInterface {
         bool newProcessor(int, int = NULL, char * = nullptr);
         void tick();
         bool saveState(char *);
-        bool loadState(char *, bool = false);
+        bool loadState(char *, bool, bool);
         bool isProcessorPresent();
         char *getRomFilename();
 
