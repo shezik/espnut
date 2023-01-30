@@ -45,6 +45,10 @@ class Menu {
         // File manager page
         GEMPage *fileManagerPage = nullptr;
         GEMItem *fileList[FILE_LIST_LENGTH + 1] = {0};  // The '+1' is reserved for the 'go up' button
+        // RAM size picker
+        GEMPage *ramSizePage = nullptr;
+        GEMItem *smallRAMBtn = nullptr;
+        GEMItem *largeRAMBtn = nullptr;
 
         uint8_t contrast;
         uint8_t backlightTimeoutSec;
@@ -56,6 +60,7 @@ class Menu {
         bool showingMenu = false;
 
         void (*fileSelectedCallback)(char *) = nullptr;
+        char *selectedROMPath;  // Used after selecting ROM file and before selecting RAM size.
 
         static Menu *context;
 
@@ -82,5 +87,6 @@ class Menu {
         static void exitSettingsPageCallback(GEMCallbackData);
         static void loadStateFileSelectedCallback(char *);
         static void loadROMFileSelectedCallback(char *);
+        static void loadROMRAMSelectedCallback(GEMCallbackData);
         // static void fileSelectedCallback();
 };

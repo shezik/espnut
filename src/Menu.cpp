@@ -37,6 +37,9 @@ Menu::~Menu() {
     delete exitSettingsBtn; exitSettingsBtn = nullptr;
     delete fileManagerPage; fileManagerPage = nullptr;
     freeFileList();
+    delete ramSizePage; ramSizePage = nullptr;
+    delete smallRAMBtn; smallRAMBtn = nullptr;
+    delete largeRAMBtn; largeRAMBtn = nullptr;
 }
 
 void Menu::init() {
@@ -54,7 +57,7 @@ void Menu::init() {
     obdurateResetCPUBtn = new GEMItem("Reset CPU & Memory", [](){context->emu.resetProcessor(true);});
     loadROMBtn = new GEMItem("Load ROM", [](){context->fileSelectedCallback = loadROMFileSelectedCallback; context->enterFileManager("/");});
     showLogfileBtn = new GEMItem("Logs", [](){});
-    settingsBtn = new GEMItem("Settings", [](){});
+    settingsBtn = new GEMItem("Settings", settingsButtonCallback);
     powerOffBtn = new GEMItem("Power Off", [](){context->pm.enterDeepSleep();});
     mainPage->addMenuItem(*resumeBtn);
     mainPage->addMenuItem(*saveStateBtn);
@@ -84,6 +87,11 @@ void Menu::init() {
     settingsPage->addMenuItem(*saveSettingsBtn);
     settingsPage->addMenuItem(*exitSettingsBtn);
     settingsPage->addMenuItem(*resetSettingsBtn);
+    ramSizePage = new GEMPage("Select RAM size (80 for 15C, 40 otherwise)" /*!! Add cancel operation here*/);
+    smallRAMBtn = new GEMItem("40", loadROMRAMSelectedCallback, 40);
+    largeRAMBtn = new GEMItem("80", loadROMRAMSelectedCallback, 80);
+    ramSizePage->addMenuItem(*smallRAMBtn);
+    ramSizePage->addMenuItem(*largeRAMBtn);
 
     if (!loadSettings()) {
         loadDefaultSettings();
@@ -333,5 +341,12 @@ void Menu::loadStateFileSelectedCallback(char *path) {
 }
 
 void Menu::loadROMFileSelectedCallback(char *path) {
+    context->selectedROMPath = path;
+    context->gem->setMenuPageCurrent(*context->ramSizePage);
+    context->gem->drawMenu();
+}
 
+void Menu::loadROMRAMSelectedCallback(GEMCallbackData callbackData) {
+    context->emu.newProcessor(NUT_FREQUENCY_HZ, callbackData.valInt, context->selectedROMPath);
+    exitMenu();
 }
