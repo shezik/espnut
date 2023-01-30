@@ -10,6 +10,8 @@
 #define FILE_LIST_LENGTH 64
 #define MAIN_PAGE_TITLE_LENGTH 64
 
+#define FILE_PATH_LENGTH 128
+
 class Menu {
     protected:
         KeyboardMgr &kbdMgr;
@@ -53,9 +55,12 @@ class Menu {
         uint16_t holdDownCyclesCount = 0;
         bool showingMenu = false;
 
+        void (*fileSelectedCallback)(char *) = nullptr;
+
         static Menu *context;
 
         char *generateMainPageTitle();
+        void freeFileList();
     public:
         Menu(KeyboardMgr &, U8G2_DISPLAY_TYPE &, PowerMgr &, NutEmuInterface &);
         ~Menu();
@@ -66,6 +71,8 @@ class Menu {
         bool saveSettings();
         void loadDefaultSettings();
         void enterMenu();
+        void enterFileManager(char *);
+        static void enterFileManager(GEMCallbackData);
         static void exitMenu();
         // static void clearLogfileCallback();
         static void settingsButtonCallback();

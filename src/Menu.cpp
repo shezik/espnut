@@ -36,12 +36,7 @@ Menu::~Menu() {
     delete resetSettingsBtn; resetSettingsBtn = nullptr;
     delete exitSettingsBtn; exitSettingsBtn = nullptr;
     delete fileManagerPage; fileManagerPage = nullptr;
-    for (int i = 0; i < sizeof(fileList) / sizeof(GEMItem *); i++) {
-        if (fileList[i]) {
-            delete fileList[i];
-            fileList[i] = nullptr;
-        }
-    }
+    freeFileList();
 }
 
 void Menu::init() {
@@ -89,7 +84,6 @@ void Menu::init() {
     settingsPage->addMenuItem(*saveSettingsBtn);
     settingsPage->addMenuItem(*exitSettingsBtn);
     settingsPage->addMenuItem(*resetSettingsBtn);
-    fileManagerPage = new GEMPage("Pick a file...", [](){});
 
     if (!loadSettings()) {
         loadDefaultSettings();
@@ -241,4 +235,67 @@ char *Menu::generateMainPageTitle() {
         snprintf(title, sizeof(title), "espnut v" VERSION);
 
     return title;
+}
+
+void Menu::enterFileManager(char *path) {
+    // Two static char buffers to store data for callback functions
+    static char filenameBuf[FILE_LIST_LENGTH][ROM_FILENAME_LENGTH] = {0};
+    static char filePathBuf[FILE_LIST_LENGTH][FILE_PATH_LENGTH] = {0};
+    uint8_t itemCount = 0;
+
+    // Clean up previous items
+    delete fileManagerPage;
+    freeFileList();
+
+    if (!path) {  // Cancelled
+        if (fileSelectedCallback)
+            fileSelectedCallback(nullptr);
+        return;
+    }
+    if (!LittleFS.exists(path)) {
+        return;  // wtf
+    }
+    File dir = LittleFS.open(path, "r");
+    if (!dir.isDirectory()) {
+        dir.close();
+        if (fileSelectedCallback)
+            fileSelectedCallback(path);
+        return;
+    }
+
+    fileManagerPage = new GEMPage("Pick a file...", [](){context->enterFileManager(nullptr);});
+
+    while (1) {
+        String path = dir.getNextFileName();  // Full path
+        String name = pathToFileName(path.c_str());  // Short filename
+        if (itemCount > 64 || !name.length())
+            break;
+        
+        strncpy(filenameBuf[itemCount], name.c_str(), sizeof(filenameBuf[itemCount]) - 1);
+        filenameBuf[itemCount][sizeof(filenameBuf[itemCount])] = '\0';
+        strncpy(filePathBuf[itemCount], path.c_str(), sizeof(filePathBuf[itemCount]) - 1);
+        filePathBuf[itemCount][sizeof(filePathBuf[itemCount])] = '\0';
+
+        fileList[itemCount] = new GEMItem(filenameBuf[itemCount], enterFileManager, filePathBuf[itemCount]);
+        fileManagerPage->addMenuItem(*fileList[itemCount]);
+        
+        itemCount++;
+    }
+
+    dir.close();
+    gem->setMenuPageCurrent(*fileManagerPage);
+    gem->drawMenu();
+}
+
+void Menu::enterFileManager(GEMCallbackData callbackData) {
+    context->enterFileManager((char *) callbackData.valPointer);
+}
+
+void Menu::freeFileList() {
+    for (int i = 0; i < sizeof(fileList) / sizeof(GEMItem *); i++) {
+        if (fileList[i]) {
+            delete fileList[i];
+            fileList[i] = nullptr;
+        }
+    }
 }
