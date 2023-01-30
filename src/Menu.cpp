@@ -49,6 +49,8 @@ void Menu::init() {
     // Any one-line function is written as lambda expression
     // It's quite interesting that static class methods can access protected members via the (class member) pointer 'context'.
     gem = new GEM_u8g2(u8g2 /*!! More config here*/);
+    gem->init();
+
     mainPage = new GEMPage(generateMainPageTitle(), exitMenu);
     resumeBtn = new GEMItem("Resume", exitMenu);
     saveStateBtn = new GEMItem("Save State", [](){});  // These are placeholders.
@@ -59,6 +61,15 @@ void Menu::init() {
     showLogfileBtn = new GEMItem("Logs", [](){});
     settingsBtn = new GEMItem("Settings", [](){});
     powerOffBtn = new GEMItem("Power Off", [](){context->pm.enterDeepSleep();});
+    mainPage->addMenuItem(*resumeBtn);
+    mainPage->addMenuItem(*saveStateBtn);
+    mainPage->addMenuItem(*loadStateBtn);
+    mainPage->addMenuItem(*resetCPUBtn);
+    mainPage->addMenuItem(*obdurateResetCPUBtn);
+    mainPage->addMenuItem(*loadROMBtn);
+    mainPage->addMenuItem(*showLogfileBtn);
+    mainPage->addMenuItem(*settingsBtn);
+    mainPage->addMenuItem(*powerOffBtn);
     settingsPage = new GEMPage("Settings", [](){exitSettingsPageCallback(false);});
     contrastItem = new GEMItem("Contrast", contrast, [](){context->applySettings();});
     backlightTimeoutItem = new GEMItem("Backlight Timeout (sec)", backlightTimeoutSec, [](){context->applySettings();});
@@ -69,6 +80,15 @@ void Menu::init() {
     saveSettingsBtn = new GEMItem("Exit & Save", exitSettingsPageCallback, true);
     exitSettingsBtn = new GEMItem("Exit w/o Saving", exitSettingsPageCallback, false);
     resetSettingsBtn = new GEMItem("Reset All", resetSettingsButtonCallback);
+    settingsPage->addMenuItem(*contrastItem);
+    settingsPage->addMenuItem(*backlightTimeoutItem);
+    settingsPage->addMenuItem(*powerOffTimeoutItem);
+    settingsPage->addMenuItem(*unlockEmulationSpeedItem);
+    settingsPage->addMenuItem(*enableLoggingItem);
+    settingsPage->addMenuItem(*clearLogfileBtn);
+    settingsPage->addMenuItem(*saveSettingsBtn);
+    settingsPage->addMenuItem(*exitSettingsBtn);
+    settingsPage->addMenuItem(*resetSettingsBtn);
     fileManagerPage = new GEMPage("Pick a file...", [](){});
 
     if (!loadSettings()) {
@@ -123,6 +143,8 @@ bool Menu::loadSettings() {
 void Menu::applySettings() {
     u8g2.setContrast(contrast);
     pm.setBacklightTimeout(backlightTimeoutSec * 1000);
+    if (powerOffTimeoutMin < 1)
+        powerOffTimeoutMin = 1;
     pm.setDeepSleepTimeout(powerOffTimeoutMin * 1000 * 60);
     // !! emu.setUnlockSpeed(unlockSpeed);
     showLogfileBtn->hide(!enableLogging);
@@ -156,11 +178,17 @@ void Menu::loadDefaultSettings() {
     enableLogging = FALLBACK_ENABLE_LOGGING;
 }
 
+void Menu::settingsButtonCallback() {
+    context->gem->setMenuPageCurrent(*context->settingsPage);
+    context->gem->drawMenu();
+}
+
 void Menu::resetSettingsButtonCallback() {
     context->loadDefaultSettings();
     context->applySettings();
     context->saveSettings();
     // !! Redraw menu here?
+    context->gem->drawMenu();
 }
 
 void Menu::exitSettingsPageCallback(bool doSave) {
@@ -171,7 +199,9 @@ void Menu::exitSettingsPageCallback(bool doSave) {
         context->loadSettings();
         context->applySettings();
     }
-    // !! Go back to main menu
+    // Go back to main menu
+    context->gem->setMenuPageCurrent(*context->mainPage);
+    context->gem->drawMenu();
 }
 
 void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
@@ -189,6 +219,10 @@ void Menu::enterMenu() {
     resetCPUBtn->hide(!isProcessorPresent);
     obdurateResetCPUBtn->hide(!isProcessorPresent);
     mainPage->setTitle(generateMainPageTitle());
+
+    gem->reInit();
+    gem->setMenuPageCurrent(*mainPage);
+    gem->drawMenu();
 }
 
 void Menu::exitMenu() {

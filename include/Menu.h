@@ -68,6 +68,7 @@ class Menu {
         void enterMenu();
         static void exitMenu();
         // static void clearLogfileCallback();
+        static void settingsButtonCallback();
         static void resetSettingsButtonCallback();
         static void exitSettingsPageCallback(bool);
         static void exitSettingsPageCallback(GEMCallbackData);
