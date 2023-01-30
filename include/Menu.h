@@ -44,7 +44,7 @@ class Menu {
         GEMItem *exitSettingsBtn = nullptr;
         // File manager page
         GEMPage *fileManagerPage = nullptr;
-        GEMItem *fileList[FILE_LIST_LENGTH] = {0};
+        GEMItem *fileList[FILE_LIST_LENGTH + 1] = {0};  // The '+1' is reserved for the 'go up' button
 
         uint8_t contrast;
         uint8_t backlightTimeoutSec;
@@ -59,6 +59,7 @@ class Menu {
 
         static Menu *context;
 
+        void dirGoUp(char *);
         char *generateMainPageTitle();
         void freeFileList();
     public:

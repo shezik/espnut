@@ -241,6 +241,7 @@ void Menu::enterFileManager(char *path) {
     // Two static char buffers to store data for callback functions
     static char filenameBuf[FILE_LIST_LENGTH][ROM_FILENAME_LENGTH] = {0};
     static char filePathBuf[FILE_LIST_LENGTH][FILE_PATH_LENGTH] = {0};
+    static char upDirBuf[FILE_PATH_LENGTH] = {0};
     uint8_t itemCount = 0;
 
     // Clean up previous items
@@ -265,10 +266,18 @@ void Menu::enterFileManager(char *path) {
 
     fileManagerPage = new GEMPage("Pick a file...", [](){context->enterFileManager(nullptr);});
 
+    if (strcmp("/", path)) {  // If path and "/" are not equal
+        strncpy(upDirBuf, path, sizeof(upDirBuf) - 1);
+        upDirBuf[sizeof(upDirBuf)] = '\0';
+        dirGoUp(upDirBuf);
+        fileList[FILE_LIST_LENGTH] = new GEMItem("..", enterFileManager, upDirBuf);  // fileList is 'FILE_LIST_LENGTH + 1' long, only this line and freeFileList() should be able to access this last index.
+        fileManagerPage->addMenuItem(*fileList[FILE_LIST_LENGTH]);
+    }
+
     while (1) {
         String path = dir.getNextFileName();  // Full path
         String name = pathToFileName(path.c_str());  // Short filename
-        if (itemCount > 64 || !name.length())
+        if (itemCount >= FILE_LIST_LENGTH || !name.length())
             break;
         
         strncpy(filenameBuf[itemCount], name.c_str(), sizeof(filenameBuf[itemCount]) - 1);
@@ -289,6 +298,20 @@ void Menu::enterFileManager(char *path) {
 
 void Menu::enterFileManager(GEMCallbackData callbackData) {
     context->enterFileManager((char *) callbackData.valPointer);
+}
+
+void Menu::dirGoUp(char *path) {  // First character must be '/'
+    if (*path != '/' || strlen(path) == 1) {
+        return;
+    }
+    char *pathEnd = path + strlen(path) - 1;
+    pathEnd--;  // Skip the last character
+    while (*pathEnd != '/')
+        pathEnd--;
+
+    *pathEnd = '\0';
+    if (!strlen(path))
+        *path = '/';
 }
 
 void Menu::freeFileList() {
