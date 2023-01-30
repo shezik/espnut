@@ -80,5 +80,7 @@ class Menu {
         static void resetSettingsButtonCallback();
         static void exitSettingsPageCallback(bool);
         static void exitSettingsPageCallback(GEMCallbackData);
+        static void loadStateFileSelectedCallback(char *);
+        static void loadROMFileSelectedCallback(char *);
         // static void fileSelectedCallback();
 };

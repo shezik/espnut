@@ -49,10 +49,10 @@ void Menu::init() {
     mainPage = new GEMPage(generateMainPageTitle(), exitMenu);
     resumeBtn = new GEMItem("Resume", exitMenu);
     saveStateBtn = new GEMItem("Save State", [](){});  // These are placeholders.
-    loadStateBtn = new GEMItem("Load State", [](){});
+    loadStateBtn = new GEMItem("Load State", [](){context->fileSelectedCallback = loadStateFileSelectedCallback; context->enterFileManager("/");});
     resetCPUBtn = new GEMItem("Reset CPU", [](){context->emu.resetProcessor();});
     obdurateResetCPUBtn = new GEMItem("Reset CPU & Memory", [](){context->emu.resetProcessor(true);});
-    loadROMBtn = new GEMItem("Load ROM", [](){});
+    loadROMBtn = new GEMItem("Load ROM", [](){context->fileSelectedCallback = loadROMFileSelectedCallback; context->enterFileManager("/");});
     showLogfileBtn = new GEMItem("Logs", [](){});
     settingsBtn = new GEMItem("Settings", [](){});
     powerOffBtn = new GEMItem("Power Off", [](){context->pm.enterDeepSleep();});
@@ -321,4 +321,17 @@ void Menu::freeFileList() {
             fileList[i] = nullptr;
         }
     }
+}
+
+void Menu::loadStateFileSelectedCallback(char *path) {
+    if (!context->emu.isProcessorPresent()) {
+        context->emu.loadState(path, true, false);
+        context->emu.newProcessor(NUT_FREQUENCY_HZ);
+    }
+    context->emu.loadState(path, false, true);  // You can load a mismatching state file for giggles
+    exitMenu();
+}
+
+void Menu::loadROMFileSelectedCallback(char *path) {
+
 }
