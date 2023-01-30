@@ -51,7 +51,7 @@ void Menu::init() {
 
     mainPage = new GEMPage(generateMainPageTitle(), exitMenu);
     resumeBtn = new GEMItem("Resume", exitMenu);
-    saveStateBtn = new GEMItem("Save State", [](){});  // These are placeholders.
+    saveStateBtn = new GEMItem("Save State", saveStateButtonCallback);  // These are placeholders.
     loadStateBtn = new GEMItem("Load State", [](){context->fileSelectedCallback = loadStateFileSelectedCallback; context->enterFileManager("/");});
     resetCPUBtn = new GEMItem("Reset CPU", [](){context->emu.resetProcessor();});
     obdurateResetCPUBtn = new GEMItem("Reset CPU & Memory", [](){context->emu.resetProcessor(true);});
@@ -221,6 +221,7 @@ void Menu::enterMenu() {
     resetCPUBtn->hide(!isProcessorPresent);
     obdurateResetCPUBtn->hide(!isProcessorPresent);
     mainPage->setTitle(generateMainPageTitle());
+    context->saveStateBtn->setReadonly(false);
 
     gem->reInit();
     gem->setMenuPageCurrent(*mainPage);
@@ -349,4 +350,16 @@ void Menu::loadROMFileSelectedCallback(char *path) {
 void Menu::loadROMRAMSelectedCallback(GEMCallbackData callbackData) {
     context->emu.newProcessor(NUT_FREQUENCY_HZ, callbackData.valInt, context->selectedROMPath);
     exitMenu();
+}
+
+void Menu::saveStateButtonCallback() {
+    char stateFilename[32];
+    char randHex[9];  // uint32_t in hex, maximum FFFF FFFF
+    char uptime[17];  // int64_t converted to uint64_t in hex, maximum 16 Fs
+    snprintf(randHex, sizeof(randHex), "%08x", esp_random());  // Unfortunately RF subsystem is disabled, this generates pseudo-random numbers
+    snprintf(uptime, sizeof(uptime), "%016lx", esp_timer_get_time());
+    snprintf(stateFilename, sizeof(stateFilename), "/%s_%4.4s%s", randHex, uptime + 12);
+    context->emu.saveState(stateFilename);
+    context->saveStateBtn->setReadonly(true);
+    // !! Redraw?
 }
