@@ -358,7 +358,7 @@ void Menu::saveStateButtonCallback() {
     char uptime[17];  // int64_t converted to uint64_t in hex, maximum 16 Fs
     snprintf(randHex, sizeof(randHex), "%08x", esp_random());  // Unfortunately RF subsystem is disabled, this generates pseudo-random numbers
     snprintf(uptime, sizeof(uptime), "%016lx", esp_timer_get_time());
-    snprintf(stateFilename, sizeof(stateFilename), "/%s_%4.4s%s", randHex, uptime + 12);
+    snprintf(stateFilename, sizeof(stateFilename), "/%s_%4.4s%s", context->emu.getRomFilename(), randHex, uptime + 12);
     context->emu.saveState(stateFilename);
     context->saveStateBtn->setReadonly(true);
     // !! Redraw?
