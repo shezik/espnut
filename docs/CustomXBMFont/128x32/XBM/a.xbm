@@ -1,0 +1,4 @@
+#define a_width 8
+#define a_height 2
+static unsigned char a_bits[] = {
+   0xfc, 0xfc };

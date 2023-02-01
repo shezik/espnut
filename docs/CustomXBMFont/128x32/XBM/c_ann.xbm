@@ -1,0 +1,4 @@
+#define c_ann_width 4
+#define c_ann_height 6
+static unsigned char c_ann_bits[] = {
+   0x06, 0x09, 0x01, 0x01, 0x09, 0x06 };

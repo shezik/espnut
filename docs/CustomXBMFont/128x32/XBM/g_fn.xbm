@@ -1,0 +1,4 @@
+#define g_fn_width 4
+#define g_fn_height 6
+static unsigned char g_fn_bits[] = {
+   0x0e, 0x09, 0x09, 0x0e, 0x08, 0x06 };
