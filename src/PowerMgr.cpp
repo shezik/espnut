@@ -62,9 +62,9 @@ void PowerMgr::init() {
     pinMode(displayPowerPin, OUTPUT);
     pinMode(displayBacklightPin, OUTPUT);
     setDisplayPower(true);
-    setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT * 1000);  // !! Should be removed after implementing ConfigMgr
+    setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT * 1000);  // Updated after Menu initialization
     feedBacklightTimeout();
-    setDeepSleepTimeout(FALLBACK_DEEP_SLEEP_TIMEOUT * 1000 * 60);  // !! Should be removed after implementing ConfigMgr
+    setDeepSleepTimeout(FALLBACK_DEEP_SLEEP_TIMEOUT * 1000 * 60);  // Updated after Menu initialization
     feedDeepSleepTimeout();
     kbdMgr.registerKeyPressCallback(keyPressCallback);
 }

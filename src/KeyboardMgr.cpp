@@ -65,7 +65,7 @@ void KeyboardMgr::tick() {
     busy = true;
 
     if (isInterruptEnabled && !digitalRead(interruptPin)) {
-        // This happens because ISR executed while busy == true (I guess.)
+        // This happens because ISR could be executed while busy == true (I guess.)
         // tick() should be called frequently.
         handleKeyPress();
     } else {

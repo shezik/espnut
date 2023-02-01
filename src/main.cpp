@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <LittleFS.h>
 #include "util.h"
 #include "U8g2lib.h"
 #include "DispInterface.h"
