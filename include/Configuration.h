@@ -38,3 +38,6 @@
 #define FALLBACK_UNLOCK_SPEED false
 #define FALLBACK_ENABLE_LOGGING false
 #define HOLD_DOWN_CYCLES 64  // !! ?
+
+// DispInterface
+#define XBM_FONT_FILENAME "xbmFont128x32.h"
