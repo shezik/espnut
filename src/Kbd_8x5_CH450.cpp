@@ -79,12 +79,12 @@ uint8_t Kbd_8x5_CH450::readByte() {
     return data;
 }
 
-bool Kbd_8x5_CH450::init(bool ifSendConfig) {
+bool Kbd_8x5_CH450::init(bool skipSendConfig) {
 
     pinMode(sda, OUTPUT);  // Always change pinMode back to OUTPUT state after fiddling 
     pinMode(scl, OUTPUT);  // with it (changing its mode). We assume it is at OUTPUT state by default.
     
-    return ifSendConfig ? sendConfig(false) : true;
+    return skipSendConfig ? true : sendConfig(false);
 }
 
 bool Kbd_8x5_CH450::sendConfig(bool enterSleep) {

@@ -28,7 +28,7 @@ class Kbd_8x5_CH450 {
             Default 1, aggressively 0 (still burns a little time in function calls)
         */
         Kbd_8x5_CH450(uint8_t sda_, uint8_t scl_, uint8_t delayms_ = 1);
-        bool init(bool ifSendConfig);
+        bool init(bool skipSendConfig = false);
         bool sendConfig(bool enterSleep = false);
         uint8_t getKeyData();
         bool toState(uint8_t rawdata);

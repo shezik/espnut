@@ -30,7 +30,7 @@ void setup() {
     
     u8g2.setBusClock(U8G2_BUS_CLK);
     u8g2.begin();
-    keyboard.init(!powerMgr.wokenUpFromDeepSleep());  // Set CH450_SDA/SCL pin mode & init CH450. !! DO NOT INIT IF WOKEN UP BY IT, TO GET THE WAKING KEYCODE!
+    keyboard.init(powerMgr.wokenUpFromDeepSleep());  // Set CH450_SDA/SCL pin mode & init CH450. DO NOT INIT IF WOKEN UP BY IT, TO GET THE WAKING KEYCODE!
     keyboardMgr.init();  // Set keyboard interrupt pin mode
     menu.init();  // Load user settings into classes
     
