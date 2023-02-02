@@ -96,10 +96,10 @@ void NutEmuInterface::tick() {
         return;
 
     if (kbdMgr.count()) {
-        kbdMgr.busy = true;
+        kbdMgr.setBusy(true);
         keycode = kbdMgr.getLastKeycode();
         kbdMgr.removeLastKeycode();
-        kbdMgr.busy = false;
+        kbdMgr.setBusy(false);
         if (keycode < 0)
             nut_release_key(nv);
         else

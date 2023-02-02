@@ -10,12 +10,12 @@ class KeyboardMgr : public KeyQueue {
         uint8_t interruptPin;
         bool isInterruptEnabled = false;
         void checkForRelease();
-    public:
-        Kbd_8x5_CH450 &keyboard;                // We are not using getter and setters
-        KeyboardMgr(Kbd_8x5_CH450 &, uint8_t);  // on these variables because function
-        bool busy = false;                      // calls take time and these are being
-        bool pendingRelease = false;            // used in our time-sensivive ISR.
+        Kbd_8x5_CH450 &keyboard;
         void (*keyPressCallback)() = nullptr;
+        bool busy = false;
+        bool pendingRelease = false;
+    public:
+        KeyboardMgr(Kbd_8x5_CH450 &, uint8_t);
         // Don't call this outside if interrupt is enabled.
         void handleKeyPress();
 
@@ -31,6 +31,11 @@ class KeyboardMgr : public KeyQueue {
         // Callback should be protected from the interrupt (if you are not using handleKeyPress())
         // Key release also counts!
         void registerKeyPressCallback(void (*)());
+
+        bool getPendingRelease();
+        bool getBusy();
+        // Returns true if a key was pressed while busy == true and was fixed
+        bool setBusy(bool);
 
         static void keyboardCallback(void *ptr);
 };
