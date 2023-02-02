@@ -28,41 +28,40 @@ void NutEmuInterface::sim_run() {
     static int instructionCount;
 
     currentTime = esp_timer_get_time();
-    if (currentTime >= NEXT_RUN_TIME) {
-        deltaMs = currentTime - lastRunTime;
-        if (deltaMs > 2000)
-            deltaMs = 2000;  // According to proc.c, this should be 1000 but it feels wrong?
+    if (currentTime < NEXT_RUN_TIME)
+        return;
 
-        instructionCount = deltaMs * wordsPerMs;
-        if (instructionCount > MAX_INST_BURST)
-            instructionCount = MAX_INST_BURST;
+    deltaMs = currentTime - lastRunTime;
+    if (deltaMs > 2000)
+        deltaMs = 2000;  // According to proc.c, this should be 1000 but it feels wrong?
 
-        while (instructionCount--) {
-            if (!(instructionCount % 100))  // yield() when divisible by 100
-                yield();
-            if (!nut_execute_instruction(nv))
-                break;
-        }
+    instructionCount = deltaMs * wordsPerMs;
+    if (instructionCount > MAX_INST_BURST)
+        instructionCount = MAX_INST_BURST;
 
-        // nv->awake  displayStateStabilized
-        //     1                0             Display toggle? Maybe another type of 'light sleep'.
-        //     1                1             Normal state
-        //     0                1             Light sleep
-        //     0                0             Deep sleep, should only respond to ON key.
-        if (!nv->awake && !kbdMgr.count() && !kbdMgr.pendingRelease) {
-            if (displayStateStabilized) {
-                frequencyReduced = pm.reduceFrequency();
-                // CH450 should not sleep since only a few dedicated rows of keys are able to bring it up
-                // Polling will work but why the hassle?
-            } else {
-                pm.enterDeepSleep();  // deepSleepPrepare() is registered as callback
-            }
-        } else if (frequencyReduced) {
-            pm.restoreFrequency();
-        }
-
-        lastRunTime = esp_timer_get_time();
+    while (instructionCount--) {
+        if (!(instructionCount % 100))  // yield() when divisible by 100
+            yield();
+        if (!nut_execute_instruction(nv))
+            break;
     }
+
+    // nv->awake  displayStateStabilized
+    //     1                0             Display toggle? Maybe another type of 'light sleep'.
+    //     1                1             Normal state
+    //     0                1             Light sleep
+    //     0                0             Deep sleep, should only respond to ON key.
+    if (!nv->awake && !kbdMgr.count() && !kbdMgr.getPendingRelease()) {
+        if (displayStateStabilized)
+            frequencyReduced = pm.reduceFrequency();
+            // CH450 should not sleep since only a few dedicated rows of keys are able to bring it up
+            // Polling will work but why the hassle?
+        else
+            pm.enterDeepSleep();  // deepSleepPrepare() is registered as callback
+    } else if (frequencyReduced)
+        pm.restoreFrequency();
+
+    lastRunTime = esp_timer_get_time();
 }
 
 // Pass nullptr or left out filename to load from romFilename
@@ -71,9 +70,9 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filen
     wordsPerMs = clockFrequency / (1.0E3 * ARCH_NUT_WORD_LENGTH);
 
     deinit();
-    if (ramSize_) {
+    if (ramSize_)
         ramSize = ramSize_;
-    }
+
     if (filename) {
         strncpy(romFilename, filename, sizeof(romFilename) - 1);
         romFilename[sizeof(romFilename)] = '\0';
@@ -93,22 +92,22 @@ void NutEmuInterface::deinit() {
 void NutEmuInterface::tick() {
     static int keycode;
 
-    if (nv) {
-        if (kbdMgr.count()) {
-            kbdMgr.busy = true;
-            keycode = kbdMgr.getLastKeycode();
-            kbdMgr.removeLastKeycode();
-            kbdMgr.busy = false;
-            if (keycode < 0) {
-                nut_release_key(nv);
-            } else {
-                nut_press_key(nv, keycode);
-            }
-        }
+    if (!nv)
+        return;
 
-        // !! check for run flag here
-        sim_run();
+    if (kbdMgr.count()) {
+        kbdMgr.busy = true;
+        keycode = kbdMgr.getLastKeycode();
+        kbdMgr.removeLastKeycode();
+        kbdMgr.busy = false;
+        if (keycode < 0)
+            nut_release_key(nv);
+        else
+            nut_press_key(nv, keycode);
     }
+
+    // !! check for run flag here
+    sim_run();
 }
 
 bool NutEmuInterface::saveState(char *filename) {
@@ -180,11 +179,11 @@ bool NutEmuInterface::loadState(char *filename, bool doUpdateMetadata, bool doLo
 
     size = file.readBytesUntil('\0', romFilename_, sizeof(romFilename_) - 1);
     romFilename_[size] = '\0';
-    if (size == sizeof(romFilename_) - 1) {  // Need to skip one '\0' in stream
-        if (!file.available() || file.read() != '\0') {
-            file.close();
-            return false;  // you've got a very, very long filename...
-        }
+    if (size == sizeof(romFilename_) - 1  // Need to skip one '\0' in stream
+        && (!file.available() || file.read() != '\0')) {
+            
+        file.close();
+        return false;  // you've got a very, very long filename...
     }
     
     if (doUpdateMetadata) {
@@ -278,17 +277,19 @@ bool NutEmuInterface::checkRestoreFlag() {
 }
 
 void NutEmuInterface::resetProcessor(bool obdurate) {
-    if (nv) {
-        do_event(nv, event_reset);
-        if (obdurate)
-            do_event(nv, event_clear_memory);
-    }
+    if (!nv)
+        return;
+
+    do_event(nv, event_reset);
+    if (obdurate)
+        do_event(nv, event_clear_memory);
 }
 
 void NutEmuInterface::deepSleepPrepare() {
-    if (nv) {
-        saveState(RESTORE_STATE_FILENAME);
-        File flag = LittleFS.open(RESTORE_FLAG_FILENAME, "w");
-        flag.close();
-    }
+    if (!nv)
+        return;
+
+    saveState(RESTORE_STATE_FILENAME);
+    File flag = LittleFS.open(RESTORE_FLAG_FILENAME, "w");
+    flag.close();
 }
