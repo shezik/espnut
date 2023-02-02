@@ -58,6 +58,7 @@ class Menu {
 
         uint16_t holdDownCyclesCount = 0;
         bool showingMenu = false;
+        bool showMenuFlag;
 
         void (*fileSelectedCallback)(char *) = nullptr;
         char *selectedROMPath;  // Used after selecting ROM file and before selecting RAM size.
@@ -70,7 +71,7 @@ class Menu {
     public:
         Menu(KeyboardMgr &, U8G2_DISPLAY_TYPE &, PowerMgr &, NutEmuInterface &);
         ~Menu();
-        void init();
+        void init(bool = false);
         bool tick();  // Return value decides whether NutEmuInterface should tick
         bool loadSettings();  // Load settings from file to menu
         void applySettings();  // Apply settings in Menu to other classes

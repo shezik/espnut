@@ -42,7 +42,9 @@ Menu::~Menu() {
     delete largeRAMBtn; largeRAMBtn = nullptr;
 }
 
-void Menu::init() {
+void Menu::init(bool skipMenu) {
+    showMenuFlag = !skipMenu;
+
     // Allocate GEM objects here
     // Any one-line function is written as lambda expression
     // It's quite interesting that static class methods can access protected members via the (class member) pointer 'context'.
@@ -102,6 +104,11 @@ void Menu::init() {
 
 bool Menu::tick() {
     static int keycode;
+
+    if (showMenuFlag) {
+        showMenuFlag = false;
+        enterMenu();
+    }
 
     if (showingMenu) {
         if (gem->readyForKey()) {
