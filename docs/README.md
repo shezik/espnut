@@ -19,6 +19,7 @@ The successor of shezik/esp15c (now archived).
 - Implement emu.setUnlockSpeed()
 - Read comments marked with '!!'
 - Add ESP32 cpu frequency options to Menu
+- Battery level detection
 
 ### Coming soon
 - PCB file & BOM
