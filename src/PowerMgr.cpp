@@ -74,9 +74,8 @@ void PowerMgr::tick() {
     if (getBacklightPower() && timeNow >= nextBacklightOff)
         setBacklightPower(false);
     
-    if (timeNow >= nextDeepSleep) {
+    if (timeNow >= nextDeepSleep)
         enterDeepSleep();
-    }
 }
 
 bool PowerMgr::getDisplayPower() {

@@ -124,12 +124,10 @@ bool Menu::tick() {
         if (holdDownCyclesCount == HOLD_DOWN_CYCLES) {
             holdDownCyclesCount = 0;
             enterMenu();
-        } else {
+        } else
             return false;  // Pause emulator execution for now
-        }
-    } else if (holdDownCyclesCount) {
+    } else if (holdDownCyclesCount)
         holdDownCyclesCount = 0;
-    }
 
     return !showingMenu;  // Acts as emulator run flag
 }
