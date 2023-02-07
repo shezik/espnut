@@ -1,101 +1,101 @@
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/dedic_gpio.h"
-#include "driver/gpio.h"
 #include "MatrixKeyboard.h"
 
-typedef struct {
-    dedic_gpio_bundle_handle_t row_bundle;
-    dedic_gpio_bundle_handle_t col_bundle;
-    uint8_t row_gpios_n;
-    uint8_t col_gpios_n;
-    uint8_t debounce_ms;
-    uint32_t last_row_state;
-    uint32_t last_col_state;
-} matrix_keyboard_handle_t;
-
-static uint32_t readRow(matrix_keyboard_handle_t *handle) {
-    dedic_gpio_bundle_write(handle->col_bundle, COL_1, 0);
-    dedic_gpio_bundle_write(handle->row_bundle, ROW_1, ROW_1);
-    return (~dedic_gpio_bundle_read_in(handle->row_bundle)) & (ROW_1);
+static void writeRow(matrix_keyboard_handle_t *handle, uint8_t index) {
+    dedic_gpio_bundle_write(handle->row_bundle, ROW_1, (~(1 << index)) & ROW_1);
 }
 
 static uint32_t readCol(matrix_keyboard_handle_t *handle) {
-    dedic_gpio_bundle_write(handle->row_bundle, ROW_1, 0);
-    dedic_gpio_bundle_write(handle->col_bundle, COL_1, COL_1);
     return (~dedic_gpio_bundle_read_in(handle->col_bundle)) & (COL_1);
 }
 
-// Something must have changed for this to be called
-static uint32_t generateKeycode(matrix_keyboard_handle_t *handle, uint32_t rowData, uint32_t colData) {
-    uint32_t rowDiff = rowData ^ handle->last_row_state;
-    uint32_t colDiff = colData ^ handle->last_col_state;
+static void getKeycode(matrix_keyboard_handle_t *handle) {
+    for (uint8_t row = 0; row < handle->row_gpios_n; row++) {
+        // IO RW section
+        writeRow(handle, row);
+        uint32_t colData = readCol(handle);
 
-    // Once this statement is false, the I/O swapping method no longer gives correct results.
-    // Shouldn't be a problem if keys are pressed/released one by one.
-    // Ghosting may be solved with diodes. (Imagine an NKRO calculator keypad lol)
-    if (__builtin_popcount(rowDiff) <= 1 || __builtin_popcount(colDiff) <= 1) {
-        if (!rowDiff) {  // All keys on one row, which already contains pressed keys
-            uint8_t row = __builtin_ffs(rowData) - 1;
-            for (/*omitted*/; colDiff; colDiff &= colDiff - 1) {
-                uint8_t col = __builtin_ffs(colDiff) - 1;
-                MakeKeycode(colData & (1 << col), row, col);
+        // Debounce section
+        uint32_t prevColData = colData;
+        uint8_t debounceResetCount = 0;
+        for (uint8_t i = 0; i < handle->debounce_stable_count; i++) {
+            colData = readCol(handle);
+            if (colData == prevColData)
+                continue;
+            // Otherwise reset counter
+            if (debounceResetCount == handle->debounce_reset_max_count) {
+                printf(MatrixKeyboardTag "Maximum debounce reset count (%d) exceeded!\n", handle->debounce_reset_max_count);
+                break;
             }
-        } else if (!colDiff) {  // All keys on one column, which already contains pressed keys
-            uint8_t col = __builtin_ffs(colData) - 1;
-            for (/*omitted*/; rowDiff; rowDiff &= rowDiff - 1) {
-                uint8_t row = __builtin_ffs(rowDiff) - 1;
-                MakeKeycode(rowData & (1 << row), row, col);
-            }
-        } else {
-            for (/*omitted*/; rowDiff; rowDiff &= rowDiff - 1) {
-                uint8_t row = __builtin_ffs(rowDiff) - 1;
-                for (/*omitted*/; colDiff; colDiff &= colDiff - 1) {
-                    uint8_t col = __builtin_ffs(colDiff) - 1;
-                    MakeKeycode(colData & (1 << col), row, col);
-                }
-            }
+            printf(MatrixKeyboardTag "Debouncing\n");
+            i = 0;
+            debounceResetCount++;
+            prevColData = colData;
         }
+
+        // Keycode calculation section
+        uint32_t colDiff = colData ^ handle->last_col_state[row];
+        if (!colDiff)
+            continue;
+        handle->last_col_state[row] = colData;
+        for (/*omitted*/; colDiff; colDiff &= colDiff - 1) {
+            uint8_t col = __builtin_ffs(colDiff) - 1;
+            uint8_t keycode = MakeKeycode(colData & (1 << col), row, col);
+            printf(MatrixKeyboardTag "Got keycode (%x), adding to queue\n", keycode);
+            xQueueSend(*handle->key_queue, (void *) &keycode, 10 / portTICK_PERIOD_MS);
+        }
+    }
+}
+
+static void matrixKeyboardLoop(void *pvParameters) {
+    matrix_keyboard_handle_t *handle = static_cast<matrix_keyboard_handle_t *>(pvParameters);
+    for (;;) {
+        getKeycode(handle);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
 
 esp_err_t MatrixKeyboardInit(const matrix_keyboard_config_t *config, matrix_keyboard_handle_t **handle) {
     if (!config)
         return ESP_ERR_INVALID_ARG;
-    matrix_keyboard_handle_t *mkhandle = calloc(1, sizeof(matrix_keyboard_handle_t));
+    matrix_keyboard_handle_t *mkhandle = static_cast<matrix_keyboard_handle_t *>(calloc(1, sizeof(matrix_keyboard_handle_t) + config->col_gpios_n * sizeof(uint8_t)));
     if (!mkhandle)
         return ESP_ERR_NO_MEM;
     mkhandle->row_gpios_n = config->row_gpios_n;
     mkhandle->col_gpios_n = config->col_gpios_n;
-    mkhandle->debounce_ms = config->debounce_ms;
+    mkhandle->debounce_stable_count = config->debounce_stable_count;
+    mkhandle->debounce_reset_max_count = config->debounce_reset_max_count;
+    mkhandle->key_queue = config->key_queue;
+    mkhandle->task_name = config->task_name;
 
-    gpio_config_t io_conf = {
-        .mode = GPIO_MODE_INPUT_OUTPUT_OD,
-        .pull_up_en = 1;
+    gpio_config_t row_conf = {
+        .mode = GPIO_MODE_OUTPUT_OD,
+        // .pull_up_en = GPIO_PULLUP_ENABLE,
     };
     for (uint8_t i = 0; i < config->row_gpios_n; i++) {
-        io_conf.pin_bit_mask = 1ULL << config->row_gpios[i];
-        gpio_config(&io_conf);
+        row_conf.pin_bit_mask = 1ULL << config->row_gpios[i];
+        gpio_config(&row_conf);
     }
+    gpio_config_t col_conf = {
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+    };
     for (uint8_t i = 0; i < config->col_gpios_n; i++) {
-        io_conf.pin_bit_mask = 1ULL << config->col_gpios[i];
-        gpio_config(&io_conf);
+        col_conf.pin_bit_mask = 1ULL << config->col_gpios[i];
+        gpio_config(&col_conf);
     }
 
     dedic_gpio_bundle_config_t bundle_row_config = {
         .gpio_array = config->row_gpios,
         .array_size = config->row_gpios_n,
         .flags = {
-            .in_en = 1,
             .out_en = 1,
         },
     };
     dedic_gpio_bundle_config_t bundle_col_config = {
-        .gpio_array = config->col_gpios;
-        .array_size = config->col_gpios_n;
+        .gpio_array = config->col_gpios,
+        .array_size = config->col_gpios_n,
         .flags = {
             .in_en = 1,
-            .out_en = 1,
         },
     };
     if (!dedic_gpio_new_bundle(&bundle_row_config, &mkhandle->row_bundle) || \
@@ -109,33 +109,18 @@ esp_err_t MatrixKeyboardInit(const matrix_keyboard_config_t *config, matrix_keyb
 esp_err_t MatrixKeyboardDeinit(matrix_keyboard_handle_t *handle) {
     if (!handle)
         return ESP_ERR_INVALID_ARG;
+    vTaskDelete(handle->task_handle);
     dedic_gpio_del_bundle(handle->row_bundle);
     dedic_gpio_del_bundle(handle->col_bundle);
     free(handle);
     return ESP_OK;
 }
 
-void MatrixKeyboardStart() {
-
+void MatrixKeyboardStart(matrix_keyboard_handle_t *handle_) {
+    static matrix_keyboard_handle_t *handle = handle_;
+    xTaskCreatePinnedToCore(matrixKeyboardLoop, handle->task_name, 8192, handle, 1, &handle->task_handle, 0);
 }
 
-void MatrixKeyboardStop() {
-
-}
-
-void MatrixKeyboardLoop(matrix_keyboard_config_t *config) {
-    matrix_keyboard_handle_t *handle = nullptr;
-    MatrixKeyboardInit(config, &handle);
-    uint32_t row, col;
-    for (;;) {
-        // vTaskDelay(100 ms);
-        if (readRow() == handle->last_row_state && readCol == handle->last_col_state)
-            continue;
-        // vTaskDelay(Debounce time);
-        row = readRow();
-        col = readCol();
-        generateKeycode(handle, row, col);  // Handles multiple keys, including key status
-        handle->last_row_state = row;
-        handle->last_col_state = col;
-    }
+void MatrixKeyboardStop(matrix_keyboard_handle_t *handle) {
+    vTaskSuspend(handle->task_handle);
 }
