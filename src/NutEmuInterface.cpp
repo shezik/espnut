@@ -40,8 +40,6 @@ void NutEmuInterface::sim_run() {
         instructionCount = MAX_INST_BURST;
 
     while (instructionCount--) {
-        if (!(instructionCount % 100))  // yield() when divisible by 100
-            yield();
         if (!nut_execute_instruction(nv))
             break;
     }
@@ -251,8 +249,6 @@ char *NutEmuInterface::getRomFilename() {
 }
 
 void NutEmuInterface::updateDisplayCallback() {
-    yield();  // dunno if necessary
-
     displayStateStabilized = nv->display_chip->enable;  // The value is the most reliable NOW
 
     if (displayStateStabilized) {

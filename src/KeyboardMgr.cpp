@@ -52,7 +52,6 @@ void KeyboardMgr::blockingWaitForKey() {
 				removeLastKeycode();
 			}
 		}
-        yield();
 	}
 }
 
