@@ -40,8 +40,17 @@ static void getKeycode(matrix_keyboard_handle_t *handle) {
         for (/*omitted*/; colDiff; colDiff &= colDiff - 1) {
             uint8_t col = __builtin_ffs(colDiff) - 1;
             uint8_t keycode = MakeKeycode(colData & (1 << col), row, col);
+            if (handle->key_event)
+                handle->key_event();
+            if (handle->skip_key_releases) {
+                if (!(colData & (1 << col))) {
+                    printf(MatrixKeyboardTag "Got keycode (%x), but skipped\n", keycode);
+                    continue;
+                }
+                handle->skip_key_releases = false;
+            }
             printf(MatrixKeyboardTag "Got keycode (%x), adding to queue\n", keycode);
-            xQueueSend(*handle->key_queue, (void *) &keycode, 10 / portTICK_PERIOD_MS);
+            xQueueSend(*handle->key_queue, (void *) &keycode, 0);
         }
     }
 }
@@ -66,6 +75,8 @@ esp_err_t MatrixKeyboardInit(const matrix_keyboard_config_t *config, matrix_keyb
     mkhandle->debounce_reset_max_count = config->debounce_reset_max_count;
     mkhandle->key_queue = config->key_queue;
     mkhandle->task_name = config->task_name;
+    mkhandle->key_event = config->key_event;
+    mkhandle->skip_key_releases = false;
 
     gpio_config_t row_conf = {
         .mode = GPIO_MODE_OUTPUT_OD,
@@ -116,11 +127,15 @@ esp_err_t MatrixKeyboardDeinit(matrix_keyboard_handle_t *handle) {
     return ESP_OK;
 }
 
-void MatrixKeyboardStart(matrix_keyboard_handle_t *handle_) {
-    static matrix_keyboard_handle_t *handle = handle_;
-    xTaskCreatePinnedToCore(matrixKeyboardLoop, handle->task_name, 8192, handle, 1, &handle->task_handle, 0);
+void MatrixKeyboardStart(matrix_keyboard_handle_t *handle) {
+    static matrix_keyboard_handle_t *handle_ = handle;
+    xTaskCreatePinnedToCore(matrixKeyboardLoop, handle_->task_name, 8192, handle_, 1, &handle_->task_handle, 0);
 }
 
 void MatrixKeyboardStop(matrix_keyboard_handle_t *handle) {
     vTaskSuspend(handle->task_handle);
+}
+
+void MatrixKeyboardSkipKeyReleases(matrix_keyboard_handle_t *handle) {
+    handle->skip_key_releases = true;
 }

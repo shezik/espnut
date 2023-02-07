@@ -5,12 +5,6 @@
 // LittleFS
 #define FORMAT_LITTLEFS_IF_FAILED true
 
-// Kbd_8x5_CH450 (Software I2C)
-#define CH450_SDA 21
-#define CH450_SCL 22
-#define CH450_INT 34
-#define CH450_DELAY 0
-
 // U8g2
 #define U8G2_DISPLAY_TYPE U8G2_ST7565_JLX12864_F_4W_SW_SPI
 #define VSPI_DC 19    // VSPI_MISO
@@ -26,6 +20,7 @@
 #define FALLBACK_BACKLIGHT_TIMEOUT 10  // Fallback value, in seconds
 #define FALLBACK_DEEP_SLEEP_TIMEOUT 5  // Fallback value, in minutes
 #define FALLBACK_CPU_FREQUENCY_MHZ 240
+#define POWER_BUTTON 8  // !! Arbitrary value
 
 // Emulator
 #define RESTORE_FLAG_FILENAME "/.RESTORE"
@@ -41,3 +36,10 @@
 
 // DispInterface
 #define XBM_FONT_FILENAME "xbmFont128x32.h"
+
+// KeyboardMgr
+#define KEY_QUEUE_LENGTH 32
+#define ROW_GPIOS 1, 2  // !! Arbitrary value
+#define COL_GPIOS 3, 4
+#define ROW_GPIOS_N 2
+#define COL_GPIOS_N 2

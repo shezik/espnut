@@ -1,41 +1,31 @@
 #pragma once
 
-// Keyboard Manager, handles interrupts and key queue
+#include "MatrixKeyboard.h"
+#include "Configuration.h"
 
-#include "Kbd_8x5_CH450.h"
-#include "KeyQueue.h"
+// Actually it reduces available matrix size from 16x8 down to 15x7
+#define INVALID_KEYCODE 0xFF
+#define ValidateKeycode(keycode) (keycode != INVALID_KEYCODE && keycode != INVALID_KEYCODE >> 1)
 
-class KeyboardMgr : public KeyQueue {
+class KeyboardMgr {
     protected:
-        uint8_t interruptPin;
-        bool isInterruptEnabled = false;
-        void checkForRelease();
-        Kbd_8x5_CH450 &keyboard;
         void (*keyPressCallback)() = nullptr;
-        bool busy = false;
-        bool pendingRelease = false;
+        matrix_keyboard_handle_t *mkHandle = nullptr;
+        QueueHandle_t *keyQueue = nullptr;
     public:
-        KeyboardMgr(Kbd_8x5_CH450 &, uint8_t);
-        // Don't call this outside if interrupt is enabled.
-        void handleKeyPress();
-
+        KeyboardMgr();
+        ~KeyboardMgr();
         void init();
-        void tick();
-        void enableInterrupt();
-        void disableInterrupt();
-        bool getInterruptState();
         void blockingWaitForKey();
-        bool chipEnterSleep();
         void skipReleaseCheck();
-        int getPositiveKeycode();
-        // Callback should be protected from the interrupt (if you are not using handleKeyPress())
-        // Key release also counts!
+        uint8_t getPositiveKeycode();
+        // Call before init(). skipReleaseCheck() does not affect the callback.
+        // Key release also counts! 
         void registerKeyPressCallback(void (*)());
-
-        bool getPendingRelease();
-        bool getBusy();
-        // Returns true if a key was pressed while busy == true and was fixed
-        bool setBusy(bool);
-
-        static void keyboardCallback(void *ptr);
+        // Check if no keys are pressed down
+        bool isKeyboardClear();
+        void clear();
+        uint8_t getLastKeycode();
+        uint8_t peekLastKeycode();
+        bool available();
 };

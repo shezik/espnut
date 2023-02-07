@@ -37,6 +37,7 @@ typedef struct {
     uint8_t debounce_reset_max_count;
     QueueHandle_t *key_queue;
     char *task_name;
+    void (*key_event)();
 } matrix_keyboard_config_t;
 
 typedef struct {
@@ -48,11 +49,16 @@ typedef struct {
     uint8_t debounce_reset_max_count;
     QueueHandle_t *key_queue;
     char *task_name;
+    void (*key_event)();
+    
     TaskHandle_t task_handle;
     uint32_t last_col_state[0];
+    bool skip_key_releases;
 } matrix_keyboard_handle_t;
 
 esp_err_t MatrixKeyboardInit(const matrix_keyboard_config_t *config, matrix_keyboard_handle_t **handle);
 esp_err_t MatrixKeyboardDeinit(matrix_keyboard_handle_t *handle);
-void MatrixKeyboardStart(matrix_keyboard_handle_t *handle_);
+void MatrixKeyboardStart(matrix_keyboard_handle_t *handle);
 void MatrixKeyboardStop(matrix_keyboard_handle_t *handle);
+// Skip adding release keycodes to queue until a press down keycode is found
+void MatrixKeyboardSkipKeyReleases(matrix_keyboard_handle_t *handle);

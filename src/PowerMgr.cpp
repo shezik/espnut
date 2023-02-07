@@ -35,8 +35,7 @@ bool PowerMgr::enterModemSleep() {
 void PowerMgr::enterDeepSleep() {
     if (deepSleepCallback)
         deepSleepCallback();
-    kbdMgr.disableInterrupt();
-    kbdMgr.chipEnterSleep();
+    // kbdMgr.disableInterrupt();
     setDisplayPower(false);
     setBacklightPower(false);
     adc_power_release();

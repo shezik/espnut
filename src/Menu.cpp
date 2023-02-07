@@ -103,14 +103,14 @@ void Menu::init(bool skipMenu) {
 }
 
 bool Menu::tick() {
-    static int keycode;
+    static uint8_t keycode;
 
     if (showMenuFlag) {
         showMenuFlag = false;
         enterMenu();
     }
 
-    if (showingMenu) {
+    if (showingMenu)
         if (gem->readyForKey()) {
             keycode = kbdMgr.getPositiveKeycode();  // Key release is of no use here
             switch (keycode) {
@@ -119,7 +119,7 @@ bool Menu::tick() {
                     ;
             }
         }
-    } else if (kbdMgr.count() && kbdMgr.getLastKeycode() == 24) {  // 'ON' keycode
+    else if (kbdMgr.available() && kbdMgr.peekLastKeycode() == 24) {  // 'ON' keycode
         holdDownCyclesCount++;
         if (holdDownCyclesCount == HOLD_DOWN_CYCLES) {
             holdDownCyclesCount = 0;

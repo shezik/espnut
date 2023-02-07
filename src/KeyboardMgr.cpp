@@ -1,167 +1,87 @@
 #include "KeyboardMgr.h"
 
-void KeyboardMgr::keyboardCallback(void *ptr) {
-    KeyboardMgr *context = static_cast<KeyboardMgr *>(ptr);
-
-    if (!context->getBusy()) {
-        context->handleKeyPress();
-    }
-}
-
-KeyboardMgr::KeyboardMgr(Kbd_8x5_CH450 &keyboard_, uint8_t interruptPin_)
-    : keyboard(keyboard_)
-    , interruptPin(interruptPin_)
-{
+KeyboardMgr::KeyboardMgr() {
     // Do nothing
 }
 
+KeyboardMgr::~KeyboardMgr() {
+    // MatrixKeyboardStop(mkHandle);
+    MatrixKeyboardDeinit(mkHandle);
+    mkHandle = nullptr;
+}
+
 void KeyboardMgr::init() {
-    pinMode(interruptPin, INPUT_PULLUP);  // CH450 keyboard interrupt (active low)
-}
-
-void KeyboardMgr::enableInterrupt() {
-    if (!isInterruptEnabled)
-        attachInterruptArg(interruptPin, KeyboardMgr::keyboardCallback, this, FALLING);
-}
-
-void KeyboardMgr::disableInterrupt() {
-    if (isInterruptEnabled)
-        detachInterrupt(interruptPin);
-}
-
-bool KeyboardMgr::getInterruptState() {
-    return isInterruptEnabled;
+    *keyQueue = xQueueCreate(KEY_QUEUE_LENGTH, sizeof(uint8_t));
+    int rowGPIOs[ROW_GPIOS_N] = {ROW_GPIOS};
+    int colGPIOs[COL_GPIOS_N] = {COL_GPIOS};
+    matrix_keyboard_config_t mkConf = {
+        .row_gpios = rowGPIOs,
+        .col_gpios = colGPIOs,
+        .row_gpios_n = ROW_GPIOS_N,
+        .col_gpios_n = COL_GPIOS_N,
+        .debounce_stable_count = 8,
+        .debounce_reset_max_count = 8,  // ?
+        .key_queue = keyQueue,
+        .task_name = "MatrixKbd",
+        .key_event = keyPressCallback
+    };
+    MatrixKeyboardInit(&mkConf, &mkHandle);
+    MatrixKeyboardStart(mkHandle);
 }
 
 void KeyboardMgr::blockingWaitForKey() {
-    bool prevBusy = getBusy();
-    setBusy(true);
-
-	clear();
-	while (1) {
-        if (!digitalRead(interruptPin))
-                handleKeyPress();  // We poll instead of using interrupts to circumvent inadequate interruption
-
-		if (count()) {
-			if (getLastKeycode() != -1) {
-                clear();
-                skipReleaseCheck();
-                setBusy(prevBusy);
-				return;
-			} else {
-				removeLastKeycode();
-			}
-		}
-	}
-}
-
-void KeyboardMgr::tick() {
-    busy = true;
-
-    if (isInterruptEnabled && !digitalRead(interruptPin))
-        // This happens because ISR could be executed while busy == true (I guess.)
-        // tick() should be called frequently, even though setBusy(false) also checks for this situation.
-        handleKeyPress();
-    else
-        checkForRelease();
-
-    busy = false;
-}
-
-void KeyboardMgr::checkForRelease() {
-    if (pendingRelease && !keyboard.toState(keyboard.getKeyData())) {
-        queueKeycode(-1);
-        pendingRelease = false;
-        if (keyPressCallback)
-            keyPressCallback();
-    }
-}
-
-// To wake up, press any key between SEG0 and SEG3 (keycode 02H+40H to 1FH+40H) or send any command to the chip. Either triggers interrupt. (?)
-bool KeyboardMgr::chipEnterSleep() {
-    setBusy(true);
-    bool result = keyboard.sendConfig(true);
-    setBusy(false);
-    return result;
+    clear();
+    uint8_t keycode;
+    while (!(xQueueReceive(*keyQueue, &keycode, portMAX_DELAY) == pdPASS && GetKeycodeStatus(keycode)));  // !! vTaskDelay() if required.
+    clear();
 }
 
 void KeyboardMgr::skipReleaseCheck() {
-    // There's no need to tackle with ISR to get this feature working.
-    // The ISR either returns with one keycode (key wasn't released immediately) or with the keycode and a '-1' (which can be cleared with clear()).
-    // We just need to make sure after clearing the queue, checkForRelease() doesn't add a '-1' to it later.
-    // Maybe call clear() after this?
-    pendingRelease = false;
+    MatrixKeyboardSkipKeyReleases(mkHandle);
 }
 
-int KeyboardMgr::getPositiveKeycode() {
-    setBusy(true);
-    int keycode;
-
-    while (1) {
-        if (count()) {
-            keycode = getLastKeycode();
-            removeLastKeycode();
-            if (keycode > 0) {
-                break;
-            }  // else continue;
-        } else {
-            keycode = -1;
-            break;
-        }
+uint8_t KeyboardMgr::getPositiveKeycode() {
+    uint8_t keycode;
+    for (;;) {
+        if (xQueueReceive(*keyQueue, &keycode, 0) != pdPASS)
+            return INVALID_KEYCODE;
+        if (GetKeycodeStatus(keycode))
+            return keycode;
     }
-
-    setBusy(false);
-    return keycode;
-}
-
-void KeyboardMgr::handleKeyPress() {
-    static uint8_t keyData;
-
-    if (pendingRelease) {
-        queueKeycode(-1);  // handle simultaneous keypresses  * CH450 doesn't even support that but I'd like to implement it anyway.
-                           //                                 * Q: Does the original calculator support simultaneous keypresses?
-                           //                                   A: Yes. "The real hardware has two-key rollover", according to nonpareil-0.78/src/keyboard.c.
-                           //                                      ~And we are going to implement that later.~  Actually that's not possible with CH450 if you read the datasheet. :(
-    }
-
-    keyData = keyboard.getKeyData();
-    queueKeycode(keyboard.toKeycode(keyData));
-    if (!keyboard.toState(keyData)) {
-        queueKeycode(-1);
-        pendingRelease = false;
-    } else {
-        pendingRelease = true;
-    }
-
-    if (keyPressCallback)
-        keyPressCallback();
 }
 
 void KeyboardMgr::registerKeyPressCallback(void (*callback)()) {
     keyPressCallback = callback;
 }
 
-bool KeyboardMgr::getPendingRelease() {
-    return pendingRelease;
+bool KeyboardMgr::isKeyboardClear() {
+    for (uint8_t i = 0; i < mkHandle->col_gpios_n; i++) {
+        if (mkHandle->last_col_state[i])
+            return false;
+    }
+    return true;
 }
 
-bool KeyboardMgr::getBusy() {
-    return busy;
+void KeyboardMgr::clear() {
+    xQueueReset(*keyQueue);
+    skipReleaseCheck();
 }
 
-bool KeyboardMgr::setBusy(bool busy_) {
-    if (busy_) {
-        busy = true;
-        return false;
-    }
+uint8_t KeyboardMgr::getLastKeycode() {
+    uint8_t keycode;
+    if (xQueueReceive(*keyQueue, &keycode, 0) != pdPASS)
+        return INVALID_KEYCODE;
+    return keycode;
+}
 
-    busy = true;
-    if (isInterruptEnabled && !digitalRead(interruptPin)) {
-        handleKeyPress();
-        setBusy(false);  // See if it happened again
-        return true;
-    }
-    
-    busy = false;  // There's a slight chance that an interrupt would occur between busy = true and busy = false, if not returned.
-    return false;
+uint8_t KeyboardMgr::peekLastKeycode() {
+    uint8_t keycode;
+    if (xQueuePeek(*keyQueue, &keycode, 0) != pdPASS)
+        return INVALID_KEYCODE;
+    return keycode;
+}
+
+bool KeyboardMgr::available() {
+    uint8_t keycode;
+    return xQueuePeek(*keyQueue, &keycode, 0) == pdPASS;
 }
