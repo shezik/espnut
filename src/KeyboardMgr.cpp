@@ -84,3 +84,7 @@ uint16_t KeyboardMgr::peekLastKeycode() {
 uint8_t KeyboardMgr::keysAvailable() {
     return KEY_QUEUE_LENGTH - uxQueueSpacesAvailable(*keyQueue);
 }
+
+QueueHandle_t *KeyboardMgr::getKeyQueue() {
+    return keyQueue;
+}

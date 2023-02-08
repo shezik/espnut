@@ -27,4 +27,5 @@ class KeyboardMgr {
         uint16_t getLastKeycode();
         uint16_t peekLastKeycode();
         uint8_t keysAvailable();
+        QueueHandle_t *getKeyQueue();
 };
