@@ -1,4 +1,5 @@
 #include "MatrixKeyboard.h"
+#include "Configuration.h"
 
 static void writeRow(matrix_keyboard_handle_t *handle, uint8_t index) {
     dedic_gpio_bundle_write(handle->row_bundle, ROW_1, (~(1 << index)) & ROW_1);

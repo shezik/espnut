@@ -1,3 +1,7 @@
+#include <WiFi.h>
+#include <driver/rtc_io.h>
+#include <driver/adc.h>
+#include "Configuration.h"
 #include "PowerMgr.h"
 
 PowerMgr *PowerMgr::context = nullptr;  // classic

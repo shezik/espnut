@@ -18,7 +18,6 @@
 #include "queue.h"
 #include "driver/dedic_gpio.h"
 #include "driver/gpio.h"
-#include "Configuration.h"
 
 /*
 // uint8_t, 0 ~ 127

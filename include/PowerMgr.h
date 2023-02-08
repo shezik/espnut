@@ -1,11 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
-#include <WiFi.h>
 #include "KeyboardMgr.h"
-#include <driver/rtc_io.h>
-#include <driver/adc.h>
-#include "Configuration.h"
 
 class PowerMgr {
     protected:
