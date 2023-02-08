@@ -2,9 +2,11 @@
     GPIO bundle interrupt is NOT AVAILABLE on ESP32-S3, how sad. (What for??)
     Poll, then.
 
-    Keycode structure: (16x8)
+    Keycode structure:
         uint8_t 1        001        0001
                 ^_Status ^^^_Row    ^^^^_Column
+       uint16_t 1        010 1010 1010 1010
+                ^_Status ^^^^^^^^^^^^^^^^^^_Translated keycode
 */
 
 #pragma once
@@ -17,10 +19,25 @@
 #include "driver/dedic_gpio.h"
 #include "driver/gpio.h"
 
+/*
+// uint8_t, 0 ~ 127
 #define MakeKeycode(status, row, col) (((status & 0x01) << 7) | ((row & 0x07) << 4) | (col & 0x0F))
 #define GetKeycodeStatus(keycode)         ((keycode >> 7) & 0x01)
 #define GetKeycodeRow(keycode)            ((keycode >> 4) & 0x07)
 #define GetKeycodeCol(keycode)            (keycode & 0x0F)
+*/
+
+// uint16_t, 0 ~ 32767
+#define MakeKeycode(status, row, col) (((status & 0x01) << 15) | keycodeMap[row][col] & 0x7FFF)
+#define GetKeycodeStatus(keycode)     ((keycode >> 15) & 0x01)
+#define GetKeycodeContent(keycode)    (keycode & 0x7FFF)
+
+const uint16_t keycodeMap[4][10] = {
+    {19, 51, 115, 195, 131, 130, 194, 114, 50, 18},
+    {16, 48, 112, 192, 128, 135, 199, 119, 55, 23},
+    {17, 49, 113, 193, 129, 132, 196, 116, 52, 20},
+    {24, 56, 120, 200, 136, 132, 197, 117, 53, 21}
+};
 
 #define ROW_1 ((1 << handle->row_gpios_n) - 1)
 #define COL_1 ((1 << handle->col_gpios_n) - 1)
@@ -50,7 +67,7 @@ typedef struct {
     QueueHandle_t *key_queue;
     char *task_name;
     void (*key_event)();
-    
+
     TaskHandle_t task_handle;
     uint32_t last_col_state[0];
     bool skip_key_releases;

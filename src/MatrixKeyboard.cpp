@@ -39,17 +39,17 @@ static void getKeycode(matrix_keyboard_handle_t *handle) {
         handle->last_col_state[row] = colData;
         for (/*omitted*/; colDiff; colDiff &= colDiff - 1) {
             uint8_t col = __builtin_ffs(colDiff) - 1;
-            uint8_t keycode = MakeKeycode(colData & (1 << col), row, col);
+            uint16_t keycode = MakeKeycode(colData & (1 << col), row, col);
             if (handle->key_event)
                 handle->key_event();
             if (handle->skip_key_releases) {
                 if (!(colData & (1 << col))) {
-                    printf(MatrixKeyboardTag "Got keycode (%x), but skipped\n", keycode);
+                    printf(MatrixKeyboardTag "Got keycode %d (row %d, col %d), but skipped\n", keycode, row, col);
                     continue;
                 }
                 handle->skip_key_releases = false;
             }
-            printf(MatrixKeyboardTag "Got keycode (%x), adding to queue\n", keycode);
+            printf(MatrixKeyboardTag "Got keycode %d (row %d, col %d), adding to queue\n", keycode, row, col);
             xQueueSend(*handle->key_queue, (void *) &keycode, 0);
         }
     }
