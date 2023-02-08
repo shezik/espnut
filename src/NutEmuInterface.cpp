@@ -49,7 +49,7 @@ void NutEmuInterface::sim_run() {
     //     1                1             Normal state
     //     0                1             Light sleep
     //     0                0             Deep sleep, should only respond to ON key.
-    if (!nv->awake && !kbdMgr.available() && kbdMgr.isKeyboardClear()) {
+    if (!nv->awake && !kbdMgr.keysAvailable() && kbdMgr.isKeyboardClear()) {
         if (displayStateStabilized)
             frequencyReduced = pm.reduceFrequency();
             // CH450 should not sleep since only a few dedicated rows of keys are able to bring it up
@@ -93,8 +93,8 @@ void NutEmuInterface::tick() {
     if (!nv)
         return;
 
-    if (kbdMgr.available()) {
         keycode = kbdMgr.getLastKeycode();
+    if (kbdMgr.keysAvailable()) {
         if (keycode < 0)  // !!
             nut_release_key(nv);
         else

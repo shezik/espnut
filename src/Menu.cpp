@@ -111,18 +111,18 @@ bool Menu::tick() {
     }
 
     if (showingMenu)
-        if (gem->readyForKey()) {
             keycode = kbdMgr.getPositiveKeycode();  // Key release is of no use here
+        if (gem->readyForKey() && kbdMgr.keysAvailable()) {
             switch (keycode) {
                 // !! Translate keycode blah blah
                 default:
                     ;
             }
         }
-    else if (kbdMgr.available() && kbdMgr.peekLastKeycode() == 24) {  // 'ON' keycode
         holdDownCyclesCount++;
         if (holdDownCyclesCount == HOLD_DOWN_CYCLES) {
             holdDownCyclesCount = 0;
+    else if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == ON_KEYCODE) {
             enterMenu();
         } else
             return false;  // Pause emulator execution for now

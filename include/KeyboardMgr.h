@@ -27,5 +27,5 @@ class KeyboardMgr {
         void clear();
         uint8_t getLastKeycode();
         uint8_t peekLastKeycode();
-        bool available();
+        uint8_t keysAvailable();
 };

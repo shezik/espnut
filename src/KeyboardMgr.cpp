@@ -81,7 +81,6 @@ uint8_t KeyboardMgr::peekLastKeycode() {
     return keycode;
 }
 
-bool KeyboardMgr::available() {
-    uint8_t keycode;
-    return xQueuePeek(*keyQueue, &keycode, 0) == pdPASS;
+uint8_t KeyboardMgr::keysAvailable() {
+    return KEY_QUEUE_LENGTH - uxQueueSpacesAvailable(*keyQueue);
 }
