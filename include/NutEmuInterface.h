@@ -37,7 +37,8 @@ class NutEmuInterface {
         void keyPressed(uint16_t);
         void keyReleased(uint16_t);
         std::set<uint16_t> keysPressedSet;
-        void (*postponedKeyAction)() = nullptr;
+        // Executed every tick before sim_run(), overrides key detection, and keeps emulator from sleeping if not nullptr.
+        void (*tickActionOverride)() = nullptr;
     public:
         NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
         ~NutEmuInterface();
