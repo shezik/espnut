@@ -38,6 +38,7 @@
 #define XBM_FONT_FILENAME "xbmFont128x32.h"
 
 // KeyboardMgr
+#define KEY_SCAN_INTERVAL 100  // ms
 #define KEY_QUEUE_LENGTH 32
 #define ROW_GPIOS 1, 2  // !! Arbitrary value
 #define COL_GPIOS 3, 4

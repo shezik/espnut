@@ -59,7 +59,7 @@ static void matrixKeyboardLoop(void *pvParameters) {
     matrix_keyboard_handle_t *handle = static_cast<matrix_keyboard_handle_t *>(pvParameters);
     for (;;) {
         getKeycode(handle);
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(KEY_SCAN_INTERVAL));
     }
 }
 
