@@ -85,21 +85,57 @@ void NutEmuInterface::deinit() {
         nut_free_processor(nv); nv = nullptr;  // !! Check if there's any memory leak
     }
     pm.registerDeepSleepCallback(nullptr);
+    keysPressedSet.clear();
+}
+
+void NutEmuInterface::keyPressed(uint16_t keycodeContent) {
+    keysPressedSet.insert(keycodeContent);
+    if (keysPressedSet.size() == 1) {
+        keyPressedFirst = keycodeContent;
+        nut_press_key(nv, keycodeContent);
+    } else
+        printf("additional key press, keycode %d\n", keycodeContent);
+}
+
+void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
+    keysPressedSet.erase(keycodeContent);
+    switch (keysPressedSet.size()) {
+        case 0:
+            printf("last key release, keycode %d\n", keycodeContent);
+            nut_release_key(nv);
+            break;
+        case 1:
+            printf("next-to-last key release, keycode %d\n", keycodeContent);
+            uint16_t keycode = *keysPressedSet.end();
+            if (keycode != keyPressedFirst) {
+                printf("rollover pressing keycode %d\n", keycode);
+                nut_release_key(nv);
+                keyPressedFirst = keycode;
+                // The following function will be called once on the next tick.
+                postponedKeyAction = [](){nut_press_key(context->nv, context->keyPressedFirst /*should be 'keycode' but that's a local variable*/);};
+            }
+            break;
+        default:
+            printf("key release, keycode %d\n", keycodeContent);
+    }
 }
 
 void NutEmuInterface::tick() {
     if (!nv)
         return;
 
-    if (kbdMgr.keysAvailable()) {
-        uint16_t keycode = kbdMgr.getLastKeycode();
-        if (keycode < 0)  // !!
-            nut_release_key(nv);
-        else
-            nut_press_key(nv, keycode);
-    }
+    if (postponedKeyAction) {
+        postponedKeyAction();
+        postponedKeyAction = nullptr;  // !! Will it cause a memory leak? (I don't think so)
+    } else
+        if (kbdMgr.keysAvailable()) {
+            uint16_t keycode = kbdMgr.getLastKeycode();
+            if (GetKeycodeStatus(keycode))
+                keyPressed(GetKeycodeContent(keycode));
+            else
+                keyReleased(GetKeycodeContent(keycode));
+        }
 
-    // !! check for run flag here
     sim_run();
 }
 

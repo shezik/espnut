@@ -5,6 +5,7 @@
 #include "DispInterface.h"
 #include "proc_nut.h"
 #include "PowerMgr.h"
+#include <set>
 
 // In arch.c
 #define ARCH_NUT_WORD_LENGTH 56
@@ -14,7 +15,6 @@
 #define MAX_INST_BURST 5000
 
 #define NEXT_RUN_TIME (lastRunTime + JIFFY_MSEC)
-
 #define ROM_FILENAME_LENGTH 32
 
 class NutEmuInterface {
@@ -31,11 +31,20 @@ class NutEmuInterface {
         int ramSize = NULL;
         static NutEmuInterface *context;
         char romFilename[ROM_FILENAME_LENGTH] = {0};
+
+        // 2-key rollover
+        uint16_t keyPressedFirst;
+        void keyPressed(uint16_t);
+        void keyReleased(uint16_t);
+        std::set<uint16_t> keysPressedSet;
+        void (*postponedKeyAction)() = nullptr;
     public:
         NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
         ~NutEmuInterface();
         bool newProcessor(int, int = NULL, char * = nullptr);
         void tick();
+        // Call resume() when exiting menu and resuming emulator to avoid potential key detection related bugs
+        void resume();
         bool saveState(char *);
         bool loadState(char *, bool, bool);
         bool isProcessorPresent();
