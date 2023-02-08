@@ -139,6 +139,10 @@ void NutEmuInterface::tick() {
     sim_run();
 }
 
+void NutEmuInterface::resume() {
+    keysPressedSet.clear();
+}
+
 bool NutEmuInterface::saveState(char *filename) {
     if (!nv)
         return false;

@@ -240,6 +240,7 @@ void Menu::exitMenu() {
     context->showingMenu = false;
     context->u8g2.clear();
     context->kbdMgr.clear();
+    context->emu.resume();
 }
 
 char *Menu::generateMainPageTitle() {
