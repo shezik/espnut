@@ -45,7 +45,7 @@ void PowerMgr::enterDeepSleep() {
 }
 
 bool PowerMgr::wokenUpFromDeepSleep() {
-    return woken;
+    return wokenUp;
 }
 
 void PowerMgr::init() {
@@ -54,17 +54,19 @@ void PowerMgr::init() {
     // Deep Sleep Cleanup
     esp_sleep_wakeup_cause_t wakeupReason = esp_sleep_get_wakeup_cause();
     if (wakeupReason == ESP_SLEEP_WAKEUP_EXT0) {
-        woken = true;
+        wokenUp = true;
         rtc_gpio_deinit((gpio_num_t) wakeUpInterruptPin);  // This one doesn't reset on wakeup according to https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/sleep_modes.html
     }
 
     pinMode(displayPowerPin, OUTPUT);
     pinMode(displayBacklightPin, OUTPUT);
     setDisplayPower(true);
+
     setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT * 1000);  // Updated after Menu initialization
     feedBacklightTimeout();
     setDeepSleepTimeout(FALLBACK_DEEP_SLEEP_TIMEOUT * 1000 * 60);  // Updated after Menu initialization
     feedDeepSleepTimeout();
+
     kbdMgr.registerKeyPressCallback(keyPressCallback);
 }
 
@@ -127,8 +129,8 @@ bool PowerMgr::setFrequency(uint32_t freq) {
     if (setCpuFrequencyMhz(freq)) {
         frequency = freq;
         return true;
-    } else
-        return false;
+    }
+    return false;
 }
 
 bool PowerMgr::reduceFrequency() {
