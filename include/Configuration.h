@@ -32,7 +32,8 @@
 #define FALLBACK_CONTRAST 191  // 0~255
 #define FALLBACK_UNLOCK_SPEED false
 #define FALLBACK_ENABLE_LOGGING false
-#define HOLD_DOWN_CYCLES 64  // !! ?
+#define HOLD_DOWN_LENGTH 1000  // ms
+#define ON_KEYCODE 24  // !! ?
 
 // DispInterface
 #define XBM_FONT_FILENAME "xbmFont128x32.h"
