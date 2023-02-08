@@ -56,7 +56,6 @@ class Menu {
         bool unlockSpeed;
         bool enableLogging;
 
-        uint16_t holdDownCyclesCount = 0;
         bool showingMenu = false;
         bool showMenuFlag;
 

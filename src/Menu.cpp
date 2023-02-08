@@ -117,15 +117,21 @@ bool Menu::tick() {
                     ;
             }
         }
-        holdDownCyclesCount++;
-        if (holdDownCyclesCount == HOLD_DOWN_CYCLES) {
-            holdDownCyclesCount = 0;
     else if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == ON_KEYCODE) {
+        uint16_t tempKeycode;
+        uint16_t onKeycode = ON_KEYCODE;
+        QueueHandle_t *queue = kbdMgr.getKeyQueue();
+
+        kbdMgr.getLastKeycode();  // Remove 'ON' keycode, emptying the queue
+        BaseType_t ret = xQueueReceive(*queue, &tempKeycode, pdMS_TO_TICKS(HOLD_DOWN_LENGTH));
+        if (ret == errQUEUE_EMPTY)
             enterMenu();
-        } else
-            return false;  // Pause emulator execution for now
-    } else if (holdDownCyclesCount)
-        holdDownCyclesCount = 0;
+        else {
+            // Give them back
+            xQueueSendToFront(*queue, &tempKeycode, 0);
+            xQueueSendToFront(*queue, &onKeycode, 0);
+        }
+    }
 
     return !showingMenu;  // Acts as emulator run flag
 }
@@ -216,7 +222,6 @@ void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
 void Menu::enterMenu() {
     showingMenu = true;
     kbdMgr.clear();
-    kbdMgr.skipReleaseCheck();
 
     bool isProcessorPresent = emu.isProcessorPresent();
     resumeBtn->hide(!isProcessorPresent);
@@ -235,7 +240,6 @@ void Menu::exitMenu() {
     context->showingMenu = false;
     context->u8g2.clear();
     context->kbdMgr.clear();
-    context->kbdMgr.skipReleaseCheck();
 }
 
 char *Menu::generateMainPageTitle() {
