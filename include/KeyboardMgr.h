@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Arduino.h>
 #include "MatrixKeyboard.h"
 #include "Configuration.h"
 
@@ -8,11 +9,13 @@
 
 class KeyboardMgr {
     protected:
+        uint8_t powerButtonPin;
+        static void powerButtonCallback(void *);
         void (*keyPressCallback)() = nullptr;
         matrix_keyboard_handle_t *mkHandle = nullptr;
         QueueHandle_t *keyQueue = nullptr;
     public:
-        KeyboardMgr();
+        KeyboardMgr(uint8_t);
         ~KeyboardMgr();
         void init();
         void blockingWaitForKey();

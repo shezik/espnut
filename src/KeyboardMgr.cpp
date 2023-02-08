@@ -1,6 +1,9 @@
 #include "KeyboardMgr.h"
+#include "freertos/portmacro.h"
 
-KeyboardMgr::KeyboardMgr() {
+KeyboardMgr::KeyboardMgr(uint8_t powerButtonPin_)
+    : powerButtonPin(powerButtonPin_)
+{
     // Do nothing
 }
 
@@ -10,7 +13,18 @@ KeyboardMgr::~KeyboardMgr() {
     mkHandle = nullptr;
 }
 
+void KeyboardMgr::powerButtonCallback(void *ptr) {
+    KeyboardMgr *context = static_cast<KeyboardMgr *>(ptr);
+    uint16_t keycode = MakeKeycodeFromContent(!digitalRead(context->powerButtonPin), ON_KEYCODE);
+    BaseType_t flag = pdFALSE;
+    xQueueSendFromISR(*context->keyQueue, &keycode, &flag);  // !!
+    portYIELD_FROM_ISR(flag);
+}
+
 void KeyboardMgr::init() {
+    pinMode(powerButtonPin, INPUT_PULLUP);
+    attachInterruptArg(powerButtonPin, KeyboardMgr::powerButtonCallback, this, CHANGE);
+
     *keyQueue = xQueueCreate(KEY_QUEUE_LENGTH, sizeof(uint16_t));
     int rowGPIOs[ROW_GPIOS_N] = {ROW_GPIOS};
     int colGPIOs[COL_GPIOS_N] = {COL_GPIOS};
