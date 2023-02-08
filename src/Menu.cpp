@@ -103,16 +103,14 @@ void Menu::init(bool skipMenu) {
 }
 
 bool Menu::tick() {
-    static uint8_t keycode;
-
     if (showMenuFlag) {
         showMenuFlag = false;
         enterMenu();
     }
 
     if (showingMenu)
-            keycode = kbdMgr.getPositiveKeycode();  // Key release is of no use here
         if (gem->readyForKey() && kbdMgr.keysAvailable()) {
+            uint16_t keycode = kbdMgr.getPositiveKeycode();  // Key release is of no use here
             switch (keycode) {
                 // !! Translate keycode blah blah
                 default:

@@ -11,7 +11,7 @@ KeyboardMgr::~KeyboardMgr() {
 }
 
 void KeyboardMgr::init() {
-    *keyQueue = xQueueCreate(KEY_QUEUE_LENGTH, sizeof(uint8_t));
+    *keyQueue = xQueueCreate(KEY_QUEUE_LENGTH, sizeof(uint16_t));
     int rowGPIOs[ROW_GPIOS_N] = {ROW_GPIOS};
     int colGPIOs[COL_GPIOS_N] = {COL_GPIOS};
     matrix_keyboard_config_t mkConf = {
@@ -31,7 +31,7 @@ void KeyboardMgr::init() {
 
 void KeyboardMgr::blockingWaitForKey() {
     clear();
-    uint8_t keycode;
+    uint16_t keycode;
     while (!(xQueueReceive(*keyQueue, &keycode, portMAX_DELAY) == pdPASS && GetKeycodeStatus(keycode)));  // !! vTaskDelay() if required.
     clear();
 }
@@ -40,8 +40,8 @@ void KeyboardMgr::skipReleaseCheck() {
     MatrixKeyboardSkipKeyReleases(mkHandle);
 }
 
-uint8_t KeyboardMgr::getPositiveKeycode() {
-    uint8_t keycode;
+uint16_t KeyboardMgr::getPositiveKeycode() {
+    uint16_t keycode;
     for (;;) {
         if (xQueueReceive(*keyQueue, &keycode, 0) != pdPASS)
             return INVALID_KEYCODE;
@@ -67,15 +67,15 @@ void KeyboardMgr::clear() {
     skipReleaseCheck();
 }
 
-uint8_t KeyboardMgr::getLastKeycode() {
-    uint8_t keycode;
+uint16_t KeyboardMgr::getLastKeycode() {
+    uint16_t keycode;
     if (xQueueReceive(*keyQueue, &keycode, 0) != pdPASS)
         return INVALID_KEYCODE;
     return keycode;
 }
 
-uint8_t KeyboardMgr::peekLastKeycode() {
-    uint8_t keycode;
+uint16_t KeyboardMgr::peekLastKeycode() {
+    uint16_t keycode;
     if (xQueuePeek(*keyQueue, &keycode, 0) != pdPASS)
         return INVALID_KEYCODE;
     return keycode;

@@ -88,13 +88,11 @@ void NutEmuInterface::deinit() {
 }
 
 void NutEmuInterface::tick() {
-    static uint8_t keycode;
-
     if (!nv)
         return;
 
-        keycode = kbdMgr.getLastKeycode();
     if (kbdMgr.keysAvailable()) {
+        uint16_t keycode = kbdMgr.getLastKeycode();
         if (keycode < 0)  // !!
             nut_release_key(nv);
         else
