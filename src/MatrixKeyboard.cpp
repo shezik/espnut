@@ -1,4 +1,5 @@
 #include "MatrixKeyboard.h"
+#include "util.h"
 #include "Configuration.h"
 
 static void writeRow(matrix_keyboard_handle_t *handle, uint8_t index) {
@@ -24,10 +25,10 @@ static void getKeycode(matrix_keyboard_handle_t *handle) {
                 continue;
             // Otherwise reset counter
             if (debounceResetCount == handle->debounce_reset_max_count) {
-                printf(MatrixKeyboardTag "Maximum debounce reset count (%d) exceeded!\n", handle->debounce_reset_max_count);
+                printf_log(MatrixKeyboardTag "Maximum debounce reset count (%d) exceeded!\n", handle->debounce_reset_max_count);
                 break;
             }
-            printf(MatrixKeyboardTag "Debouncing\n");
+            printf_log(MatrixKeyboardTag "Debouncing\n");
             i = 0;
             debounceResetCount++;
             prevColData = colData;
@@ -45,12 +46,12 @@ static void getKeycode(matrix_keyboard_handle_t *handle) {
                 handle->key_event();
             if (handle->skip_key_releases) {
                 if (!(colData & (1 << col))) {
-                    printf(MatrixKeyboardTag "Got keycode %d (row %d, col %d), but skipped\n", keycode, row, col);
+                    printf_log(MatrixKeyboardTag "Got keycode %d (row %d, col %d), but skipped\n", keycode, row, col);
                     continue;
                 }
                 handle->skip_key_releases = false;
             }
-            printf(MatrixKeyboardTag "Got keycode %d (row %d, col %d), adding to queue\n", keycode, row, col);
+            printf_log(MatrixKeyboardTag "Got keycode %d (row %d, col %d), adding to queue\n", keycode, row, col);
             xQueueSend(*handle->key_queue, (void *) &keycode, 0);
         }
     }

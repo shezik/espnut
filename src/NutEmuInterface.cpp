@@ -1,5 +1,7 @@
 #include "NutEmuInterface.h"
 
+#define EMU_TAG "NutEmuInterface: "
+
 NutEmuInterface *NutEmuInterface::context = nullptr;
 
 NutEmuInterface::NutEmuInterface(KeyboardMgr &kbdMgr_, DispInterface &disp_, PowerMgr &pm_)
@@ -50,12 +52,13 @@ void NutEmuInterface::sim_run() {
     //     0                1             Light sleep
     //     0                0             Deep sleep, should only respond to ON key.
     if (!nv->awake && !kbdMgr.keysAvailable() && kbdMgr.isKeyboardClear() && !tickActionOverride) {
-        if (displayStateStabilized)
+        if (displayStateStabilized) {
+            printf_log(EMU_TAG "Entering light sleep\n");
             frequencyReduced = pm.reduceFrequency();
-            // CH450 should not sleep since only a few dedicated rows of keys are able to bring it up
-            // Polling will work but why the hassle?
-        else
+        } else {
+            printf_log(EMU_TAG "Entering deep sleep\n");
             pm.enterDeepSleep();  // deepSleepPrepare() is registered as callback
+        }
     } else if (frequencyReduced)
         pm.restoreFrequency();
 
@@ -94,7 +97,7 @@ void NutEmuInterface::keyPressed(uint16_t keycodeContent) {
         keyPressedFirst = keycodeContent;
         nut_press_key(nv, keycodeContent);
     } else
-        printf("additional key press, keycode %d\n", keycodeContent);
+        printf_log(EMU_TAG "additional key press, keycode %d\n", keycodeContent);
 }
 
 void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
@@ -103,14 +106,14 @@ void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
     keysPressedSet.erase(keycodeContent);
     switch (keysPressedSet.size()) {
         case 0:
-            printf("last key release, keycode %d\n", keycodeContent);
+            printf_log(EMU_TAG "last key release, keycode %d\n", keycodeContent);
             nut_release_key(nv);
             break;
         case 1:
-            printf("next-to-last key release, keycode %d\n", keycodeContent);
+            printf_log(EMU_TAG "next-to-last key release, keycode %d\n", keycodeContent);
             keycode = *keysPressedSet.end();
             if (keycode != keyPressedFirst) {
-                printf("rollover pressing keycode %d\n", keycode);
+                printf_log(EMU_TAG "rollover pressing keycode %d\n", keycode);
                 nut_release_key(nv);
                 keyPressedFirst = keycode;
                 // The following function will be called once on the next tick.
@@ -119,7 +122,7 @@ void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
             }
             break;
         default:
-            printf("key release, keycode %d\n", keycodeContent);
+            printf_log(EMU_TAG "key release, keycode %d\n", keycodeContent);
     }
 }
 
