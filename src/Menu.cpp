@@ -112,9 +112,26 @@ bool Menu::tick() {
         if (gem->readyForKey() && kbdMgr.keysAvailable()) {
             uint16_t keycode = kbdMgr.getPositiveKeycode();  // Key release is of no use here
             switch (keycode) {
-                // !! Translate keycode blah blah
+                case 116:  // 2
+                    gem->registerKeyPress(GEM_KEY_UP);
+                    break;
+                case 117:  // .
+                    gem->registerKeyPress(GEM_KEY_DOWN);
+                    break;
+                case 197:  // 0
+                    gem->registerKeyPress(GEM_KEY_LEFT);
+                    break;
+                case 53:  // Sigma+
+                    gem->registerKeyPress(GEM_KEY_RIGHT);
+                    break;
+                case 132:  // ENTER
+                    gem->registerKeyPress(GEM_KEY_OK);
+                    break;
+                case 129:  // <-
+                    gem->registerKeyPress(GEM_KEY_CANCEL);
+                    break;
                 default:
-                    ;
+                    gem->registerKeyPress(GEM_KEY_NONE);
             }
         }
     else if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == 24 /*ON*/) {
