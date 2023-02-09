@@ -164,7 +164,7 @@ void NutEmuInterface::wakeUpOnRun() {
                     context->tickActionOverride = nullptr;
                     break;
                 }
-                nut_press_key(context->nv, ON_KEYCODE);
+                nut_press_key(context->nv, 24 /*ON*/);
                 break;
             case 2:
                 nut_release_key(context->nv);

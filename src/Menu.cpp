@@ -117,9 +117,9 @@ bool Menu::tick() {
                     ;
             }
         }
-    else if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == ON_KEYCODE) {
+    else if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == 24 /*ON*/) {
         uint16_t tempKeycode;
-        uint16_t onKeycode = ON_KEYCODE;
+        uint16_t onKeycode = 24 /*ON*/;
         QueueHandle_t *queue = kbdMgr.getKeyQueue();
 
         kbdMgr.getLastKeycode();  // Remove 'ON' keycode, emptying the queue

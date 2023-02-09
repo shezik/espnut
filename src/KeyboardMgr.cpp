@@ -15,7 +15,7 @@ KeyboardMgr::~KeyboardMgr() {
 
 void KeyboardMgr::powerButtonCallback(void *ptr) {
     KeyboardMgr *context = static_cast<KeyboardMgr *>(ptr);
-    uint16_t keycode = MakeKeycodeFromContent(!digitalRead(context->powerButtonPin), ON_KEYCODE);
+    uint16_t keycode = MakeKeycodeFromContent(!digitalRead(context->powerButtonPin), 24 /*ON*/);
     BaseType_t flag = pdFALSE;
     xQueueSendFromISR(*context->keyQueue, &keycode, &flag);  // !!
     portYIELD_FROM_ISR(flag);
