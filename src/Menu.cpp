@@ -345,7 +345,7 @@ void Menu::loadStateFileSelectedCallback(char *path) {
         context->emu.loadState(path, true, false);
         context->emu.newProcessor(NUT_FREQUENCY_HZ);
     }
-    context->emu.loadState(path, false, true);  // You can load a mismatching state file for giggles
+    context->emu.loadState(path, false, true);  // You can load a mismatching state file for giggles  // !! Show warning?
     exitMenu();
 }
 

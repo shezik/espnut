@@ -23,11 +23,9 @@ void NutEmuInterface::deepSleepCallback() {
 }
 
 void NutEmuInterface::sim_run() {
-    // Does not need to persist value between calls.
-    // Static'd simply to save time (how long?)
-    static int64_t currentTime;
-    static int64_t deltaMs;
-    static int instructionCount;
+    int64_t currentTime;
+    int64_t deltaMs;
+    int instructionCount;
 
     currentTime = esp_timer_get_time();
     if (currentTime < NEXT_RUN_TIME)
@@ -147,6 +145,7 @@ void NutEmuInterface::tick() {
 }
 
 void NutEmuInterface::resume() {
+    lastRunTime = esp_timer_get_time() - JIFFY_MSEC;
     keysPressedSet.clear();
     if (nv)
         nut_release_key(nv);  // !! Postpone this one?
@@ -340,7 +339,10 @@ bool NutEmuInterface::checkRestoreFlag() {
         return false;
     
     LittleFS.remove(RESTORE_FLAG_FILENAME);
-    return loadState(RESTORE_STATE_FILENAME, true, false);
+    loadState(RESTORE_STATE_FILENAME, true, false);  // Get last used ROM filename
+    newProcessor(NUT_FREQUENCY_HZ);  // Load ROM
+    loadState(RESTORE_STATE_FILENAME, false, true);  // Load state
+    return true;
 }
 
 void NutEmuInterface::resetProcessor(bool obdurate) {
