@@ -80,6 +80,7 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filen
     }
     nv = nut_new_processor(ramSize, (void *) this);  // void *nut_reg->display is reused for storing NutEmuInterface *
     pm.registerDeepSleepCallback(deepSleepCallback);
+    wakeUpOnRun();
     return nut_read_object_file(nv, romFilename);
 }
 
@@ -89,6 +90,7 @@ void NutEmuInterface::deinit() {
     }
     pm.registerDeepSleepCallback(nullptr);
     keysPressedSet.clear();
+    tickActionOverride = nullptr;
 }
 
 void NutEmuInterface::keyPressed(uint16_t keycodeContent) {
@@ -148,6 +150,31 @@ void NutEmuInterface::resume() {
     keysPressedSet.clear();
     if (nv)
         nut_release_key(nv);  // !! Postpone this one?
+}
+
+void NutEmuInterface::wakeUpOnRun() {
+    // Repeatedly press the power button until nv->awake becomes true, one action per tick()
+    tickActionOverride = [](){
+        static uint8_t stage = 0;
+        switch(stage++) {
+            case 0:
+                // Do nothing and let it run one jiffy
+                break;
+            case 1:
+                if (context->nv->awake) {
+                    context->tickActionOverride = nullptr;
+                    break;
+                }
+                nut_press_key(context->nv, ON_KEYCODE);
+                break;
+            case 2:
+                nut_release_key(context->nv);
+                stage = 1;
+                break;
+
+        }
+        // !! Clear key queue here?
+    };
 }
 
 bool NutEmuInterface::saveState(char *filename) {
@@ -276,6 +303,8 @@ bool NutEmuInterface::loadState(char *filename, bool doUpdateMetadata, bool doLo
     file.read((uint8_t *) &nv->cycle_count,      sizeof(uint64_t));
 
     file.close();
+
+    wakeUpOnRun();
     return true;
 }
 

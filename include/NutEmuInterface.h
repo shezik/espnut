@@ -46,6 +46,7 @@ class NutEmuInterface {
         void tick();
         // Call resume() when exiting menu and resuming emulator to avoid potential key detection related bugs
         void resume();
+        void wakeUpOnRun();
         bool saveState(char *);
         bool loadState(char *, bool, bool);
         bool isProcessorPresent();
