@@ -308,7 +308,7 @@ void Menu::enterFileManager(char *path) {
         fileManagerPage->addMenuItem(*fileList[FILE_LIST_LENGTH]);
     }
 
-    while (1) {
+    while (true) {
         String path = dir.getNextFileName();  // Full path
         String name = pathToFileName(path.c_str());  // Short filename
         if (itemCount >= FILE_LIST_LENGTH || !name.length())

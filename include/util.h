@@ -42,7 +42,7 @@ void trim_trailing_whitespace(char *s);
     do                                                  \
     {                                                   \
         printf_log(#stream ": " format, ##__VA_ARGS__); \
-    } while (0)
+    } while (false)
 
 #define printf_log(format, ...)                            \
     do                                                     \
@@ -52,9 +52,9 @@ void trim_trailing_whitespace(char *s);
         snprintf(buf, sizeof(buf), format, ##__VA_ARGS__); \
         printf("%s", buf);                                 \
         appendLog(buf);                                    \
-    } while (0)
+    } while (false)
 
-// Uses 'do while (0)' to wrap up multiple lines nicely, and limit scope of variables!
+// Uses 'do while (false)' to wrap up multiple lines nicely, and limit scope of variables!
 // Print, log and show crash message, then halt
 #define fatal(ret, format, ...)                                                                                                               \
     do                                                                                                                                        \
@@ -67,7 +67,7 @@ void trim_trailing_whitespace(char *s);
         appendLog(buf);                                                                                                                       \
         dispInterface.drawAndSendDialog(buf);                                                                                                 \
         exit(ret);                                                                                                                            \
-    } while (0)
+    } while (false)
 
 /*
 #define warning(format, ...) \

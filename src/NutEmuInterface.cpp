@@ -75,15 +75,17 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filen
         strncpy(romFilename, filename, sizeof(romFilename) - 1);
         romFilename[sizeof(romFilename)] = '\0';
     }
-    nv = nut_new_processor(ramSize, (void *) this);  // void *nut_reg->display is reused for storing NutEmuInterface *
+    nv = nut_new_processor(ramSize, (void *) this);  // (void *)nut_reg->display is reused for storing (NutEmuInterface *)
     pm.registerDeepSleepCallback(deepSleepCallback);
     wakeUpOnTick();
     return nut_read_object_file(nv, romFilename);
 }
 
 bool NutEmuInterface::newProcessorFromStatefile(int clockFrequency, char *filename) {
-    loadMetadataFromStatefile(filename);
-    newProcessor(clockFrequency, NULL, nullptr);
+    if (loadMetadataFromStatefile(filename)) {
+        return newProcessor(clockFrequency, 0, nullptr);
+    }
+    return false;
 }
 
 void NutEmuInterface::deinit() {
