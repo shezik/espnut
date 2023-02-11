@@ -3,6 +3,7 @@
 #include <driver/adc.h>
 #include "Configuration.h"
 #include "PowerMgr.h"
+#include "util.h"
 
 PowerMgr *PowerMgr::context = nullptr;  // classic
 
@@ -49,6 +50,8 @@ void PowerMgr::enterDeepSleep() {
         esp_deep_sleep_start();  // Does not return
     #else
         enableLDO(false);  // Turn off 3V3 power supply
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        fatal(1, "Failed to power off LDO power supply!\n");
     #endif
 }
 

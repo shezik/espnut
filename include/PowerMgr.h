@@ -22,7 +22,7 @@ class PowerMgr {
         ~PowerMgr();
 
         bool enterModemSleep();
-        void enterDeepSleep();
+        void enterDeepSleep() __attribute__ ((noreturn));
         bool wokenUpFromDeepSleep();
         void init();
         void tick();
