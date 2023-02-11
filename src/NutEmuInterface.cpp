@@ -63,7 +63,6 @@ void NutEmuInterface::sim_run() {
     lastRunTime = esp_timer_get_time();
 }
 
-// Pass nullptr or left out filename to load from romFilename
 bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filename) {
     lastRunTime = esp_timer_get_time() - JIFFY_MSEC;  // In ms. Could be negative but that does not matter.
     wordsPerMs = clockFrequency / (1.0E3 * ARCH_NUT_WORD_LENGTH);
@@ -78,8 +77,13 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filen
     }
     nv = nut_new_processor(ramSize, (void *) this);  // void *nut_reg->display is reused for storing NutEmuInterface *
     pm.registerDeepSleepCallback(deepSleepCallback);
-    wakeUpOnRun();
+    wakeUpOnTick();
     return nut_read_object_file(nv, romFilename);
+}
+
+bool NutEmuInterface::newProcessorFromStatefile(int clockFrequency, char *filename) {
+    loadMetadataFromStatefile(filename);
+    newProcessor(clockFrequency, NULL, nullptr);
 }
 
 void NutEmuInterface::deinit() {
@@ -151,7 +155,7 @@ void NutEmuInterface::resume() {
         nut_release_key(nv);  // !! Postpone this one?
 }
 
-void NutEmuInterface::wakeUpOnRun() {
+void NutEmuInterface::wakeUpOnTick() {
     // Repeatedly press the power button until nv->awake becomes true, one action per tick()
     tickActionOverride = [](){
         static uint8_t stage = 0;
@@ -303,8 +307,16 @@ bool NutEmuInterface::loadState(char *filename, bool doUpdateMetadata, bool doLo
 
     file.close();
 
-    wakeUpOnRun();
+    wakeUpOnTick();
     return true;
+}
+
+bool NutEmuInterface::loadMetadataFromStatefile(char *filename) {
+    return loadState(filename, true, false);
+}
+
+bool NutEmuInterface::loadStateFromStatefile(char *filename) {
+    return loadState(filename, false, true);
 }
 
 bool NutEmuInterface::isProcessorPresent() {
@@ -339,9 +351,8 @@ bool NutEmuInterface::checkRestoreFlag() {
         return false;
     
     LittleFS.remove(RESTORE_FLAG_FILENAME);
-    loadState(RESTORE_STATE_FILENAME, true, false);  // Get last used ROM filename
-    newProcessor(NUT_FREQUENCY_HZ);  // Load ROM
-    loadState(RESTORE_STATE_FILENAME, false, true);  // Load state
+    newProcessorFromStatefile(NUT_FREQUENCY_HZ, RESTORE_STATE_FILENAME);
+    loadStateFromStatefile(RESTORE_STATE_FILENAME);  // Load state
     return true;
 }
 

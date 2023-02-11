@@ -359,10 +359,9 @@ void Menu::freeFileList() {
 
 void Menu::loadStateFileSelectedCallback(char *path) {
     if (!context->emu.isProcessorPresent()) {
-        context->emu.loadState(path, true, false);
-        context->emu.newProcessor(NUT_FREQUENCY_HZ);
+        context->emu.newProcessorFromStatefile(NUT_FREQUENCY_HZ, path);
     }
-    context->emu.loadState(path, false, true);  // You can load a mismatching state file for giggles  // !! Show warning?
+    context->emu.loadStateFromStatefile(path);  // You can load a mismatching state file for giggles  // !! Show warning?
     exitMenu();
 }
 

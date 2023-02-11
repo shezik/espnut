@@ -23,7 +23,6 @@ class NutEmuInterface {
         DispInterface &disp;
         PowerMgr &pm;
         nut_reg_t *nv = nullptr;
-        void sim_run();
         double wordsPerMs;
         int64_t lastRunTime;
         bool displayStateStabilized = false;
@@ -31,6 +30,10 @@ class NutEmuInterface {
         int ramSize = NULL;
         static NutEmuInterface *context;
         char romFilename[ROM_FILENAME_LENGTH] = {0};
+
+        void sim_run();
+        bool loadState(char *, bool, bool);
+        bool loadMetadataFromStatefile(char *);
 
         // 2-key rollover
         uint16_t keyPressedFirst;
@@ -42,19 +45,21 @@ class NutEmuInterface {
     public:
         NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
         ~NutEmuInterface();
-        bool newProcessor(int, int = NULL, char * = nullptr);
+        bool newProcessor(int, int, char *);
+        bool newProcessorFromStatefile(int, char *);
         void tick();
         // Call resume() when exiting menu and resuming emulator to avoid potential key detection related bugs
         void resume();
-        void wakeUpOnRun();
+        void wakeUpOnTick();
         bool saveState(char *);
-        bool loadState(char *, bool, bool);
+        bool loadStateFromStatefile(char *);
         bool isProcessorPresent();
         char *getRomFilename();
 
         void updateDisplayCallback();
         void setDisplayPowerSave(bool);
 
+        // Attempt to load deep sleep restore file
         bool checkRestoreFlag();
         void resetProcessor(bool = false);
         void deepSleepPrepare();
