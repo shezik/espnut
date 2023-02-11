@@ -26,6 +26,7 @@ void setup() {
     Serial.begin(115200);
 
     powerMgr.init();  // Reset wakeUpInterruptPin pin mode, detect last deep sleep (ext0), power up display, 
+    powerMgr.init();  // Reset wakeUpInterruptPin pin mode, detect last deep sleep (ext0), keep LDO enabled,
                       // init and turn on backlight, set CPU frequency
     powerMgr.enterModemSleep();
     

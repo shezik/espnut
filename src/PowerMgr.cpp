@@ -6,10 +6,10 @@
 
 PowerMgr *PowerMgr::context = nullptr;  // classic
 
-PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t displayPowerPin_, uint8_t displayBacklightPin_)
+PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t LDOEnablePin_, uint8_t displayBacklightPin_)
     : kbdMgr(kbdMgr_)
     , wakeUpInterruptPin(wakeUpInterruptPin_)
-    , displayPowerPin(displayPowerPin_)
+    , LDOEnablePin(LDOEnablePin_)
     , displayBacklightPin(displayBacklightPin_)
 {
     context = this;
@@ -39,13 +39,17 @@ bool PowerMgr::enterModemSleep() {
 void PowerMgr::enterDeepSleep() {
     if (deepSleepCallback)
         deepSleepCallback();
-    // kbdMgr.disableInterrupt();
-    setDisplayPower(false);
-    setBacklightPower(false);
-    adc_power_release();
-    rtc_gpio_pullup_en((gpio_num_t) wakeUpInterruptPin);
-    esp_sleep_enable_ext0_wakeup((gpio_num_t) wakeUpInterruptPin, 0);
-    esp_deep_sleep_start();  // Does not return
+
+    #ifdef USE_ESP_DEEP_SLEEP
+        // kbdMgr.disableInterrupt();
+        setBacklightPower(false);
+        adc_power_release();
+        rtc_gpio_pullup_en((gpio_num_t) wakeUpInterruptPin);
+        esp_sleep_enable_ext0_wakeup((gpio_num_t) wakeUpInterruptPin, 0);
+        esp_deep_sleep_start();  // Does not return
+    #else
+        enableLDO(false);  // Turn off 3V3 power supply
+    #endif
 }
 
 bool PowerMgr::wokenUpFromDeepSleep() {
@@ -53,18 +57,21 @@ bool PowerMgr::wokenUpFromDeepSleep() {
 }
 
 void PowerMgr::init() {
-    setFrequency(FALLBACK_CPU_FREQUENCY_MHZ);  // !! Only if we had a config manager...
-
-    // Deep Sleep Cleanup
-    esp_sleep_wakeup_cause_t wakeupReason = esp_sleep_get_wakeup_cause();
-    if (wakeupReason == ESP_SLEEP_WAKEUP_EXT0) {
-        wokenUp = true;
-        rtc_gpio_deinit((gpio_num_t) wakeUpInterruptPin);  // This one doesn't reset on wakeup according to https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/sleep_modes.html
-    }
-
-    pinMode(displayPowerPin, OUTPUT);
+    pinMode(LDOEnablePin, OUTPUT);
     pinMode(displayBacklightPin, OUTPUT);
-    setDisplayPower(true);
+
+    #ifdef USE_ESP_DEEP_SLEEP
+        // Deep Sleep Cleanup
+        esp_sleep_wakeup_cause_t wakeupReason = esp_sleep_get_wakeup_cause();
+        if (wakeupReason == ESP_SLEEP_WAKEUP_EXT0) {
+            wokenUp = true;
+            rtc_gpio_deinit((gpio_num_t) wakeUpInterruptPin);  // This one doesn't reset on wakeup according to https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/sleep_modes.html
+        }
+    #else
+        enableLDO(true);  // Hold LDO 3V3 output
+    #endif
+
+    setFrequency(FALLBACK_CPU_FREQUENCY_MHZ);  // !! Only if we had a config manager...
 
     setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT * 1000);  // Updated after Menu initialization
     feedBacklightTimeout();
@@ -84,12 +91,8 @@ void PowerMgr::tick() {
         enterDeepSleep();
 }
 
-bool PowerMgr::getDisplayPower() {
-    return digitalRead(displayPowerPin);
-}
-
-void PowerMgr::setDisplayPower(bool state) {
-    digitalWrite(displayPowerPin, state ? HIGH : LOW);
+void PowerMgr::enableLDO(bool state) {
+    digitalWrite(LDOEnablePin, state ? HIGH : LOW);
 }
 
 bool PowerMgr::getBacklightPower() {

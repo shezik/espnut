@@ -7,7 +7,7 @@ class PowerMgr {
     protected:
         KeyboardMgr &kbdMgr;
         uint8_t wakeUpInterruptPin;
-        uint8_t displayPowerPin;
+        uint8_t LDOEnablePin;
         uint8_t displayBacklightPin;
         uint32_t backlightTimeout;  // In ms
         int64_t nextBacklightOff;   // In ms
@@ -27,8 +27,7 @@ class PowerMgr {
         void init();
         void tick();
 
-        bool getDisplayPower();
-        void setDisplayPower(bool);
+        void enableLDO(bool);
 
         bool getBacklightPower();
         void setBacklightPower(bool);
