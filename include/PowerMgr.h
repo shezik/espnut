@@ -11,8 +11,8 @@ class PowerMgr {
         uint8_t displayBacklightPin;
         uint32_t backlightTimeout;  // In ms
         int64_t nextBacklightOff;   // In ms
-        uint32_t deepSleepTimeout;   // In ms
-        int64_t nextDeepSleep;       // In ms
+        uint32_t deepSleepTimeout;  // In ms
+        int64_t nextDeepSleep;      // In ms
         uint32_t frequency;
         bool wokenUp = false;
         void (*deepSleepCallback)() = nullptr;

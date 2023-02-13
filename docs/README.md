@@ -29,8 +29,8 @@ You just have to wait ツ
 ----------------
 
 ### Porting to unicore chips
-This project utilizes the auxiliary core of ESP32-S3 to scan the matrix keyboard. You'll need to take care of the xTaskCreatePinnedToCore function called in src/MatrixKeyboard.cpp, though I suppose that ARDUINO_RUNNING_CORE would also be 0 in this case.
+This project utilizes the auxiliary core of ESP32-S3 to scan the matrix keyboard. You'll need to take care of the `xTaskCreatePinnedToCore` function called in *src/MatrixKeyboard.cpp*, though I suppose that ARDUINO_RUNNING_CORE would also be 0 in this case.
 
-Additionally, check commit 7db65a540dc9269db74c296085509b6408cde28f if watchdog is often triggered. You'll probably want to replace yield() with vTaskDelay().
+Additionally, check commit *7db65a540dc9269db74c296085509b6408cde28f* if watchdog is often triggered. You'll probably want to replace `yield()` with `vTaskDelay()`.
 
 Also confirm that there's enough RAM that fits the ROM files.

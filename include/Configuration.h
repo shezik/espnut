@@ -2,6 +2,10 @@
 
 #define VERSION "1.0"
 
+#ifdef USE_ESP_DEEP_SLEEP
+    #undef USE_ESP_DEEP_SLEEP
+#endif
+
 // LittleFS
 #define FORMAT_LITTLEFS_IF_FAILED true
 

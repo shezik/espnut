@@ -37,7 +37,7 @@ void setup() {
 }
 
 void loop() {
-    powerMgr.tick();  // Check for backlight timeout
+    powerMgr.tick();
     if (menu.tick())
         nutEmuInterface.tick();
 }

@@ -89,7 +89,7 @@ void Menu::init(bool skipMenu) {
     settingsPage->addMenuItem(*saveSettingsBtn);
     settingsPage->addMenuItem(*exitSettingsBtn);
     settingsPage->addMenuItem(*resetSettingsBtn);
-    ramSizePage = new GEMPage("Select RAM size (80 for 15C, 40 otherwise)" /*!! Add cancel operation here*/);
+    ramSizePage = new GEMPage("Select RAM size (80 for 15C, otherwise 40)" /*!! Add cancel operation here*/);
     smallRAMBtn = new GEMItem("40", loadROMRAMSelectedCallback, 40);
     largeRAMBtn = new GEMItem("80", loadROMRAMSelectedCallback, 80);
     ramSizePage->addMenuItem(*smallRAMBtn);
