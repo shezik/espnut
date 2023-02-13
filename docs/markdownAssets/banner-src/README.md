@@ -1,3 +1,5 @@
+## Licensing
+
 [barrier-caution-svgrepo-com.svg](./barrier-caution-svgrepo-com.svg) by [SVG Repo](https://www.svgrepo.com/) in CC0 License via [SVG Repo](https://www.svgrepo.com/svg/178534/barrier-caution)
 
 [helmet-svgrepo-com.svg](./helmet-svgrepo-com.svg) by [SVG Repo](https://www.svgrepo.com/) in CC0 License via [SVG Repo](https://www.svgrepo.com/svg/128426/helmet)
