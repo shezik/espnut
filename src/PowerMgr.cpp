@@ -118,6 +118,9 @@ void PowerMgr::setBacklightTimeout(uint32_t ms) {
 // Normally you turn on backlight with this function
 // Of course you can manually override with setBacklightPower(true) but why?
 void PowerMgr::feedBacklightTimeout() {
+    if (!backlightTimeout)
+        return;
+    
     setBacklightPower(true);
     nextBacklightOff = esp_timer_get_time() + backlightTimeout;
 }
