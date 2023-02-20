@@ -102,7 +102,7 @@ void Menu::init(bool showMenuFlag_) {
     applySettings();
 }
 
-bool Menu::tick() {
+void Menu::tick() {
     if (showMenuFlag) {
         showMenuFlag = false;
         enterMenu();
@@ -150,8 +150,6 @@ bool Menu::tick() {
             xQueueSendToFront(*queue, &onKeycode, 0);
         }
     }
-
-    return !showingMenu;  // Acts as emulator run flag
 }
 
 bool Menu::loadSettings() {
@@ -239,6 +237,7 @@ void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
 
 void Menu::enterMenu() {
     showingMenu = true;
+    emu.pause();
     kbdMgr.clear();
 
     bool isProcessorPresent = emu.isProcessorPresent();

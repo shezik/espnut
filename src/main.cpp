@@ -38,6 +38,6 @@ void setup() {
 
 void loop() {
     powerMgr.tick();
-    if (menu.tick())
-        nutEmuInterface.tick();
+    menu.tick();
+    nutEmuInterface.tick();
 }
