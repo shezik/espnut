@@ -133,12 +133,13 @@ void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
 }
 
 void NutEmuInterface::tick() {
-    if (!nv)
+    if (!nv || !emulatorRunFlag)
         return;
 
     if (tickActionOverride) {
         tickActionOverride();
     } else
+        // This is the default 'tick action'.
         if (kbdMgr.keysAvailable()) {
             uint16_t keycode = kbdMgr.getLastKeycode();
             if (GetKeycodeStatus(keycode))
@@ -150,18 +151,28 @@ void NutEmuInterface::tick() {
     sim_run();
 }
 
+void NutEmuInterface::pause() {
+    emulatorRunFlag = false;
+}
+
 void NutEmuInterface::resume() {
+    if (emulatorRunFlag)
+        return;
+        
+    emulatorRunFlag = true;
     lastRunTime = esp_timer_get_time() - JIFFY_MSEC;
     keysPressedSet.clear();
     if (nv)
-        nut_release_key(nv);  // !! Postpone this one?
+        nut_release_key(nv);
+
+    wakeUpOnTick();  // Overwrite tickActionOverride in case it is the rollover pressing one
 }
 
 void NutEmuInterface::wakeUpOnTick() {
     // Repeatedly press the power button until nv->awake becomes true, one action per tick()
     tickActionOverride = [](){
         static uint8_t stage = 0;
-        switch(stage++) {
+        switch (stage++) {
             case 0:
                 // Do nothing and let it run one jiffy
                 break;

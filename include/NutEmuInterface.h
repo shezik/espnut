@@ -30,6 +30,7 @@ class NutEmuInterface {
         int ramSize = 0;
         static NutEmuInterface *context;
         char romFilename[ROM_FILENAME_LENGTH] = {0};
+        bool emulatorRunFlag = true;
 
         void sim_run();
         bool loadState(char *, bool, bool);
@@ -48,7 +49,7 @@ class NutEmuInterface {
         bool newProcessor(int, int, char *);
         bool newProcessorFromStatefile(int, char *);
         void tick();
-        // Call resume() when exiting menu and resuming emulator to avoid potential key detection related bugs
+        void pause();
         void resume();
         void wakeUpOnTick();
         bool saveState(char *);
