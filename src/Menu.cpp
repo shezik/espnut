@@ -42,8 +42,8 @@ Menu::~Menu() {
     delete largeRAMBtn; largeRAMBtn = nullptr;
 }
 
-void Menu::init(bool skipMenu) {
-    showMenuFlag = !skipMenu;
+void Menu::init(bool showMenuFlag_) {
+    showMenuFlag = showMenuFlag_;
 
     // Allocate GEM objects here
     // Any one-line function is written as lambda expression
@@ -141,6 +141,7 @@ bool Menu::tick() {
 
         kbdMgr.getLastKeycode();  // Remove 'ON' keycode, emptying the queue
         BaseType_t ret = xQueueReceive(*queue, &tempKeycode, pdMS_TO_TICKS(HOLD_DOWN_LENGTH));
+        // Note that releasing a key also generates a keycode.
         if (ret == errQUEUE_EMPTY)
             enterMenu();
         else {

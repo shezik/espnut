@@ -70,8 +70,8 @@ class Menu {
     public:
         Menu(KeyboardMgr &, U8G2_DISPLAY_TYPE &, PowerMgr &, NutEmuInterface &);
         ~Menu();
-        void init(bool = false);
         bool tick();  // Return value decides whether NutEmuInterface should tick
+        void init(bool = true);
         bool loadSettings();  // Load settings from file to menu
         void applySettings();  // Apply settings in Menu to other classes
         bool saveSettings();
