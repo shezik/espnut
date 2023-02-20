@@ -12,10 +12,10 @@
 // U8g2
 #define U8G2_DISPLAY_TYPE U8G2_ST7567_ERC13232_F_4W_SW_SPI
 #define SPI_DC 40    // SPI_MISO
-#define SPI_DATA 38  // SPI_MOSI
-#define SPI_CLK 39
-#define SPI_CS 42
-#define U8G2_RESET_PIN 41
+#define SPI_DATA 42  // SPI_MOSI
+#define SPI_CLK 41
+#define SPI_CS 38
+#define U8G2_RESET_PIN 39
 #define U8G2_BUS_CLK 4000000  // Visit https://github.com/olikraus/u8g2/wiki/u8g2reference#setbusclock
 
 // PowerMgr
