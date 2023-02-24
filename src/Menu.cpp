@@ -137,17 +137,17 @@ void Menu::tick() {
     else if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == 24 /*ON*/) {
         uint16_t tempKeycode;
         uint16_t onKeycode = 24 /*ON*/;
-        QueueHandle_t *queue = kbdMgr.getKeyQueue();
+        QueueHandle_t queue = kbdMgr.getKeyQueue();
 
         kbdMgr.getLastKeycode();  // Remove 'ON' keycode, emptying the queue
-        BaseType_t ret = xQueueReceive(*queue, &tempKeycode, pdMS_TO_TICKS(HOLD_DOWN_LENGTH));
+        BaseType_t ret = xQueueReceive(queue, &tempKeycode, pdMS_TO_TICKS(HOLD_DOWN_LENGTH));
         // Note that releasing a key also generates a keycode.
         if (ret == errQUEUE_EMPTY)
             enterMenu();
         else {
             // Give them back
-            xQueueSendToFront(*queue, &tempKeycode, 0);
-            xQueueSendToFront(*queue, &onKeycode, 0);
+            xQueueSendToFront(queue, &tempKeycode, 0);
+            xQueueSendToFront(queue, &onKeycode, 0);
         }
     }
 }

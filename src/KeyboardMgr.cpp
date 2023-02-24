@@ -14,12 +14,13 @@ KeyboardMgr::~KeyboardMgr() {
 }
 
 void KeyboardMgr::powerButtonCallback(void *ptr) {
+    printf("powerButtonCallback!\n");
     KeyboardMgr *context = static_cast<KeyboardMgr *>(ptr);
     if (context->keyPressCallback)
         context->keyPressCallback();
     uint16_t keycode = MakeKeycodeFromContent(!digitalRead(context->powerButtonPin), 24 /*ON*/);
     BaseType_t flag = pdFALSE;
-    xQueueSendFromISR(*context->keyQueue, &keycode, &flag);  // !!
+    xQueueSendFromISR(context->keyQueue, &keycode, &flag);  // !!
     portYIELD_FROM_ISR(flag);
 }
 
@@ -27,7 +28,7 @@ void KeyboardMgr::init() {
     pinMode(powerButtonPin, INPUT_PULLUP);
     attachInterruptArg(powerButtonPin, KeyboardMgr::powerButtonCallback, this, CHANGE);
 
-    *keyQueue = xQueueCreate(KEY_QUEUE_LENGTH, sizeof(uint16_t));
+    keyQueue = xQueueCreate(KEY_QUEUE_LENGTH, sizeof(uint16_t));
     int rowGPIOs[ROW_GPIOS_N] = {ROW_GPIOS};
     int colGPIOs[COL_GPIOS_N] = {COL_GPIOS};
     matrix_keyboard_config_t mkConf = {
@@ -48,7 +49,7 @@ void KeyboardMgr::init() {
 void KeyboardMgr::blockingWaitForKey() {
     clear();
     uint16_t keycode;
-    while (!(xQueueReceive(*keyQueue, &keycode, portMAX_DELAY) == pdPASS && GetKeycodeStatus(keycode)));  // !! vTaskDelay() if required.
+    while (!(xQueueReceive(keyQueue, &keycode, portMAX_DELAY) == pdPASS && GetKeycodeStatus(keycode)));  // !! vTaskDelay() if required.
     clear();
 }
 
@@ -59,7 +60,7 @@ void KeyboardMgr::skipReleaseCheck() {
 uint16_t KeyboardMgr::getPositiveKeycode() {
     uint16_t keycode;
     for (;;) {
-        if (xQueueReceive(*keyQueue, &keycode, 0) != pdPASS)
+        if (xQueueReceive(keyQueue, &keycode, 0) != pdPASS)
             return INVALID_KEYCODE;
         if (GetKeycodeStatus(keycode))
             return keycode;
@@ -79,28 +80,28 @@ bool KeyboardMgr::isKeyboardClear() {
 }
 
 void KeyboardMgr::clear() {
-    xQueueReset(*keyQueue);
+    xQueueReset(keyQueue);
     skipReleaseCheck();
 }
 
 uint16_t KeyboardMgr::getLastKeycode() {
     uint16_t keycode;
-    if (xQueueReceive(*keyQueue, &keycode, 0) != pdPASS)
+    if (xQueueReceive(keyQueue, &keycode, 0) != pdPASS)
         return INVALID_KEYCODE;
     return keycode;
 }
 
 uint16_t KeyboardMgr::peekLastKeycode() {
     uint16_t keycode;
-    if (xQueuePeek(*keyQueue, &keycode, 0) != pdPASS)
+    if (xQueuePeek(keyQueue, &keycode, 0) != pdPASS)
         return INVALID_KEYCODE;
     return keycode;
 }
 
 uint8_t KeyboardMgr::keysAvailable() {
-    return KEY_QUEUE_LENGTH - uxQueueSpacesAvailable(*keyQueue);
+    return KEY_QUEUE_LENGTH - uxQueueSpacesAvailable(keyQueue);
 }
 
-QueueHandle_t *KeyboardMgr::getKeyQueue() {
+QueueHandle_t KeyboardMgr::getKeyQueue() {
     return keyQueue;
 }
