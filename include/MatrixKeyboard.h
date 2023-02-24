@@ -11,13 +11,12 @@
 
 #pragma once
 
+#include <Arduino.h>
 #include <stdint.h>
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "queue.h"
-#include "driver/dedic_gpio.h"
-#include "driver/gpio.h"
 
 /*
 // uint8_t, 0 ~ 127
@@ -40,9 +39,6 @@ const uint16_t keycodeMap[4][10] = {
     {24, 56, 120, 200, 136, 132, 197, 117, 53, 21}
 };
 
-#define ROW_1 ((1 << handle->row_gpios_n) - 1)
-#define COL_1 ((1 << handle->col_gpios_n) - 1)
-
 #define MatrixKeyboardTag "MatrixKeyboard: "
 
 // Works best when columns > rows.
@@ -53,25 +49,25 @@ typedef struct {
     uint8_t col_gpios_n;
     uint8_t debounce_stable_count;
     uint8_t debounce_reset_max_count;
-    QueueHandle_t *key_queue;
+    QueueHandle_t key_queue;
     char *task_name;
     void (*key_event)();
 } matrix_keyboard_config_t;
 
 typedef struct {
-    dedic_gpio_bundle_handle_t row_bundle;
-    dedic_gpio_bundle_handle_t col_bundle;
+    int *row_gpios = nullptr;
+    int *col_gpios = nullptr;
     uint8_t row_gpios_n;
     uint8_t col_gpios_n;
     uint8_t debounce_stable_count;
     uint8_t debounce_reset_max_count;
-    QueueHandle_t *key_queue;
-    char *task_name;
+    QueueHandle_t key_queue;
+    char *task_name = nullptr;
     void (*key_event)();
 
     TaskHandle_t task_handle;
-    uint32_t last_col_state[0];
     bool skip_key_releases;
+    uint32_t *last_col_state = nullptr;
 } matrix_keyboard_handle_t;
 
 esp_err_t MatrixKeyboardInit(const matrix_keyboard_config_t *config, matrix_keyboard_handle_t **handle);

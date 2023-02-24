@@ -3,11 +3,15 @@
 #include "Configuration.h"
 
 static void writeRow(matrix_keyboard_handle_t *handle, uint8_t index) {
-    dedic_gpio_bundle_write(handle->row_bundle, ROW_1, (~(1 << index)) & ROW_1);
+    for (uint8_t i = 0; i < handle->row_gpios_n; i++)
+        digitalWrite(handle->row_gpios[i], i == index ? LOW : HIGH);
 }
 
 static uint32_t readCol(matrix_keyboard_handle_t *handle) {
-    return (~dedic_gpio_bundle_read_in(handle->col_bundle)) & (COL_1);
+    uint32_t result = 0;
+    for (uint8_t i = 0; i < handle->col_gpios_n; i++)
+        result |= !(digitalRead(handle->col_gpios[i])) << i;
+    return result;
 }
 
 static void getKeycode(matrix_keyboard_handle_t *handle) {
@@ -52,7 +56,7 @@ static void getKeycode(matrix_keyboard_handle_t *handle) {
                 handle->skip_key_releases = false;
             }
             printf_log(MatrixKeyboardTag "Got keycode %d (row %d, col %d), adding to queue\n", keycode, row, col);
-            xQueueSend(*handle->key_queue, (void *) &keycode, 0);
+            xQueueSend(handle->key_queue, (void *) &keycode, 0);
         }
     }
 }
@@ -68,52 +72,35 @@ static void matrixKeyboardLoop(void *pvParameters) {
 esp_err_t MatrixKeyboardInit(const matrix_keyboard_config_t *config, matrix_keyboard_handle_t **handle) {
     if (!config)
         return ESP_ERR_INVALID_ARG;
-    matrix_keyboard_handle_t *mkhandle = static_cast<matrix_keyboard_handle_t *>(calloc(1, sizeof(matrix_keyboard_handle_t) + config->col_gpios_n * sizeof(uint8_t)));
-    if (!mkhandle)
+    matrix_keyboard_handle_t *mkhandle = static_cast<matrix_keyboard_handle_t *>(calloc(1, sizeof(matrix_keyboard_handle_t)));
+    mkhandle->row_gpios = (int *) malloc(config->row_gpios_n * sizeof(int));
+    mkhandle->col_gpios = (int *) malloc(config->col_gpios_n * sizeof(int));
+    mkhandle->task_name = (char *) malloc(strlen(config->task_name) + 1);
+    mkhandle->last_col_state = (uint32_t *) calloc(config->row_gpios_n, sizeof(uint32_t));
+    if (!mkhandle || !mkhandle->row_gpios || !mkhandle->col_gpios || !mkhandle->task_name || !mkhandle->last_col_state) {
+        free(mkhandle->row_gpios);
+        free(mkhandle->col_gpios);
+        free(mkhandle->task_name);
+        free(mkhandle->last_col_state);
+        free(mkhandle);
         return ESP_ERR_NO_MEM;
+    }
+
+    memcpy((void *) mkhandle->row_gpios, config->row_gpios, config->row_gpios_n * sizeof(int));
+    memcpy((void *) mkhandle->col_gpios, config->col_gpios, config->col_gpios_n * sizeof(int));
+    strcpy(mkhandle->task_name, config->task_name);
     mkhandle->row_gpios_n = config->row_gpios_n;
     mkhandle->col_gpios_n = config->col_gpios_n;
     mkhandle->debounce_stable_count = config->debounce_stable_count;
     mkhandle->debounce_reset_max_count = config->debounce_reset_max_count;
     mkhandle->key_queue = config->key_queue;
-    mkhandle->task_name = config->task_name;
     mkhandle->key_event = config->key_event;
     mkhandle->skip_key_releases = false;
-
-    gpio_config_t row_conf = {
-        .mode = GPIO_MODE_OUTPUT_OD,
-        // .pull_up_en = GPIO_PULLUP_ENABLE,
-    };
-    for (uint8_t i = 0; i < config->row_gpios_n; i++) {
-        row_conf.pin_bit_mask = 1ULL << config->row_gpios[i];
-        gpio_config(&row_conf);
-    }
-    gpio_config_t col_conf = {
-        .mode = GPIO_MODE_INPUT,
-        .pull_up_en = GPIO_PULLUP_ENABLE,
-    };
-    for (uint8_t i = 0; i < config->col_gpios_n; i++) {
-        col_conf.pin_bit_mask = 1ULL << config->col_gpios[i];
-        gpio_config(&col_conf);
-    }
-
-    dedic_gpio_bundle_config_t bundle_row_config = {
-        .gpio_array = config->row_gpios,
-        .array_size = config->row_gpios_n,
-        .flags = {
-            .out_en = 1,
-        },
-    };
-    dedic_gpio_bundle_config_t bundle_col_config = {
-        .gpio_array = config->col_gpios,
-        .array_size = config->col_gpios_n,
-        .flags = {
-            .in_en = 1,
-        },
-    };
-    if (!dedic_gpio_new_bundle(&bundle_row_config, &mkhandle->row_bundle) || \
-        !dedic_gpio_new_bundle(&bundle_col_config, &mkhandle->col_bundle))
-        return ESP_FAIL;
+    
+    for (uint8_t i = 0; i < config->row_gpios_n; i++)
+        pinMode(config->row_gpios[i], OUTPUT_OPEN_DRAIN);
+    for (uint8_t i = 0; i < config->col_gpios_n; i++)
+        pinMode(config->col_gpios[i], INPUT_PULLUP);
 
     *handle = mkhandle;
     return ESP_OK;
@@ -123,8 +110,10 @@ esp_err_t MatrixKeyboardDeinit(matrix_keyboard_handle_t *handle) {
     if (!handle)
         return ESP_ERR_INVALID_ARG;
     vTaskDelete(handle->task_handle);
-    dedic_gpio_del_bundle(handle->row_bundle);
-    dedic_gpio_del_bundle(handle->col_bundle);
+    free(handle->row_gpios);
+    free(handle->col_gpios);
+    free(handle->task_name);
+    free(handle->last_col_state);
     free(handle);
     return ESP_OK;
 }
