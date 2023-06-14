@@ -15,9 +15,9 @@ static uint32_t readCol(matrix_keyboard_handle_t *handle) {
 }
 
 static void getKeycode(matrix_keyboard_handle_t *handle) {
-    for (uint8_t row = 0; row < handle->row_gpios_n; row++) {
+    for (uint8_t col = 0; col < handle->row_gpios_n; col++) {
         // IO RW section
-        writeRow(handle, row);
+        writeRow(handle, col);
         uint32_t colData = readCol(handle);
 
         // Debounce section
@@ -39,17 +39,17 @@ static void getKeycode(matrix_keyboard_handle_t *handle) {
         }
 
         // Keycode calculation section
-        uint32_t colDiff = colData ^ handle->last_col_state[row];
+        uint32_t colDiff = colData ^ handle->last_col_state[col];
         if (!colDiff)
             continue;
-        handle->last_col_state[row] = colData;
+        handle->last_col_state[col] = colData;
         for (/*omitted*/; colDiff; colDiff &= colDiff - 1) {
-            uint8_t col = __builtin_ffs(colDiff) - 1;
-            uint16_t keycode = MakeKeycode(colData & (1 << col), row, col);
+            uint8_t row = __builtin_ffs(colDiff) - 1;
+            uint16_t keycode = MakeKeycode(colData & (1 << row), row, col);
             if (handle->key_event)
                 handle->key_event();
             if (handle->skip_key_releases) {
-                if (!(colData & (1 << col))) {
+                if (!(colData & (1 << row))) {
                     printf_log(MatrixKeyboardTag "Got keycode %d (row %d, col %d), but skipped\n", keycode, row, col);
                     continue;
                 }
