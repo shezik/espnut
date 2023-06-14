@@ -27,7 +27,7 @@ void NutEmuInterface::sim_run() {
     int64_t deltaMs;
     int instructionCount;
 
-    currentTime = esp_timer_get_time();
+    currentTime = get_timer_ms();
     if (currentTime < NEXT_RUN_TIME)
         return;
 
@@ -60,11 +60,11 @@ void NutEmuInterface::sim_run() {
     } else if (frequencyReduced)
         pm.restoreFrequency();
 
-    lastRunTime = esp_timer_get_time();
+    lastRunTime = get_timer_ms();
 }
 
 bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filename) {
-    lastRunTime = esp_timer_get_time() - JIFFY_MSEC;  // In ms. Could be negative but that does not matter.
+    lastRunTime = get_timer_ms() - JIFFY_MSEC;  // In ms. Could be negative but that does not matter.
     wordsPerMs = clockFrequency / (1.0E3 * ARCH_NUT_WORD_LENGTH);
 
     deinit();
@@ -160,7 +160,7 @@ void NutEmuInterface::resume() {
         return;
         
     emulatorRunFlag = true;
-    lastRunTime = esp_timer_get_time() - JIFFY_MSEC;
+    lastRunTime = get_timer_ms() - JIFFY_MSEC;
     keysPressedSet.clear();
     if (nv)
         nut_release_key(nv);

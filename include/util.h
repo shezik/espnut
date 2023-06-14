@@ -73,3 +73,6 @@ void trim_trailing_whitespace(char *s);
 #define warning(format, ...) \
     printf("\nWarning: \n" format "\n", ##__VA_ARGS__)
 */
+
+// Convert us to ms
+#define get_timer_ms() (esp_timer_get_time() / 1000)

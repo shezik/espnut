@@ -85,7 +85,7 @@ void PowerMgr::init() {
 }
 
 void PowerMgr::tick() {
-    int64_t timeNow = esp_timer_get_time();
+    int64_t timeNow = get_timer_ms();
 
     if (getBacklightPower() && timeNow >= nextBacklightOff)
         setBacklightPower(false);
@@ -122,7 +122,7 @@ void PowerMgr::feedBacklightTimeout() {
         return;
     
     setBacklightPower(true);
-    nextBacklightOff = esp_timer_get_time() + backlightTimeout;
+    nextBacklightOff = get_timer_ms() + backlightTimeout;
 }
 
 uint32_t PowerMgr::getDeepSleepTimeout() {
@@ -135,7 +135,7 @@ void PowerMgr::setDeepSleepTimeout(uint32_t ms) {
 }
 
 void PowerMgr::feedDeepSleepTimeout() {
-    nextDeepSleep = esp_timer_get_time() + deepSleepTimeout;
+    nextDeepSleep = get_timer_ms() + deepSleepTimeout;
 }
 
 bool PowerMgr::setFrequency(uint32_t freq) {
