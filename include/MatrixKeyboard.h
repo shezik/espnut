@@ -27,8 +27,8 @@
 */
 
 // uint16_t, 0 ~ 32767
-#define MakeKeycode(status, row, col) (((status & 0x01) << 15) | keycodeMap[row][col] & 0x7FFF)
-#define MakeKeycodeFromContent(status, keycodeContent) (((status & 0x01) << 15) | keycodeContent & 0x7FFF)
+#define MakeKeycode(status, row, col) ((((bool) (status)) << 15) | keycodeMap[row][col] & 0x7FFF)
+#define MakeKeycodeFromCode(status, keycode) ((((bool) (status)) << 15) | keycode & 0x7FFF)
 #define GetKeycodeStatus(keycode)     ((keycode >> 15) & 0x01)
 #define GetKeycodeContent(keycode)    (keycode & 0x7FFF)
 
