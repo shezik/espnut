@@ -14,7 +14,7 @@ KeyboardMgr::~KeyboardMgr() {
 }
 
 void KeyboardMgr::powerButtonCallback(void *ptr) {
-    printf("powerButtonCallback!\n");
+    // No printf / putc in ISR!
     KeyboardMgr *context = static_cast<KeyboardMgr *>(ptr);
     if (context->keyPressCallback)
         context->keyPressCallback();
