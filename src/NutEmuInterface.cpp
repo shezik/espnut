@@ -137,6 +137,7 @@ void NutEmuInterface::tick() {
         return;
 
     if (tickActionOverride) {
+        printf_log(EMU_TAG "Executing overriding tick action\n");
         tickActionOverride();
     } else
         // This is the default 'tick action'.
@@ -173,19 +174,21 @@ void NutEmuInterface::wakeUpOnTick() {
     tickActionOverride = [](){
         static uint8_t stage = 0;
         switch (stage++) {
-            case 0:
-                // Do nothing and let it run one jiffy
-                break;
-            case 1:
+            case 10:
                 if (context->nv->awake) {
+                    printf_log(EMU_TAG "wakeUpOnTick: Emulator awake\n");
                     context->tickActionOverride = nullptr;
                     break;
                 }
+                printf_log(EMU_TAG "wakeUpOnTick: Pressing ON\n");
                 nut_press_key(context->nv, 24 /*ON*/);
                 break;
-            case 2:
+            case 20:
+                printf_log(EMU_TAG "wakeUpOnTick: Releasing keys\n");
                 nut_release_key(context->nv);
-                stage = 1;
+                stage = 0;
+                break;
+            default:
                 break;
 
         }
