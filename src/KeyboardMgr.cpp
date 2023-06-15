@@ -37,7 +37,7 @@ void KeyboardMgr::init() {
         .row_gpios_n = ROW_GPIOS_N,
         .col_gpios_n = COL_GPIOS_N,
         .debounce_stable_count = 8,
-        .debounce_reset_max_count = 8,  // ?
+        .debounce_reset_max_count = 2,  // ?
         .key_queue = keyQueue,
         .task_name = "MatrixKbd",
         .key_event = keyPressCallback
