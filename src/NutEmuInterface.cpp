@@ -51,14 +51,18 @@ void NutEmuInterface::sim_run() {
     //     0                0             Deep sleep, should only respond to ON key.
     if (!nv->awake && !kbdMgr.keysAvailable() && kbdMgr.isKeyboardClear() && !tickActionOverride) {
         if (displayStateStabilized) {
-            printf_log(EMU_TAG "Entering light sleep\n");
-            frequencyReduced = pm.reduceFrequency();
+            if (!frequencyReduced) {
+                printf_log(EMU_TAG "Entering light sleep\n");
+                frequencyReduced = pm.reduceFrequency();
+            }
         } else {
             printf_log(EMU_TAG "Entering deep sleep\n");
             pm.enterDeepSleep();  // deepSleepPrepare() is registered as callback
         }
-    } else if (frequencyReduced)
-        pm.restoreFrequency();
+    } else if (frequencyReduced) {
+        printf_log(EMU_TAG "Quitting light sleep\n");
+        frequencyReduced = !pm.restoreFrequency();
+    }
 
     lastRunTime = get_timer_ms();
 }
