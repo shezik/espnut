@@ -123,7 +123,7 @@ void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
             break;
         case 1:
             printf_log(EMU_TAG "next-to-last key release, keycode %d\n", keycodeContent);
-            keycode = *keysPressedSet.end();
+            keycode = *keysPressedSet.begin();
             if (keycode != keyPressedFirst) {
                 printf_log(EMU_TAG "rollover pressing keycode %d\n", keycode);
                 nut_release_key(nv);
