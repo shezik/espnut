@@ -29,11 +29,15 @@ void setup() {
     
     u8g2.setBusClock(U8G2_BUS_CLK);
     u8g2.begin();
-    keyboardMgr.init();  // Init and start matrix keyboard scanner task
-    menu.init(!nutEmuInterface.checkRestoreFlag());  // Load user settings into classes, skip showing main menu if restore file is successfully loaded
 
-    if (!LittleFS.begin(/*FORMAT_LITTLEFS_IF_FAILED*/))
+    keyboardMgr.init();  // Init and start matrix keyboard scanner task
+
+    if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED))
         fatal(1, "Failed to init LittleFS.\n");
+
+    bool isRestoreFlagPresent = nutEmuInterface.checkRestoreFlag();
+    printf("Restore flag presence: %d\n", isRestoreFlagPresent);
+    menu.init(!isRestoreFlagPresent);  // Load user settings into classes, skip showing main menu if restore file is successfully loaded    
 }
 
 void loop() {
