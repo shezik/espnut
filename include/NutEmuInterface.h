@@ -25,7 +25,7 @@ class NutEmuInterface {
         nut_reg_t *nv = nullptr;
         double wordsPerMs;
         int64_t lastRunTime;
-        bool displayStateStabilized = false;
+        bool displayEnabled = false;
         bool frequencyReduced = false;
         int ramSize = 0;
         static NutEmuInterface *context;

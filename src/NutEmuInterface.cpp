@@ -46,13 +46,13 @@ void NutEmuInterface::sim_run() {
         }
     }
 
-    // nv->awake  displayStateStabilized
+    // nv->awake  displayEnabled
     //     1                0             Display toggle? Maybe another type of 'light sleep'.
     //     1                1             Normal state
     //     0                1             Light sleep
     //     0                0             Deep sleep, should only respond to ON key.
     if (!nv->awake && !kbdMgr.keysAvailable() && kbdMgr.isKeyboardClear() && !tickActionOverride) {
-        if (displayStateStabilized) {
+        if (displayEnabled) {
             if (!frequencyReduced) {
                 printf_log(EMU_TAG "Entering light sleep\n");
                 frequencyReduced = pm.reduceFrequency();
@@ -353,9 +353,9 @@ char *NutEmuInterface::getRomFilename() {
 }
 
 void NutEmuInterface::updateDisplayCallback() {
-    displayStateStabilized = nv->display_chip->enable;  // The value is the most reliable FOR NOW
+    displayEnabled = nv->display_chip->enable;  // The value is the most reliable FOR NOW
 
-    if (displayStateStabilized) {
+    if (displayEnabled) {
         setDisplayPowerSave(false);
         disp.updateDisplay(nv);
     } else
