@@ -87,6 +87,8 @@ void PowerMgr::init() {
 void PowerMgr::tick() {
     int64_t timeNow = get_timer_ms();
 
+    // printf_log("PowerMgr: timeNow: %llu, nextBacklightOff: %llu, nextDeepSleep: %llu\n", timeNow, nextBacklightOff, nextDeepSleep);
+
     if (getBacklightPower() && timeNow >= nextBacklightOff)
         setBacklightPower(false);
     

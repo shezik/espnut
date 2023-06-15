@@ -61,6 +61,9 @@
         "streambuf": "cpp",
         "cinttypes": "cpp",
         "cstdbool": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "dedic_gpio.h": "c",
+        "EXAM2.C": "cpp",
+        "set": "cpp"
     }
 }

@@ -40,8 +40,10 @@ void NutEmuInterface::sim_run() {
         instructionCount = MAX_INST_BURST;
 
     while (instructionCount--) {
-        if (!nut_execute_instruction(nv))
+        if (!nut_execute_instruction(nv)) {
+            // printf_log(EMU_TAG "Failed to execute instruction at instructionCount %d\n", instructionCount);
             break;
+        }
     }
 
     // nv->awake  displayStateStabilized
@@ -351,7 +353,7 @@ char *NutEmuInterface::getRomFilename() {
 }
 
 void NutEmuInterface::updateDisplayCallback() {
-    displayStateStabilized = nv->display_chip->enable;  // The value is the most reliable NOW
+    displayStateStabilized = nv->display_chip->enable;  // The value is the most reliable FOR NOW
 
     if (displayStateStabilized) {
         setDisplayPowerSave(false);

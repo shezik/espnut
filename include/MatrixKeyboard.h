@@ -20,17 +20,17 @@
 
 /*
 // uint8_t, 0 ~ 127
-#define MakeKeycode(status, row, col) (((status & 0x01) << 7) | ((row & 0x07) << 4) | (col & 0x0F))
-#define GetKeycodeStatus(keycode)         ((keycode >> 7) & 0x01)
-#define GetKeycodeRow(keycode)            ((keycode >> 4) & 0x07)
-#define GetKeycodeCol(keycode)            (keycode & 0x0F)
+#define MakeKeycode(status, row, col) ((((bool) (status)) << 7) | (((row) & 0x07) << 4) | ((col) & 0x0F))
+#define GetKeycodeStatus(keycode)         (((keycode) >> 7) & 0x01)
+#define GetKeycodeRow(keycode)            (((keycode) >> 4) & 0x07)
+#define GetKeycodeCol(keycode)            ((keycode) & 0x0F)
 */
 
 // uint16_t, 0 ~ 32767
 #define MakeKeycode(status, row, col) ((((bool) (status)) << 15) | keycodeMap[row][col] & 0x7FFF)
-#define MakeKeycodeFromCode(status, keycode) ((((bool) (status)) << 15) | keycode & 0x7FFF)
-#define GetKeycodeStatus(keycode)     ((keycode >> 15) & 0x01)
-#define GetKeycodeContent(keycode)    (keycode & 0x7FFF)
+#define MakeKeycodeFromCode(status, keycode) ((((bool) (status)) << 15) | (keycode) & 0x7FFF)
+#define GetKeycodeStatus(keycode)     (((keycode) >> 15) & 0x01)
+#define GetKeycodeContent(keycode)    ((keycode) & 0x7FFF)
 
 const uint16_t keycodeMap[4][10] = {
     {19, 51, 115, 195, 131, 130, 194, 114, 50, 18},
