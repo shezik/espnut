@@ -3,7 +3,7 @@ Eric Smith's Nonpareil emulator ported to ESP32. Supports HP Voyager calculators
 The successor of shezik/esp15c (now archived).
 
 ## Now in code auditing phase!
-... before I can get my hands on some hardware to really test it out.
+bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs bugs
 
 ### Features
 - Matrix keyboard driver for ESP32-S3 that doesn't support dedicated GPIO interrupt :)
@@ -24,7 +24,7 @@ The successor of shezik/esp15c (now archived).
 ### Coming soon
 - PCB file & BOM
 
-You just have to wait ツ  
+You just have to wait, like, forever? ツ  
 
 ----------------
 
