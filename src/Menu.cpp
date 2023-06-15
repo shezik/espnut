@@ -260,6 +260,13 @@ void Menu::exitMenu() {
     context->u8g2.clear();
     context->kbdMgr.clear();
     context->emu.resume();
+
+    // It is okay to leave a copy in the memory.
+    // These will be free'd and reallocated upon every call to the enterFileManager function.
+    /*
+    delete fileManagerPage; fileManagerPage = nullptr;
+    freeFileList();
+    */
 }
 
 char *Menu::generateMainPageTitle() {
@@ -281,7 +288,7 @@ void Menu::enterFileManager(char *path) {
     uint8_t itemCount = 0;
 
     // Clean up previous items
-    delete fileManagerPage;
+    delete fileManagerPage; fileManagerPage = nullptr;  // Must set to nullptr since cancelling will cause the new page not to be allocated.
     freeFileList();
 
     if (!path) {  // Cancelled
@@ -360,6 +367,11 @@ void Menu::freeFileList() {
 }
 
 void Menu::loadStateFileSelectedCallback(char *path) {
+    if (!path) {  // Cancelled
+        context->enterMenu();
+        return;
+    }
+
     if (!context->emu.isProcessorPresent()) {
         context->emu.newProcessorFromStatefile(NUT_FREQUENCY_HZ, path);
     }
@@ -368,6 +380,11 @@ void Menu::loadStateFileSelectedCallback(char *path) {
 }
 
 void Menu::loadROMFileSelectedCallback(char *path) {
+    if (!path) {  // Cancelled
+        context->enterMenu();
+        return;
+    }
+
     context->selectedROMPath = path;
     context->gem->setMenuPageCurrent(*context->ramSizePage);
     context->gem->drawMenu();
