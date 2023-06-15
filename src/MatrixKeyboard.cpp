@@ -98,7 +98,7 @@ esp_err_t MatrixKeyboardInit(const matrix_keyboard_config_t *config, matrix_keyb
     mkhandle->skip_key_releases = false;
     
     for (uint8_t i = 0; i < config->row_gpios_n; i++)
-        pinMode(config->row_gpios[i], OUTPUT_OPEN_DRAIN);
+        pinMode(config->row_gpios[i], OUTPUT);
     for (uint8_t i = 0; i < config->col_gpios_n; i++)
         pinMode(config->col_gpios[i], INPUT_PULLUP);
 
