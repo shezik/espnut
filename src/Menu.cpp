@@ -110,7 +110,7 @@ void Menu::tick() {
 
     if (showingMenu)
         if (gem->readyForKey() && kbdMgr.keysAvailable()) {
-            uint16_t keycode = kbdMgr.getPositiveKeycode();  // Key release is of no use here
+            uint16_t keycode = GetKeycodeContent(kbdMgr.getPositiveKeycode());  // Key release is of no use here
             switch (keycode) {
                 case 116:  // 2
                     gem->registerKeyPress(GEM_KEY_UP);
