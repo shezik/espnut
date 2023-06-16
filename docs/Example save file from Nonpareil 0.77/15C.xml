@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE state SYSTEM "nonpareil.dtd">
+<state version="1.00" model="15C" platform="voyager" arch="nut">
+    <ui/>
+    <chip name="Nut">
+        <registers>
+            <reg name="a" data="000000fffff000"/>
+            <reg name="b" data="000000fffff000"/>
+            <reg name="c" data="00000000001eae"/>
+            <reg name="m" data="03000000000000"/>
+            <reg name="n" data="00000000000000"/>
+            <reg name="g" data="04"/>
+            <reg name="p" data="c"/>
+            <reg name="q" data="4"/>
+            <reg name="q_sel" data="0"/>
+            <reg name="fo" data="00"/>
+            <reg name="s" data="0a00"/>
+            <reg name="pc" data="0000"/>
+            <reg name="stack" index="0" data="0096"/>
+            <reg name="stack" index="1" data="0000"/>
+            <reg name="stack" index="2" data="0000"/>
+            <reg name="stack" index="3" data="0000"/>
+            <reg name="decimal" data="0"/>
+            <reg name="carry" data="0"/>
+            <reg name="awake" data="0"/>
+            <reg name="pf_addr" data="00"/>
+            <reg name="ram_addr" data="007"/>
+            <reg name="active_bank" index="0" data="0"/>
+            <reg name="active_bank" index="1" data="0"/>
+            <reg name="active_bank" index="2" data="0"/>
+            <reg name="active_bank" index="3" data="0"/>
+            <reg name="active_bank" index="4" data="0"/>
+            <reg name="active_bank" index="5" data="0"/>
+            <reg name="active_bank" index="6" data="0"/>
+            <reg name="active_bank" index="7" data="0"/>
+            <reg name="active_bank" index="8" data="0"/>
+            <reg name="active_bank" index="9" data="0"/>
+            <reg name="active_bank" index="a" data="0"/>
+            <reg name="active_bank" index="b" data="0"/>
+            <reg name="active_bank" index="c" data="0"/>
+            <reg name="active_bank" index="d" data="0"/>
+            <reg name="active_bank" index="e" data="0"/>
+            <reg name="active_bank" index="f" data="0"/>
+        </registers>
+    </chip>
+    <chip name="Voyager LCD">
+        <registers>
+            <reg name="enable" data="1"/>
+            <reg name="blink" data="0"/>
+        </registers>
+    </chip>
+    <memory as="ram">
+        <loc addr="000" data="00000000000000"/>
+        <loc addr="001" data="00000000000000"/>
+        <loc addr="002" data="00000000000000"/>
+        <loc addr="003" data="00000000000000"/>
+        <loc addr="004" data="000000fffff000"/>
+        <loc addr="005" data="00000000000008"/>
+        <loc addr="006" data="0000000000000c"/>
+        <loc addr="007" data="00000000001eae"/>
+        <loc addr="008" data="00000000000000"/>
+        <loc addr="009" data="2faf8befbe2280"/>
+        <loc addr="00a" data="00000000000000"/>
+        <loc addr="010" data="00000000000000"/>
+        <loc addr="011" data="00000000000000"/>
+        <loc addr="012" data="00000000000000"/>
+        <loc addr="013" data="02000000000000"/>
+        <loc addr="014" data="00000000000000"/>
+        <loc addr="015" data="c0d2d2d2d2d2d2"/>
+        <loc addr="016" data="00000000000000"/>
+        <loc addr="017" data="00000000000000"/>
+        <loc addr="018" data="00000000000000"/>
+        <loc addr="019" data="00000000000000"/>
+        <loc addr="01a" data="00000000a00080"/>
+        <loc addr="0c0" data="00000000000000"/>
+        <loc addr="0c1" data="00000000000000"/>
+        <loc addr="0c2" data="00000000000000"/>
+        <loc addr="0c3" data="00000000000000"/>
+        <loc addr="0c4" data="00000000000000"/>
+        <loc addr="0c5" data="00000000000000"/>
+        <loc addr="0c6" data="00000000000000"/>
+        <loc addr="0c7" data="00000000000000"/>
+        <loc addr="0c8" data="00000000000000"/>
+        <loc addr="0c9" data="00000000000000"/>
+        <loc addr="0ca" data="00000000000000"/>
+        <loc addr="0cb" data="00000000000000"/>
+        <loc addr="0cc" data="00000000000000"/>
+        <loc addr="0cd" data="00000000000000"/>
+        <loc addr="0ce" data="00000000000000"/>
+        <loc addr="0cf" data="00000000000000"/>
+        <loc addr="0d0" data="00000000000000"/>
+        <loc addr="0d1" data="00000000000000"/>
+        <loc addr="0d2" data="00000000000000"/>
+        <loc addr="0d3" data="00000000000000"/>
+        <loc addr="0d4" data="00000000000000"/>
+        <loc addr="0d5" data="00000000000000"/>
+        <loc addr="0d6" data="00000000000000"/>
+        <loc addr="0d7" data="00000000000000"/>
+        <loc addr="0d8" data="00000000000000"/>
+        <loc addr="0d9" data="00000000000000"/>
+        <loc addr="0da" data="00000000000000"/>
+        <loc addr="0db" data="00000000000000"/>
+        <loc addr="0dc" data="00000000000000"/>
+        <loc addr="0dd" data="00000000000000"/>
+        <loc addr="0de" data="00000000000000"/>
+        <loc addr="0df" data="00000000000000"/>
+        <loc addr="0e0" data="00000000000000"/>
+        <loc addr="0e1" data="00000000000000"/>
+        <loc addr="0e2" data="00000000000000"/>
+        <loc addr="0e3" data="00000000000000"/>
+        <loc addr="0e4" data="00000000000000"/>
+        <loc addr="0e5" data="00000000000000"/>
+        <loc addr="0e6" data="00000000000000"/>
+        <loc addr="0e7" data="00000000000000"/>
+        <loc addr="0e8" data="00000000000000"/>
+        <loc addr="0e9" data="00000000000000"/>
+        <loc addr="0ea" data="00000000000000"/>
+        <loc addr="0eb" data="00000000000000"/>
+        <loc addr="0ec" data="00000000000000"/>
+        <loc addr="0ed" data="00000000000000"/>
+        <loc addr="0ee" data="00000000000000"/>
+        <loc addr="0ef" data="00000000000000"/>
+        <loc addr="0f0" data="00000000000000"/>
+        <loc addr="0f1" data="00000000000000"/>
+        <loc addr="0f2" data="00000000000000"/>
+        <loc addr="0f3" data="00000000000000"/>
+        <loc addr="0f4" data="00000000000000"/>
+        <loc addr="0f5" data="00000000000000"/>
+        <loc addr="0f6" data="00000000000000"/>
+        <loc addr="0f7" data="00000000000000"/>
+        <loc addr="0f8" data="00000000000000"/>
+        <loc addr="0f9" data="00000000000000"/>
+        <loc addr="0fa" data="00000000000000"/>
+        <loc addr="0fb" data="00000000000000"/>
+        <loc addr="0fc" data="00000000000000"/>
+        <loc addr="0fd" data="00000000000000"/>
+        <loc addr="0fe" data="00000000000000"/>
+        <loc addr="0ff" data="00000000000000"/>
+    </memory>
+</state>
