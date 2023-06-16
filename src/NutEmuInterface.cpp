@@ -263,7 +263,7 @@ bool NutEmuInterface::loadState(char *filename, bool doUpdateMetadata, bool doLo
         return false;
 
     file.readBytes(magic, 5);  // Magic string is 'STATE'
-    magic[6] = '\0';
+    magic[5] = '\0';
     if (strcmp(magic, "STATE")) {
         file.close();
         return false;
