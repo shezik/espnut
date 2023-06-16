@@ -156,14 +156,21 @@ void Menu::tick() {
 
 bool Menu::loadSettings() {
     File file = LittleFS.open(CONFIG_FILENAME, "r");
-    if (!file)
+    if (!file) {
+        printf_log("Menu: loadSettings: Failed to open file %s for reading\n", CONFIG_FILENAME);
         return false;
+    }
 
     contrast = file.read();
+    printf_log("Menu: loadSettings: contrast: %d\n", contrast);
     backlightTimeoutSec = file.read();
+    printf_log("Menu: loadSettings: backlightTimeoutSec: %d\n", backlightTimeoutSec);
     powerOffTimeoutMin = file.read();
+    printf_log("Menu: loadSettings: powerOffTimeoutMin: %d\n", powerOffTimeoutMin);
     unlockSpeed = (bool) file.read();
+    printf_log("Menu: loadSettings: unlockSpeed: %d\n", unlockSpeed);
     enableLogging = (bool) file.read();
+    printf_log("Menu: loadSettings: enableLogging: %d\n", enableLogging);
 
     file.close();
     return true;
@@ -171,10 +178,13 @@ bool Menu::loadSettings() {
 
 void Menu::applySettings() {
     u8g2.setContrast(contrast);
+    printf_log("Menu: applySettings: Contrast set to %d\n", contrast);
     pm.setBacklightTimeout(backlightTimeoutSec * 1000);
+    printf_log("Menu: applySettings: Backlight timeout set to %lu ms\n", backlightTimeoutSec * 1000);
     if (powerOffTimeoutMin < 1)
         powerOffTimeoutMin = 1;
     pm.setDeepSleepTimeout(powerOffTimeoutMin * 1000 * 60);
+    printf_log("Menu: applySettings: Deep sleep timeout set to %lu ms\n", powerOffTimeoutMin * 1000 * 60);
     // !! emu.setUnlockSpeed(unlockSpeed);
     showLogfileBtn->hide(!enableLogging);
     clearLogfileBtn->hide(!enableLogging);
@@ -186,8 +196,10 @@ void Menu::applySettings() {
 
 bool Menu::saveSettings() {
     File file = LittleFS.open(CONFIG_FILENAME, "w");
-    if (!file)
+    if (!file) {
+        printf_log("Menu: saveSettings: Failed to open file %s for writing\n", CONFIG_FILENAME);
         return false;
+    }
 
     file.write(contrast);
     file.write(backlightTimeoutSec);
@@ -238,6 +250,7 @@ void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
 }
 
 void Menu::enterMenu() {
+    printf_log("Menu: Executing enterMenu\n");
     showingMenu = true;
     emu.pause();
     kbdMgr.clear();

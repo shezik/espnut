@@ -207,8 +207,10 @@ bool NutEmuInterface::saveState(char *filename) {
         return false;
 
     File file = LittleFS.open(filename, "w");
-    if (!file)
+    if (!file) {
+        printf_log(EMU_TAG "Failed to open file %s for writing\n", filename);
         return false;
+    }
 
     file.write((uint8_t *) "STATE", 5);  // Magic
     file.write((uint8_t *) romFilename, strlen(romFilename));
@@ -259,13 +261,16 @@ bool NutEmuInterface::loadState(char *filename, bool doUpdateMetadata, bool doLo
     uint8_t size;
 
     File file = LittleFS.open(filename, "r");
-    if (!file)
+    if (!file) {
+        printf_log(EMU_TAG "loadState: Failed to open file %s for reading\n", filename);
         return false;
+    }
 
     file.readBytes(magic, 5);  // Magic string is 'STATE'
     magic[5] = '\0';
     if (strcmp(magic, "STATE")) {
         file.close();
+        printf_log(EMU_TAG "loadState: Bad file magic: %s\n", magic);
         return false;
     }
 
@@ -275,12 +280,14 @@ bool NutEmuInterface::loadState(char *filename, bool doUpdateMetadata, bool doLo
         && (!file.available() || file.read() != '\0')) {
             
         file.close();
+        printf_log(EMU_TAG "loadState: Filename buffer depleted!\n");
         return false;  // you've got a very, very long filename...
     }
     
     if (doUpdateMetadata) {
         strcpy(romFilename, romFilename_);
         file.read((uint8_t *) &ramSize, sizeof(int));
+        printf_log(EMU_TAG "loadState: Metadata: RAM size: %d, ROM filename: %s\n", ramSize, romFilename);
     }
 
     if (!doLoadState) {
@@ -355,11 +362,17 @@ char *NutEmuInterface::getRomFilename() {
 void NutEmuInterface::updateDisplayCallback() {
     displayEnabled = nv->display_chip->enable;  // The value is the most reliable FOR NOW
 
+    static bool lastState = !displayEnabled;
+    if (displayEnabled != lastState) {
+        lastState = displayEnabled;
+        printf_log(EMU_TAG "updateDisplayCallback: displayEnabled: %d\n", displayEnabled);
+    }
+
     if (displayEnabled) {
         setDisplayPowerSave(false);
         disp.updateDisplay(nv);
-    } else
-        setDisplayPowerSave(true);  // I believe this counts as updating display rather than managing power ;)
+    }// else
+        // setDisplayPowerSave(true);  // I believe this counts as updating display rather than managing power ;)
 }
 
 void NutEmuInterface::setDisplayPowerSave(bool state) {
@@ -373,8 +386,10 @@ bool NutEmuInterface::checkRestoreFlag() {
         return false;
     
     LittleFS.remove(RESTORE_FLAG_FILENAME);
+    printf_log(EMU_TAG "Checking restore flag\n");
     newProcessorFromStatefile(NUT_FREQUENCY_HZ, RESTORE_STATE_FILENAME);
     loadStateFromStatefile(RESTORE_STATE_FILENAME);  // Load state
+    printf_log(EMU_TAG "State loaded from file.\n");
     return true;
 }
 
