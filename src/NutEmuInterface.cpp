@@ -139,21 +139,30 @@ void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
 }
 
 void NutEmuInterface::tick() {
+    static bool keycodeCheckedByMenu = true;
+
     if (!nv || !emulatorRunFlag)
         return;
 
     if (tickActionOverride) {
         printf_log(EMU_TAG "Executing overriding tick action\n");
         tickActionOverride();
-    } else
+    } else {
         // This is the default 'tick action'.
-        if (kbdMgr.keysAvailable()) {
+        uint8_t keysAvailable = kbdMgr.keysAvailable();
+        if (keysAvailable == 1 && kbdMgr.peekLastKeycode() == MakeKeycodeFromCode(true, 24 /*ON*/)) {
+            keycodeCheckedByMenu = !keycodeCheckedByMenu;
+        } else {
+            keycodeCheckedByMenu = true;
+        }
+        if (keysAvailable && keycodeCheckedByMenu) {
             uint16_t keycode = kbdMgr.getLastKeycode();
             if (GetKeycodeStatus(keycode))
                 keyPressed(GetKeycodeContent(keycode));
             else
                 keyReleased(GetKeycodeContent(keycode));
         }
+    }
 
     sim_run();
 }
@@ -186,6 +195,7 @@ void NutEmuInterface::wakeUpOnTick() {
                 if (context->nv->awake) {
                     printf_log(EMU_TAG "wakeUpOnTick: Emulator awake\n");
                     context->tickActionOverride = nullptr;
+                    //context->updateDisplayCallback();
                     break;
                 }
                 printf_log(EMU_TAG "wakeUpOnTick: Pressing ON\n");
