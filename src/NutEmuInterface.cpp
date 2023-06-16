@@ -193,9 +193,9 @@ void NutEmuInterface::wakeUpOnTick() {
         switch (stage++) {
             case 10:
                 if (context->nv->awake) {
-                    printf_log(EMU_TAG "wakeUpOnTick: Emulator awake\n");
+                    printf_log(EMU_TAG "wakeUpOnTick: Emulator awake, forcing display update\n");
                     context->tickActionOverride = nullptr;
-                    //context->updateDisplayCallback();
+                    context->disp.updateDisplay(context->nv, true);
                     break;
                 }
                 printf_log(EMU_TAG "wakeUpOnTick: Pressing ON\n");

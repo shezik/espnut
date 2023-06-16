@@ -52,13 +52,13 @@ void DispInterface::drawSegments(segment_bitmap_t *ds) {
         u8g2.drawXBM(0, 0, asterisk_width, asterisk_height, asterisk_bits);
 }
 
-void DispInterface::updateDisplay(nut_reg_t *nv) {
+void DispInterface::updateDisplay(nut_reg_t *nv, bool force) {
     static segment_bitmap_t lastSegments[VOYAGER_DISPLAY_DIGITS] = {0};
     static bool lastLowBat = lowBat;
     bool doUpdate = (lastLowBat != lowBat) ? true : memcmp(lastSegments, nv->display_segments, sizeof(lastSegments));
     memcpy(lastSegments, nv->display_segments, sizeof(lastSegments));
     
-    if (doUpdate) {
+    if (doUpdate || force) {
         drawSegments(nv->display_segments);
         u8g2.sendBuffer();
     }
