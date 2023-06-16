@@ -108,7 +108,7 @@ void Menu::tick() {
         enterMenu();
     }
 
-    if (showingMenu)
+    if (showingMenu) {
         if (gem->readyForKey() && kbdMgr.keysAvailable()) {
             uint16_t keycode = GetKeycodeContent(kbdMgr.getPositiveKeycode());  // Key release is of no use here
             printf_log("Menu: Keycode: %d\n", keycode);  // !! DEBUG
@@ -135,10 +135,10 @@ void Menu::tick() {
                     gem->registerKeyPress(GEM_KEY_NONE);
             }
         }
-    else if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == 24 /*ON*/) {
+    } else if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == MakeKeycodeFromCode(true, 24 /*ON*/)) {
         printf_log("Menu: ON key detected in background\n");
         uint16_t tempKeycode;
-        uint16_t onKeycode = 24 /*ON*/;
+        uint16_t onKeycode = MakeKeycodeFromCode(true, 24 /*ON*/);
         QueueHandle_t queue = kbdMgr.getKeyQueue();
 
         kbdMgr.getLastKeycode();  // Remove 'ON' keycode, emptying the queue
