@@ -300,16 +300,18 @@ bool NutEmuInterface::loadState(char *filename, bool doUpdateMetadata, bool doLo
         strcpy(romFilename, romFilename_);
         file.read((uint8_t *) &ramSize, sizeof(int));
         printf_log(EMU_TAG "loadState: Metadata: RAM size: %d, ROM filename: %s\n", ramSize, romFilename);
-    }
+    } else
+        file.seek(sizeof(int), SeekCur);
 
     if (!doLoadState) {
         file.close();
         return true;
     }
 
-    if (!nv)
+    if (!nv) {
         file.close();
         return false;
+    }
 
     file.read((uint8_t *) nv->a, sizeof(reg_t));
     file.read((uint8_t *) nv->b, sizeof(reg_t));
