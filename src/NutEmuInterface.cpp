@@ -160,6 +160,8 @@ void NutEmuInterface::tick() {
 
 void NutEmuInterface::pause() {
     emulatorRunFlag = false;
+    printf_log(EMU_TAG "Quitting light sleep\n");
+    frequencyReduced = !pm.restoreFrequency();
 }
 
 void NutEmuInterface::resume() {
