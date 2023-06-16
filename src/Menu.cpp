@@ -49,6 +49,7 @@ void Menu::init(bool showMenuFlag_) {
     // Any one-line function is written as lambda expression
     // It's quite interesting that static class methods can access protected members via the (class member) pointer 'context'.
     gem = new GEM_u8g2(u8g2, GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
+    gem->setSplashDelay(0);
     gem->init();
 
     mainPage = new GEMPage(generateMainPageTitle(), exitMenu);
