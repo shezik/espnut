@@ -111,10 +111,7 @@ void Menu::init(bool showMenuFlag_) {
     ramSizePage->addMenuItem(*smallRAMBtn);
     ramSizePage->addMenuItem(*largeRAMBtn);
 
-    if (!loadSettings()) {
-        loadDefaultSettings();
-        saveSettings();
-    }
+    loadSettings();
     applySettings();
 }
 
@@ -173,7 +170,8 @@ void Menu::tick() {
 bool Menu::loadSettings() {
     File file = LittleFS.open(CONFIG_FILENAME, "r");
     if (!file) {
-        printf_log("Menu: loadSettings: Failed to open file %s for reading\n", CONFIG_FILENAME);
+        printf_log("Menu: loadSettings: Failed to open file %s for reading, loading defaults\n", CONFIG_FILENAME);
+        loadDefaultSettings();
         return false;
     }
 
