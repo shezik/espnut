@@ -87,6 +87,7 @@ class Menu {
         static void exitSettingsPageCallback(GEMCallbackData);
         static void loadStateFileSelectedCallback(char *);
         static void loadROMFileSelectedCallback(char *);
+        void loadROMRAMSelectedCallback(int);
         static void loadROMRAMSelectedCallback(GEMCallbackData);
         static void saveStateButtonCallback();
         // static void fileSelectedCallback();

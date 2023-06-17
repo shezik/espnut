@@ -90,7 +90,7 @@ void Menu::init(bool showMenuFlag_) {
     settingsPage->addMenuItem(*saveSettingsBtn);
     settingsPage->addMenuItem(*exitSettingsBtn);
     settingsPage->addMenuItem(*resetSettingsBtn);
-    ramSizePage = new GEMPage("Pick RAM size (80 only for 15C)" /*!! Add cancel operation here*/);
+    ramSizePage = new GEMPage("Pick RAM size (80 only for 15C)", [](){context->loadROMRAMSelectedCallback(0);});
     smallRAMBtn = new GEMItem("40", loadROMRAMSelectedCallback, 40);
     largeRAMBtn = new GEMItem("80", loadROMRAMSelectedCallback, 80);
     ramSizePage->addMenuItem(*smallRAMBtn);
@@ -359,17 +359,19 @@ void Menu::enterFileManager(GEMCallbackData callbackData) {
 }
 
 void Menu::dirGoUp(char *path) {  // First character must be '/'
-    if (*path != '/' || strlen(path) == 1) {
+    if (*path != '/' || strlen(path) == 1)
         return;
-    }
+    
     char *pathEnd = path + strlen(path) - 1;
     pathEnd--;  // Skip the last character
     while (*pathEnd != '/')
         pathEnd--;
 
     *pathEnd = '\0';
-    if (!strlen(path))
+    if (!strlen(path)) {
         *path = '/';
+        *(path + 1) = '\0';
+    }
 }
 
 void Menu::freeFileList() {
@@ -405,9 +407,18 @@ void Menu::loadROMFileSelectedCallback(char *path) {
     context->gem->drawMenu();
 }
 
+void Menu::loadROMRAMSelectedCallback(int romSize) {
+    if (romSize) {
+        emu.newProcessor(NUT_FREQUENCY_HZ, romSize, selectedROMPath);
+        exitMenu();
+    } else {
+        dirGoUp(selectedROMPath);  // This actually modifies filePathBuf in enterFileManager, but I don't think it matters.
+        enterFileManager(selectedROMPath);
+    }
+}
+
 void Menu::loadROMRAMSelectedCallback(GEMCallbackData callbackData) {
-    context->emu.newProcessor(NUT_FREQUENCY_HZ, callbackData.valInt, context->selectedROMPath);
-    exitMenu();
+    context->loadROMRAMSelectedCallback(callbackData.valInt);
 }
 
 void Menu::saveStateButtonCallback() {
