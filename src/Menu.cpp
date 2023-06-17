@@ -65,7 +65,7 @@ void Menu::init(bool showMenuFlag_) {
         gem->setSplashDelay(0);
     gem->init();
 
-    mainPage = new GEMPage(generateMainPageTitle(), exitMenu);
+    mainPage = new GEMPage(generateMainPageTitle(), [](){if (context->emu.isProcessorPresent()) context->exitMenu();});
     resumeBtn = new GEMItem("Resume", exitMenu);
     saveStateBtn = new GEMItem("Save State", saveStateButtonCallback);  // These are placeholders.
     loadStateBtn = new GEMItem("Load State", [](){context->fileSelectedCallback = loadStateFileSelectedCallback; context->enterFileManager("/");});
