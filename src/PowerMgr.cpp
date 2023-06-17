@@ -89,10 +89,10 @@ void PowerMgr::tick() {
 
     // printf_log("PowerMgr: timeNow: %llu, nextBacklightOff: %llu, nextDeepSleep: %llu\n", timeNow, nextBacklightOff, nextDeepSleep);
 
-    if (getBacklightPower() && timeNow >= nextBacklightOff)
+    if (getBacklightPower() && (timeNow >= nextBacklightOff || !backlightTimeout))
         setBacklightPower(false);
     
-    if (timeNow >= nextDeepSleep)
+    if (deepSleepTimeout && timeNow >= nextDeepSleep)
         enterDeepSleep();
 }
 
