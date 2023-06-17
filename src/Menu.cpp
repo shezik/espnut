@@ -264,8 +264,8 @@ void Menu::enterMenu() {
     mainPage->setTitle(generateMainPageTitle());
     context->saveStateBtn->setReadonly(false);
 
-    gem->reInit();
-    u8g2.setContrast(contrast);  // GEM_uìg2::reInit causes U8g2 to reset contrast
+    // gem->reInit();
+    // u8g2.setContrast(contrast);  // GEM_uìg2::reInit causes U8g2 to reset contrast
     gem->setMenuPageCurrent(*mainPage);
     gem->drawMenu();
 }
