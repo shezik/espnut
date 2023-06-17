@@ -187,18 +187,18 @@ void NutEmuInterface::resume() {
 }
 
 void NutEmuInterface::wakeUpOnTick() {
-    // Repeatedly press the power button until nv->awake becomes true, one action per tick()
+    // Repeatedly press the power button until displayEnabled becomes true, one action per tick()
     tickActionOverride = [](){
         static uint8_t count = 0;
         static uint8_t stage = 0;
         switch (stage++) {
             case 10:
-                if (context->nv->awake)
+                if (context->displayEnabled)
                     printf_log(EMU_TAG "wakeUpOnTick: Emulator awake, forcing display update\n");
                 else if (count == MAX_WAKEUP_ATTEMPTS)
                     printf_log(EMU_TAG "wakeUpOnTick: Reached max wakeup attempts!\n");
                     
-                if (context->nv->awake || count == MAX_WAKEUP_ATTEMPTS) {
+                if (context->displayEnabled || count == MAX_WAKEUP_ATTEMPTS) {
                     count = 0;
                     stage = 0;
                     context->tickActionOverride = nullptr;
