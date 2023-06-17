@@ -257,8 +257,7 @@ void Menu::exitSettingsPageCallback(bool doSave) {
         context->applySettings();
     }
     // Go back to main menu
-    context->gem->setMenuPageCurrent(*context->mainPage);
-    context->gem->drawMenu();
+    context->enterMenu();
 }
 
 void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
