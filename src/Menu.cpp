@@ -201,7 +201,7 @@ void Menu::applySettings() {
         powerOffTimeoutMin = 1;
     pm.setDeepSleepTimeout(powerOffTimeoutMin * 1000 * 60);
     printf_log("Menu: applySettings: Deep sleep timeout set to %lu ms\n", powerOffTimeoutMin * 1000 * 60);
-    // !! emu.setUnlockSpeed(unlockSpeed);
+    emu.setUnlockSpeed(unlockSpeed);
     showLogfileBtn->hide(!enableLogging);
     clearLogfileBtn->hide(!enableLogging);
     if (!enableLogging) {

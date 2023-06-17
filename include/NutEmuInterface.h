@@ -31,6 +31,7 @@ class NutEmuInterface {
         static NutEmuInterface *context;
         char romFilename[ROM_FILENAME_LENGTH] = {0};
         bool emulatorRunFlag = true;
+        bool unlockSpeed = false;
 
         void sim_run();
         bool loadState(char *, bool, bool);
@@ -59,6 +60,7 @@ class NutEmuInterface {
 
         void updateDisplayCallback();
         void setDisplayPowerSave(bool);
+        void setUnlockSpeed(bool);
 
         // Attempt to load deep sleep restore file
         bool checkRestoreFlag();

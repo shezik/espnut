@@ -36,7 +36,7 @@ void NutEmuInterface::sim_run() {
         deltaMs = 2000;  // According to proc.c, this should be 1000 but it feels wrong?
 
     instructionCount = deltaMs * wordsPerMs;
-    if (instructionCount > MAX_INST_BURST)
+    if (instructionCount > MAX_INST_BURST || unlockSpeed)
         instructionCount = MAX_INST_BURST;
 
     while (instructionCount--) {
@@ -401,6 +401,10 @@ void NutEmuInterface::setDisplayPowerSave(bool state) {
     disp.setU8g2PowerSave(state);
     if (state)  // Actively turn off backlight, don't actively turn on
         pm.setBacklightPower(false);
+}
+
+void NutEmuInterface::setUnlockSpeed(bool unlockSpeed_) {
+    unlockSpeed = unlockSpeed_;
 }
 
 bool NutEmuInterface::checkRestoreFlag() {
