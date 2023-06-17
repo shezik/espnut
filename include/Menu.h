@@ -28,6 +28,7 @@ class Menu {
         GEMItem *resetCPUBtn = nullptr;  // HIDE
         GEMItem *obdurateResetCPUBtn = nullptr;  // HIDE
         GEMItem *loadROMBtn = nullptr;
+        GEMItem *deleteFileBtn = nullptr;
         GEMItem *showLogfileBtn = nullptr;  // HIDE
         GEMItem *settingsBtn = nullptr;
         GEMItem *powerOffBtn = nullptr;
@@ -87,6 +88,7 @@ class Menu {
         static void exitSettingsPageCallback(GEMCallbackData);
         static void loadStateFileSelectedCallback(char *);
         static void loadROMFileSelectedCallback(char *);
+        static void deleteSelectedFileCallback(char *);
         void loadROMRAMSelectedCallback(int);
         static void loadROMRAMSelectedCallback(GEMCallbackData);
         static void saveStateButtonCallback();

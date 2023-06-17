@@ -22,6 +22,7 @@ Menu::~Menu() {
     delete resetCPUBtn; resetCPUBtn = nullptr;
     delete obdurateResetCPUBtn; obdurateResetCPUBtn = nullptr;
     delete loadROMBtn; loadROMBtn = nullptr;
+    delete deleteFileBtn; deleteFileBtn = nullptr;
     delete showLogfileBtn; showLogfileBtn = nullptr;
     delete settingsBtn; settingsBtn = nullptr;
     delete powerOffBtn; powerOffBtn = nullptr;
@@ -59,6 +60,7 @@ void Menu::init(bool showMenuFlag_) {
     resetCPUBtn = new GEMItem("Reset CPU", [](){context->emu.resetProcessor();});
     obdurateResetCPUBtn = new GEMItem("Reset CPU & Memory", [](){context->emu.resetProcessor(true);});
     loadROMBtn = new GEMItem("Load ROM", [](){context->fileSelectedCallback = loadROMFileSelectedCallback; context->enterFileManager("/");});
+    deleteFileBtn = new GEMItem("Delete file", [](){context->fileSelectedCallback = deleteSelectedFileCallback; context->enterFileManager("/");});
     showLogfileBtn = new GEMItem("Logs", [](){});
     settingsBtn = new GEMItem("Settings", settingsButtonCallback);
     powerOffBtn = new GEMItem("Power Off", [](){context->pm.enterDeepSleep();});
@@ -68,6 +70,7 @@ void Menu::init(bool showMenuFlag_) {
     mainPage->addMenuItem(*resetCPUBtn);
     mainPage->addMenuItem(*obdurateResetCPUBtn);
     mainPage->addMenuItem(*loadROMBtn);
+    mainPage->addMenuItem(*deleteFileBtn);
     mainPage->addMenuItem(*showLogfileBtn);
     mainPage->addMenuItem(*settingsBtn);
     mainPage->addMenuItem(*powerOffBtn);
@@ -405,6 +408,17 @@ void Menu::loadROMFileSelectedCallback(char *path) {
     context->selectedROMPath = path;
     context->gem->setMenuPageCurrent(*context->ramSizePage);
     context->gem->drawMenu();
+}
+
+void Menu::deleteSelectedFileCallback(char *path) {
+    if (!path) {  // Cancelled
+        context->enterMenu();
+        return;
+    }
+
+    LittleFS.remove(path);
+    context->dirGoUp(path);  // Should be safe
+    context->enterFileManager(path);
 }
 
 void Menu::loadROMRAMSelectedCallback(int romSize) {
