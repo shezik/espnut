@@ -44,10 +44,19 @@ void NutEmuInterface::sim_run() {
             // printf_log(EMU_TAG "Failed to execute instruction at instructionCount %d\n", instructionCount);
             break;
         }
+        static bool prevAwake = !nv->awake;
+        static bool prevDisplayEnabled = !displayEnabled;
+        static bool rawDisplayEnabled = !nv->display_chip->enable;
+        if (nv->awake != prevAwake || displayEnabled != prevDisplayEnabled) {
+            printf_log(EMU_TAG "awake: %d -> %d, displayEnabled: %d -> %d, rawDisplayEnabled: %d -> %d\n", prevAwake, nv->awake, prevDisplayEnabled, displayEnabled, rawDisplayEnabled, nv->display_chip->enable);
+            prevAwake = nv->awake;
+            prevDisplayEnabled = displayEnabled;
+            rawDisplayEnabled = nv->display_chip->enable;
+        }
     }
 
     // nv->awake  displayEnabled
-    //     1                0             Display toggle? Maybe another type of 'light sleep'.
+    //     1                0             Processing key press
     //     1                1             Normal state
     //     0                1             Light sleep
     //     0                0             Deep sleep, should only respond to ON key.
@@ -175,7 +184,7 @@ void NutEmuInterface::tick() {
 
 void NutEmuInterface::pause() {
     emulatorRunFlag = false;
-    printf_log(EMU_TAG "Quitting light sleep\n");
+    printf_log(EMU_TAG "Quitting light sleep for pausing\n");
     frequencyReduced = !pm.restoreFrequency();
 }
 
@@ -393,7 +402,7 @@ void NutEmuInterface::updateDisplayCallback() {
     static bool lastState = !displayEnabled;
     if (displayEnabled != lastState) {
         lastState = displayEnabled;
-        printf_log(EMU_TAG "updateDisplayCallback: displayEnabled: %d\n", displayEnabled);
+        // printf_log(EMU_TAG "updateDisplayCallback: displayEnabled: %d\n", displayEnabled);
     }
 
     if (displayEnabled) {
