@@ -36,11 +36,11 @@
 // Menu
 #define ITEMS_PER_PAGE 2
 #define CONFIG_FILENAME "/.CONFIG"
-#define FALLBACK_CONTRAST 42  // 0~255
+#define FALLBACK_CONTRAST 80  // 0~255
 #define FALLBACK_ENABLE_POWER_MGMT true
 #define FALLBACK_UNLOCK_SPEED false
 #define FALLBACK_ENABLE_LOGGING false
-#define HOLD_DOWN_LENGTH 1000  // ms
+#define HOLD_DOWN_LENGTH 800  // ms
 
 // DispInterface
 #define XBM_FONT_FILENAME "xbmFont128x32.h"
