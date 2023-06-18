@@ -206,32 +206,65 @@ void NutEmuInterface::wakeUpOnTick() {
     tickActionOverride = [](){
         static uint8_t count = 0;
         static uint8_t stage = 0;
+        static auto deinit = [](){
+            count = 0;
+            stage = 0;
+            context->tickActionOverride = nullptr;
+        };
         switch (stage++) {
-            case 10:
-                if (context->displayEnabled)
+            case SIM_RUNS_BEFORE_CHECK:
+                printf_log(EMU_TAG "wakeUpOnTick: Stage %d\n", stage - 1);
+                if (context->displayEnabled) {
                     printf_log(EMU_TAG "wakeUpOnTick: Emulator awake, forcing display update\n");
-                else if (count == MAX_WAKEUP_ATTEMPTS)
-                    printf_log(EMU_TAG "wakeUpOnTick: Reached max wakeup attempts!\n");
-                    
-                if (context->displayEnabled || count == MAX_WAKEUP_ATTEMPTS) {
-                    count = 0;
-                    stage = 0;
-                    context->tickActionOverride = nullptr;
+                    deinit();
                     context->disp.updateDisplay(context->nv, true);
                     break;
                 }
                 printf_log(EMU_TAG "wakeUpOnTick: Pressing ON\n");
                 nut_press_key(context->nv, 24 /*ON*/);
                 break;
-            case 20:
-                printf_log(EMU_TAG "wakeUpOnTick: Releasing keys\n");
-                nut_release_key(context->nv);
-                count++;
-                stage = 0;
-                break;
-            default:
+
+            case SIM_RUNS_BEFORE_CHECK + 1:
+                printf_log(EMU_TAG "wakeUpOnTick: Stage %d\n", stage - 1);
+                if (context->nv->awake) {
+                    printf_log(EMU_TAG "wakeUpOnTick: ON press registered\n");
+                    count = 0;
+                    break;  // Proceed to next stage
+                } else {
+                    stage--;  // Stay in this stage
+                    count++;
+                    if (count == MAX_WAKEUP_ATTEMPTS) {
+                        printf_log(EMU_TAG "wakeUpOnTick: Reached max wakeup attempts waiting for ON press registration\n");
+                        deinit();
+                    }
+                }
                 break;
 
+            case SIM_RUNS_BEFORE_CHECK + 2:
+                printf_log(EMU_TAG "wakeUpOnTick: Stage %d\n", stage - 1);
+                printf_log(EMU_TAG "wakeUpOnTick: Releasing ON\n");
+                nut_release_key(context->nv);
+                break;
+
+            case SIM_RUNS_BEFORE_CHECK + 3:
+                printf_log(EMU_TAG "wakeUpOnTick: Stage %d\n", stage - 1);
+                if (!context->nv->awake) {
+                    printf_log(EMU_TAG "wakeUpOnTick: ON release registered\n");
+                    count = 0;
+                    stage = 0;  // Go back to beginnning and wait for SIM_RUNS_BEFORE_CHECK
+                } else {
+                    stage--;
+                    count++;
+                    if (count == MAX_WAKEUP_ATTEMPTS) {
+                        printf_log(EMU_TAG "wakeUpOnTick: Reached max wakeup attempts waiting for ON release registration\n");
+                        deinit();
+                    }
+                }
+                break;
+
+            default:
+                printf_log(EMU_TAG "wakeUpOnTick: Stage %d\n", stage - 1);
+                break;
         }
         // !! Clear key queue here?
     };
