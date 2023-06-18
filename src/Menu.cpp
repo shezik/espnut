@@ -194,10 +194,12 @@ void Menu::applySettings() {
     u8g2.setContrast(contrast);
     printf_log("Menu: applySettings: Contrast set to %d\n", contrast);
     pm.setBacklightTimeout(backlightTimeoutSec * 1000);
+    pm.feedBacklightTimeout();
     printf_log("Menu: applySettings: Backlight timeout set to %lu ms\n", backlightTimeoutSec * 1000);
     if (powerOffTimeoutMin < 1)
         powerOffTimeoutMin = 1;
     pm.setDeepSleepTimeout(powerOffTimeoutMin * 1000 * 60);
+    pm.feedDeepSleepTimeout();
     printf_log("Menu: applySettings: Deep sleep timeout set to %lu ms\n", powerOffTimeoutMin * 1000 * 60);
     emu.setUnlockSpeed(unlockSpeed);
     showLogfileBtn->hide(!enableLogging);

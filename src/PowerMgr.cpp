@@ -134,6 +134,7 @@ uint32_t PowerMgr::getDeepSleepTimeout() {
 void PowerMgr::setDeepSleepTimeout(uint32_t ms) {
     nextDeepSleep += (ms - deepSleepTimeout);
     deepSleepTimeout = ms;
+    printf_log("PowerMgr: nextDeepSleep set to %lld, deepSleepTimeout set to %lu\n", nextDeepSleep, deepSleepTimeout);
 }
 
 void PowerMgr::feedDeepSleepTimeout() {
