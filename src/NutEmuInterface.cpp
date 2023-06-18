@@ -23,6 +23,33 @@ void NutEmuInterface::deepSleepCallback() {
 }
 
 void NutEmuInterface::sim_run() {
+    // nv->awake  displayEnabled
+    //     1                0             Processing key press
+    //     1                1             Normal state
+    //     0                1             Light sleep
+    //     0                0             Deep sleep, should only respond to ON key.
+    if (!nv->awake && !kbdMgr.keysAvailable() && kbdMgr.isKeyboardClear() && !tickActionOverride) {
+        if (displayEnabled) {
+            if (!frequencyReduced && enablePowerMgmt) {
+                // Don't light sleep with enablePowerMgmt == true
+                printf_log(EMU_TAG "Entering light sleep\n");
+                frequencyReduced = pm.reduceFrequency();
+            }
+        } else {
+            if (enablePowerMgmt) {
+                printf_log(EMU_TAG "Entering deep sleep\n");
+                pm.enterDeepSleep();  // deepSleepPrepare() is registered as callback
+            } else {
+                // Actively update display to show a blank screen
+                disp.updateDisplay(nv);
+                
+            }
+        }
+    } else if (frequencyReduced) {
+        printf_log(EMU_TAG "Quitting light sleep\n");
+        frequencyReduced = !pm.restoreFrequency();
+    }
+
     int64_t currentTime;
     int64_t deltaMs;
     int instructionCount;
@@ -55,31 +82,6 @@ void NutEmuInterface::sim_run() {
         }
     }
 
-    // nv->awake  displayEnabled
-    //     1                0             Processing key press
-    //     1                1             Normal state
-    //     0                1             Light sleep
-    //     0                0             Deep sleep, should only respond to ON key.
-    if (!nv->awake && !kbdMgr.keysAvailable() && kbdMgr.isKeyboardClear() && !tickActionOverride) {
-        if (displayEnabled) {
-            if (!frequencyReduced && !unlockSpeed) {
-                // Don't light sleep with unlockSpeed enabled
-                printf_log(EMU_TAG "Entering light sleep\n");
-                frequencyReduced = pm.reduceFrequency();
-            }
-        } else {
-            if (unlockSpeed) {
-                // Actively update display to show a blank screen
-                disp.updateDisplay(nv);
-            } else {
-                printf_log(EMU_TAG "Entering deep sleep\n");
-                pm.enterDeepSleep();  // deepSleepPrepare() is registered as callback
-            }
-        }
-    } else if (frequencyReduced) {
-        printf_log(EMU_TAG "Quitting light sleep\n");
-        frequencyReduced = !pm.restoreFrequency();
-    }
 
     lastRunTime = get_timer_ms();
 }
@@ -449,6 +451,10 @@ void NutEmuInterface::setDisplayPowerSave(bool state) {
     disp.setU8g2PowerSave(state);
     if (state)  // Actively turn off backlight, don't actively turn on
         pm.setBacklightPower(false);
+}
+
+void NutEmuInterface::setEnablePowerMgmt(bool enablePowerMgmt_) {
+    enablePowerMgmt = enablePowerMgmt_;
 }
 
 void NutEmuInterface::setUnlockSpeed(bool unlockSpeed_) {

@@ -37,6 +37,7 @@ class Menu {
         GEMItem *contrastItem = nullptr;
         GEMItem *backlightTimeoutItem = nullptr;
         GEMItem *powerOffTimeoutItem = nullptr;
+        GEMItem *enablePowerMgmtItem = nullptr;
         GEMItem *unlockEmulationSpeedItem = nullptr;
         GEMItem *enableLoggingItem = nullptr;
         GEMItem *clearLogfileBtn = nullptr;  // HIDE
@@ -54,6 +55,7 @@ class Menu {
         uint8_t contrast;
         uint8_t backlightTimeoutSec;
         uint8_t powerOffTimeoutMin;
+        bool enablePowerMgmt;
         bool unlockSpeed;
         bool enableLogging;
 

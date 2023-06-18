@@ -40,6 +40,7 @@ Menu::~Menu() {
     delete contrastItem; contrastItem = nullptr;
     delete backlightTimeoutItem; backlightTimeoutItem = nullptr;
     delete powerOffTimeoutItem; powerOffTimeoutItem = nullptr;
+    delete enablePowerMgmtItem; enablePowerMgmtItem = nullptr;
     delete unlockEmulationSpeedItem; unlockEmulationSpeedItem = nullptr;
     delete enableLoggingItem; enableLoggingItem = nullptr;
     delete clearLogfileBtn; clearLogfileBtn = nullptr;
@@ -90,6 +91,7 @@ void Menu::init(bool showMenuFlag_) {
     contrastItem = new GEMItem("Contrast", contrast, [](){context->applySettings();});
     backlightTimeoutItem = new GEMItem("Backlight Timeout (sec)", backlightTimeoutSec, [](){context->applySettings();});
     powerOffTimeoutItem = new GEMItem("Power Off Timeout (min)", powerOffTimeoutMin, [](){context->applySettings();});
+    enablePowerMgmtItem = new GEMItem("Power Mgmt", enablePowerMgmt, [](){context->applySettings();});
     unlockEmulationSpeedItem = new GEMItem("Unlock Speed", unlockSpeed, [](){context->applySettings();});
     enableLoggingItem = new GEMItem("Enable Logging", enableLogging, [](){context->applySettings();});
     clearLogfileBtn = new GEMItem("Clear Logs", [](){});
@@ -99,6 +101,7 @@ void Menu::init(bool showMenuFlag_) {
     settingsPage->addMenuItem(*contrastItem);
     settingsPage->addMenuItem(*backlightTimeoutItem);
     settingsPage->addMenuItem(*powerOffTimeoutItem);
+    settingsPage->addMenuItem(*enablePowerMgmtItem);
     settingsPage->addMenuItem(*unlockEmulationSpeedItem);
     settingsPage->addMenuItem(*enableLoggingItem);
     settingsPage->addMenuItem(*clearLogfileBtn);
@@ -181,6 +184,8 @@ bool Menu::loadSettings() {
     printf_log("Menu: loadSettings: backlightTimeoutSec: %d\n", backlightTimeoutSec);
     powerOffTimeoutMin = file.read();
     printf_log("Menu: loadSettings: powerOffTimeoutMin: %d\n", powerOffTimeoutMin);
+    enablePowerMgmt = (bool) file.read();
+    printf_log("Menu: loadSettings: enablePowerMgmt: %d\n", enablePowerMgmt);
     unlockSpeed = (bool) file.read();
     printf_log("Menu: loadSettings: unlockSpeed: %d\n", unlockSpeed);
     enableLogging = (bool) file.read();
@@ -201,6 +206,7 @@ void Menu::applySettings() {
     pm.setDeepSleepTimeout(powerOffTimeoutMin * 1000 * 60);
     pm.feedDeepSleepTimeout();
     printf_log("Menu: applySettings: Deep sleep timeout set to %lu ms\n", powerOffTimeoutMin * 1000 * 60);
+    emu.setEnablePowerMgmt(enablePowerMgmt);
     emu.setUnlockSpeed(unlockSpeed);
     showLogfileBtn->hide(!enableLogging);
     clearLogfileBtn->hide(!enableLogging);
@@ -220,6 +226,7 @@ bool Menu::saveSettings() {
     file.write(contrast);
     file.write(backlightTimeoutSec);
     file.write(powerOffTimeoutMin);
+    file.write((uint8_t) enablePowerMgmt);
     file.write((uint8_t) unlockSpeed);
     file.write((uint8_t) enableLogging);
     
@@ -231,6 +238,7 @@ void Menu::loadDefaultSettings() {
     contrast = FALLBACK_CONTRAST;
     backlightTimeoutSec = FALLBACK_BACKLIGHT_TIMEOUT;
     powerOffTimeoutMin = FALLBACK_DEEP_SLEEP_TIMEOUT;
+    enablePowerMgmt = FALLBACK_ENABLE_POWER_MGMT;
     unlockSpeed = FALLBACK_UNLOCK_SPEED;
     enableLogging = FALLBACK_ENABLE_LOGGING;
 }
