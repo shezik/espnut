@@ -6,7 +6,7 @@ DispInterface::DispInterface(U8G2_DISPLAY_TYPE &u8g2_)
     // Do nothing
 }
 
-void DispInterface::drawSegments(segment_bitmap_t *ds) {
+void DispInterface::drawSegments(segment_bitmap_t *ds, bool lowBat) {
     u8g2.setDrawColor(1);
     u8g2.setBitmapMode(1);
     u8g2.clearBuffer();
@@ -54,12 +54,14 @@ void DispInterface::drawSegments(segment_bitmap_t *ds) {
 
 void DispInterface::updateDisplay(nut_reg_t *nv, bool force) {
     static segment_bitmap_t lastSegments[VOYAGER_DISPLAY_DIGITS] = {0};
-    static bool lastLowBat = lowBat;
+    bool lowBat = lowBatAnnOverride || blinkTick();
+    static bool lastLowBat = false;
     bool doUpdate = (lastLowBat != lowBat) ? true : memcmp(lastSegments, nv->display_segments, sizeof(lastSegments));
     memcpy(lastSegments, nv->display_segments, sizeof(lastSegments));
     
     if (doUpdate || force) {
-        drawSegments(nv->display_segments);
+        lastLowBat = lowBat;
+        drawSegments(nv->display_segments, lowBat);
         u8g2.sendBuffer();
     }
 }
@@ -81,6 +83,27 @@ void DispInterface::setU8g2PowerSave(uint8_t state) {
     u8g2.setPowerSave(state);
 }
 
-void DispInterface::setLowBatAnnunciator(bool status) {
-    lowBat = status;
+// Overrides blinking (does not clear it)
+void DispInterface::setLowBatAnnunciator(bool lowBat_) {
+    lowBatAnnOverride = lowBat_;
+}
+
+bool DispInterface::blinkTick() {
+    int64_t timeNow = get_timer_ms();
+    static int64_t lastTime = 0;
+    static bool lastState = false;
+
+    if (!blinkMs)
+        return false;
+
+    if (timeNow - lastTime >= blinkMs) {
+        lastTime = timeNow;
+        lastState = !lastState;
+    }
+    return lastState;
+}
+
+// Set to 0 to disable blinking
+void DispInterface::setLowBatAnnunciatiorBlink(uint16_t ms) {
+    blinkMs = ms;
 }

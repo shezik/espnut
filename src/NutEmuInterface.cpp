@@ -161,6 +161,9 @@ void NutEmuInterface::tick() {
     if (!nv || !emulatorRunFlag)
         return;
 
+    disp.setLowBatAnnunciatiorBlink((pm.getBatteryPercentage() < 20) ? 500 : 0);
+    disp.setLowBatAnnunciator(pm.getBatteryCharging());
+
     if (tickActionOverride) {
         printf_log(EMU_TAG "Executing overriding tick action\n");
         tickActionOverride();
