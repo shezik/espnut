@@ -26,6 +26,7 @@ PowerMgr::~PowerMgr() {
 
 void PowerMgr::keyPressCallback() {
     if (context) {
+        context->restoreFrequency();
         context->feedBacklightTimeout();
         context->feedDeepSleepTimeout();
     }
