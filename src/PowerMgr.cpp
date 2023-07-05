@@ -183,25 +183,35 @@ bool PowerMgr::setFrequency(uint32_t freq) {
 }
 
 bool PowerMgr::reduceFrequency() {
-    bool result;
-    switch (getXtalFrequencyMhz()) {
+    static uint32_t cachedTargetFreq = 0;
+
+    if (!cachedTargetFreq) {
+        switch (getXtalFrequencyMhz()) {
         case 40:
-            result = setCpuFrequencyMhz(10);
+            cachedTargetFreq = 10;
             break;
         case 26:
-            result = setCpuFrequencyMhz(13);
+            cachedTargetFreq = 13;
             break;
         case 24:
-            result = setCpuFrequencyMhz(12);
+            cachedTargetFreq = 12;
             break;
         default:
-            result = setCpuFrequencyMhz(80);
+            cachedTargetFreq = 80;
             break;
+        }
     }
-    return result;
+
+    if (getCpuFrequencyMhz() <= cachedTargetFreq)
+        return true;
+    
+    return setCpuFrequencyMhz(cachedTargetFreq);
 }
 
 bool PowerMgr::restoreFrequency() {
+    if (getCpuFrequencyMhz() == frequency)
+        return true;
+
     return setCpuFrequencyMhz(frequency);
 }
 
