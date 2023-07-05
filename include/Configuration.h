@@ -25,6 +25,11 @@
 #define FALLBACK_DEEP_SLEEP_TIMEOUT 5  // Fallback value, in minutes
 #define FALLBACK_CPU_FREQUENCY_MHZ 240
 #define POWER_BUTTON 18
+#define BAT_LVL_CHK 1
+#define BAT_LVL_CHK_ADC_CHANNEL ADC1_CHANNEL_0  // Must be one ADC1 channel if not modifying code
+#define BAT_CHRG 47
+#define BAT_MAX_VOLTAGE 4200  // TP4054, mV
+#define BAT_MIN_VOLTAGE 3700
 
 // Emulator
 #define SIM_RUNS_BEFORE_CHECK 10

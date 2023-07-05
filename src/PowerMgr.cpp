@@ -7,11 +7,13 @@
 
 PowerMgr *PowerMgr::context = nullptr;  // classic
 
-PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t LDOEnablePin_, uint8_t displayBacklightPin_)
+PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t LDOEnablePin_, uint8_t displayBacklightPin_, uint8_t batLvlChk_, uint8_t batChrg_)
     : kbdMgr(kbdMgr_)
     , wakeUpInterruptPin(wakeUpInterruptPin_)
     , LDOEnablePin(LDOEnablePin_)
     , displayBacklightPin(displayBacklightPin_)
+    , batLvlChk(batLvlChk_)
+    , batChrg(batChrg_)
 {
     context = this;
 }
@@ -19,6 +21,7 @@ PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t LD
 PowerMgr::~PowerMgr() {
     kbdMgr.registerKeyPressCallback(nullptr);
     context = nullptr;
+    delete adcCalCharacteristics; adcCalCharacteristics = nullptr;
 }
 
 void PowerMgr::keyPressCallback() {
@@ -62,7 +65,20 @@ bool PowerMgr::wokenUpFromDeepSleep() {
 void PowerMgr::init() {
     pinMode(LDOEnablePin, OUTPUT);
     pinMode(displayBacklightPin, OUTPUT);
+    pinMode(batChrg, INPUT);
 
+    pinMode(batLvlChk, ANALOG);
+    esp_err_t ret = esp_adc_cal_check_efuse(ESP_ADC_CAL_VAL_EFUSE_TP_FIT);
+    if (ret == ESP_OK) {
+        printf_log("PowerMgr: Enabling ADC software calibration\n");
+        adcCalCharacteristics = new esp_adc_cal_characteristics_t;
+        esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_11db, (adc_bits_width_t) ADC_WIDTH_BIT_DEFAULT, 0, adcCalCharacteristics);
+    } else {
+        printf_log("PowerMgr: ADC software calibration not supported, voltage readout may be inaccurate\n");
+    }
+    adc1_config_width((adc_bits_width_t) ADC_WIDTH_BIT_DEFAULT);
+    adc1_config_channel_atten(BAT_LVL_CHK_ADC_CHANNEL, ADC_ATTEN_11db);  // 0 mV ~ 3100 mV
+    
     #ifdef USE_ESP_DEEP_SLEEP
         // Deep Sleep Cleanup
         esp_sleep_wakeup_cause_t wakeupReason = esp_sleep_get_wakeup_cause();
@@ -94,6 +110,8 @@ void PowerMgr::tick() {
     
     if (deepSleepTimeout && timeNow >= nextDeepSleep)
         enterDeepSleep();
+
+    printf_log("PowerMgr: Charging: %d, Battery: %d%, Calibrated: %d\n", getBatteryCharging(), getBatteryPercentage(), (bool) adcCalCharacteristics);
 }
 
 void PowerMgr::enableLDO(bool state) {
@@ -139,6 +157,20 @@ void PowerMgr::setDeepSleepTimeout(uint32_t ms) {
 
 void PowerMgr::feedDeepSleepTimeout() {
     nextDeepSleep = get_timer_ms() + deepSleepTimeout;
+}
+
+bool PowerMgr::getBatteryCharging() {
+    return !digitalRead(batChrg);
+}
+
+uint8_t PowerMgr::getBatteryPercentage() {
+    float voltage;
+    if (adcCalCharacteristics)
+        voltage = esp_adc_cal_raw_to_voltage(adc1_get_raw(BAT_LVL_CHK_ADC_CHANNEL), adcCalCharacteristics) * (1 + (/*R7*/ 1 / 1 /*R9*/));
+    else
+        voltage = 3100 / 4095 * adc1_get_raw(BAT_LVL_CHK_ADC_CHANNEL) * (1 + (/*R7*/ 1 / 1 /*R9*/));
+    int16_t percentage = round((voltage - BAT_MIN_VOLTAGE) / (BAT_MAX_VOLTAGE - BAT_MIN_VOLTAGE) * 100);
+    return percentage > 100 ? 100 : percentage < 0 ? 0 : percentage;
 }
 
 bool PowerMgr::setFrequency(uint32_t freq) {

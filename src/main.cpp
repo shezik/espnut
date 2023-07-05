@@ -12,7 +12,7 @@
 U8G2_DISPLAY_TYPE u8g2(U8G2_R2, SPI_CLK, SPI_DATA, SPI_CS, SPI_DC, U8G2_RESET_PIN);
 DispInterface dispInterface(u8g2);  // Referred to in util.h
 KeyboardMgr keyboardMgr(POWER_BUTTON);  // Referred to in util.cpp
-PowerMgr powerMgr(keyboardMgr, POWER_BUTTON, LDO_ENABLE, DISPLAY_BACKLIGHT_CONTROL);
+PowerMgr powerMgr(keyboardMgr, POWER_BUTTON, LDO_ENABLE, DISPLAY_BACKLIGHT_CONTROL, BAT_LVL_CHK, BAT_CHRG);
 NutEmuInterface nutEmuInterface(keyboardMgr, dispInterface, powerMgr);
 Menu menu(keyboardMgr, u8g2, powerMgr, nutEmuInterface);
 
