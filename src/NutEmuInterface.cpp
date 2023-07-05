@@ -28,12 +28,13 @@ void NutEmuInterface::sim_run() {
     //     1                1             Normal state
     //     0                1             Light sleep
     //     0                0             Deep sleep, should only respond to ON key.
+    bool frequencyReduced = pm.isFrequencyReduced();
     if (!nv->awake && !kbdMgr.keysAvailable() && kbdMgr.isKeyboardClear() && !tickActionOverride) {
         if (displayEnabled) {
             if (!frequencyReduced && enablePowerMgmt) {
                 // Don't light sleep with enablePowerMgmt == true
                 printf_log(EMU_TAG "Entering light sleep\n");
-                frequencyReduced = pm.reduceFrequency();
+                pm.reduceFrequency();
             }
         } else {
             if (enablePowerMgmt) {
@@ -42,12 +43,11 @@ void NutEmuInterface::sim_run() {
             } else {
                 // Actively update display to show a blank screen
                 disp.updateDisplay(nv);
-                
             }
         }
     } else if (frequencyReduced) {
         printf_log(EMU_TAG "Quitting light sleep\n");
-        frequencyReduced = !pm.restoreFrequency();
+        pm.restoreFrequency();
     }
 
     int64_t currentTime;
@@ -190,7 +190,7 @@ void NutEmuInterface::tick() {
 void NutEmuInterface::pause() {
     emulatorRunFlag = false;
     printf_log(EMU_TAG "Quitting light sleep for pausing\n");
-    frequencyReduced = !pm.restoreFrequency();
+    pm.restoreFrequency();
 }
 
 void NutEmuInterface::resume() {

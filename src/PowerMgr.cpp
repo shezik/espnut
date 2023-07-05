@@ -205,6 +205,10 @@ bool PowerMgr::restoreFrequency() {
     return setCpuFrequencyMhz(frequency);
 }
 
+bool PowerMgr::isFrequencyReduced() {
+    return getCpuFrequencyMhz() < frequency;
+}
+
 void PowerMgr::registerDeepSleepCallback(void (*callback)()) {
     deepSleepCallback = callback;
 }

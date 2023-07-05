@@ -50,6 +50,7 @@ class PowerMgr {
         bool setFrequency(uint32_t);
         bool reduceFrequency();
         bool restoreFrequency();
+        bool isFrequencyReduced();
         
         void registerDeepSleepCallback(void (*)());
         static void keyPressCallback();

@@ -26,7 +26,6 @@ class NutEmuInterface {
         double wordsPerMs;
         int64_t lastRunTime;
         bool displayEnabled = false;
-        bool frequencyReduced = false;
         int ramSize = 0;
         static NutEmuInterface *context;
         char romFilename[ROM_FILENAME_LENGTH] = {0};
