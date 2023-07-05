@@ -161,7 +161,7 @@ void NutEmuInterface::tick() {
     if (!nv || !emulatorRunFlag)
         return;
 
-    disp.setLowBatAnnunciatiorBlink((pm.getBatteryPercentage() < 20) ? 500 : 0);
+    disp.setLowBatAnnunciatiorBlink((pm.getBatteryPercentage() <= 16) ? 500 : 0);
     disp.setLowBatAnnunciator(pm.getBatteryCharging());
 
     if (tickActionOverride) {

@@ -60,7 +60,8 @@ void Menu::init(bool showMenuFlag_) {
     // Allocate GEM objects here
     // Any one-line function is written as lambda expression
     // It's quite interesting that static class methods can access protected members via the (class member) pointer 'context'.
-    gem = new GEM_u8g2(u8g2, GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
+    gem = new GEMProxy(u8g2, GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
+    gem->registerDrawMenuCallback(drawBattery);
     gem->setSplash(peanut_width, peanut_height, peanut_bits);
     if (!showMenuFlag)
         gem->setSplashDelay(0);
@@ -464,4 +465,18 @@ void Menu::saveStateButtonCallback() {
     context->emu.saveState(stateFilename);
     context->saveStateBtn->setReadonly(true);
     // !! Redraw?
+}
+
+void Menu::drawBattery() {
+    GEMPage *menuPageCurrent = context->gem->getMenuPageCurrent();
+    if (!menuPageCurrent || memcmp(menuPageCurrent->getTitle(), "espnut", 6))
+        return;  // Not in main menu, don't draw
+
+    uint16_t xOrigin = 116, yOrigin = 1;
+    context->u8g2.drawLine(xOrigin, yOrigin + 1, xOrigin, yOrigin + 4);
+    context->u8g2.drawBox(xOrigin + 1, yOrigin, 10, 6);
+    context->u8g2.setDrawColor(0);
+    uint8_t batLvlWidth = floor((100 - context->pm.getBatteryPercentage()) / 12);
+    context->u8g2.drawBox(xOrigin + 2, yOrigin + 1, batLvlWidth, 4);
+    context->u8g2.setDrawColor(1);
 }

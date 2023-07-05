@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
-#include "GEM_u8g2.h"
+#include "GEMProxy.h"
 #include "KeyboardMgr.h"
 #include "PowerMgr.h"
 #include "NutEmuInterface.h"
@@ -19,7 +19,7 @@ class Menu {
         PowerMgr &pm;
         NutEmuInterface &emu;
 
-        GEM_u8g2 *gem = nullptr;
+        GEMProxy *gem = nullptr;
         // Main page
         GEMPage *mainPage = nullptr;
         GEMItem *resumeBtn = nullptr;  // HIDE
@@ -95,4 +95,5 @@ class Menu {
         static void loadROMRAMSelectedCallback(GEMCallbackData);
         static void saveStateButtonCallback();
         // static void fileSelectedCallback();
+        static void drawBattery();
 };
