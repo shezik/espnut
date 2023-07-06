@@ -30,6 +30,7 @@
 #define BAT_CHRG 47
 #define BAT_MAX_VOLTAGE 4200  // TP4054, mV
 #define BAT_MIN_VOLTAGE 3700
+#define RESISTOR_RATIO (1 / 1)  // R1 divided by R2 in this schematic: BAT_VCC---R1---BAT_LVL_CHK---R2---GND. In the Gen 1 PCB design this would be R7 / R9.
 
 // Emulator
 #define SIM_RUNS_BEFORE_CHECK 10

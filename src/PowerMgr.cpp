@@ -112,7 +112,7 @@ void PowerMgr::tick() {
     if (deepSleepTimeout && timeNow >= nextDeepSleep)
         enterDeepSleep();
 
-    printf_log("PowerMgr: Charging: %d, Battery: %d%, Calibrated: %d\n", getBatteryCharging(), getBatteryPercentage(), (bool) adcCalCharacteristics);
+    // printf_log("PowerMgr: Charging: %d, Battery: %d%, Calibrated: %d\n", getBatteryCharging(), getBatteryPercentage(), (bool) adcCalCharacteristics);
 }
 
 void PowerMgr::enableLDO(bool state) {
@@ -167,9 +167,9 @@ bool PowerMgr::getBatteryCharging() {
 uint8_t PowerMgr::getBatteryPercentage() {
     float voltage;
     if (adcCalCharacteristics)
-        voltage = esp_adc_cal_raw_to_voltage(adc1_get_raw(BAT_LVL_CHK_ADC_CHANNEL), adcCalCharacteristics) * (1 + (/*R7*/ 1 / 1 /*R9*/));
+        voltage = esp_adc_cal_raw_to_voltage(adc1_get_raw(BAT_LVL_CHK_ADC_CHANNEL), adcCalCharacteristics) * (1 + RESISTOR_RATIO);
     else
-        voltage = 3100 / 4095 * adc1_get_raw(BAT_LVL_CHK_ADC_CHANNEL) * (1 + (/*R7*/ 1 / 1 /*R9*/));
+        voltage = 3100 / 4095 * adc1_get_raw(BAT_LVL_CHK_ADC_CHANNEL) * (1 + RESISTOR_RATIO);
     int16_t percentage = round((voltage - BAT_MIN_VOLTAGE) / (BAT_MAX_VOLTAGE - BAT_MIN_VOLTAGE) * 100);
     return percentage > 100 ? 100 : percentage < 0 ? 0 : percentage;
 }
