@@ -473,10 +473,10 @@ void Menu::drawBattery() {
         return;  // Not in main menu, don't draw
 
     uint16_t xOrigin = 116, yOrigin = 1;
-    context->u8g2.drawLine(xOrigin, yOrigin + 1, xOrigin, yOrigin + 4);
-    context->u8g2.drawBox(xOrigin + 1, yOrigin, 10, 6);
+    context->u8g2.drawLine(xOrigin, yOrigin + 1, xOrigin, yOrigin + 3);
+    context->u8g2.drawBox(xOrigin + 1, yOrigin, 10, 5);
     context->u8g2.setDrawColor(0);
     uint8_t batLvlWidth = floor((100 - context->pm.getBatteryPercentage()) / 12);
-    context->u8g2.drawBox(xOrigin + 2, yOrigin + 1, batLvlWidth, 4);
-    context->u8g2.setDrawColor(1);
+    context->u8g2.drawBox(xOrigin + 2, yOrigin + 1, batLvlWidth, 3);
+    context->u8g2.setDrawColor(1);  // Reset color!
 }
