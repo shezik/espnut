@@ -35,7 +35,7 @@ void exit(int ret);
 void *alloc(size_t size);
 void trim_trailing_whitespace(char *s);
 
-#define PRINTF_BUF_LEN 256
+#define PRINTF_BUF_LEN 512
 
 // An alias of printf_log
 #define fprintf(stream, format, ...)                    \
@@ -62,9 +62,10 @@ void trim_trailing_whitespace(char *s);
         extern void appendLog(char *);                                                                                                        \
         extern DispInterface dispInterface;                                                                                                   \
         char buf[PRINTF_BUF_LEN];                                                                                                             \
-        snprintf(buf, sizeof(buf), "\nFatal error at file %s, func %s, line %s: \n" format, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
+        snprintf(buf, sizeof(buf), "\nFatal error at file %s, func %s, line %d: \n" format, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
         printf("%s", buf);                                                                                                                    \
         appendLog(buf);                                                                                                                       \
+        snprintf(buf, sizeof(buf), format, ##__VA_ARGS__);                                                                                    \
         dispInterface.drawAndSendDialog(buf);                                                                                                 \
         exit(ret);                                                                                                                            \
     } while (false)
