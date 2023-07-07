@@ -20,7 +20,7 @@ void appendLog(char *str) {
     
 }
 
-void remapSPIPins() {
+static void remapSPIPins() {
     // Reference: https://www.esp32.com/viewtopic.php?t=1929#p9108
 
     // Connect the pin to the GPIO matrix.
