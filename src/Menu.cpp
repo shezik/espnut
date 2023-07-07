@@ -60,8 +60,8 @@ void Menu::init(bool showMenuFlag_) {
     // Allocate GEM objects here
     // Any one-line function is written as lambda expression
     // It's quite interesting that static class methods can access protected members via the (class member) pointer 'context'.
-    gem->registerDrawMenuCallback(drawBattery);
     gem = new GEMProxy(*dp.getU8g2(), GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
+    gem->registerDrawMenuCallback(drawBatteryCallback);
     gem->setSplash(peanut_width, peanut_height, peanut_bits);
     if (!showMenuFlag)
         gem->setSplashDelay(0);
@@ -467,16 +467,10 @@ void Menu::saveStateButtonCallback() {
     // !! Redraw?
 }
 
-void Menu::drawBattery() {
+void Menu::drawBatteryCallback() {
     GEMPage *menuPageCurrent = context->gem->getMenuPageCurrent();
     if (!menuPageCurrent || memcmp(menuPageCurrent->getTitle(), "espnut", 6))
         return;  // Not in main menu, don't draw
-
-    uint16_t xOrigin = 116, yOrigin = 1;
-    context->u8g2.drawLine(xOrigin, yOrigin + 1, xOrigin, yOrigin + 3);
-    context->u8g2.drawBox(xOrigin + 1, yOrigin, 10, 5);
-    context->u8g2.setDrawColor(0);
-    uint8_t batLvlWidth = floor((100 - context->pm.getBatteryPercentage()) / 12);
-    context->u8g2.drawBox(xOrigin + 2, yOrigin + 1, batLvlWidth, 3);
-    context->u8g2.setDrawColor(1);  // Reset color!
+    context->dp.drawBattery(context->dp.getU8g2()->getDisplayWidth() - context->dp.batteryIconWidth - 1, 1, context->pm.getBatteryPercentage());
+    context->dp.getU8g2()->setDrawColor(1);  // Reset color!
 }

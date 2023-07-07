@@ -96,5 +96,5 @@ class Menu {
         static void loadROMRAMSelectedCallback(GEMCallbackData);
         static void saveStateButtonCallback();
         // static void fileSelectedCallback();
-        static void drawBattery();
+        static void drawBatteryCallback();
 };
