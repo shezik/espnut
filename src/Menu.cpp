@@ -12,9 +12,9 @@ static unsigned char peanut_bits[] = {
 
 Menu *Menu::context = nullptr;
 
-Menu::Menu(KeyboardMgr &kbdMgr_, U8G2_DISPLAY_TYPE &u8g2_, PowerMgr &pm_, NutEmuInterface &emu_)
+Menu::Menu(KeyboardMgr &kbdMgr_, DispInterface &dp_, PowerMgr &pm_, NutEmuInterface &emu_)
     : kbdMgr(kbdMgr_)
-    , u8g2(u8g2_)
+    , dp(dp_)
     , pm(pm_)
     , emu(emu_)
 {
@@ -60,8 +60,8 @@ void Menu::init(bool showMenuFlag_) {
     // Allocate GEM objects here
     // Any one-line function is written as lambda expression
     // It's quite interesting that static class methods can access protected members via the (class member) pointer 'context'.
-    gem = new GEMProxy(u8g2, GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
     gem->registerDrawMenuCallback(drawBattery);
+    gem = new GEMProxy(*dp.getU8g2(), GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
     gem->setSplash(peanut_width, peanut_height, peanut_bits);
     if (!showMenuFlag)
         gem->setSplashDelay(0);
@@ -197,7 +197,7 @@ bool Menu::loadSettings() {
 }
 
 void Menu::applySettings() {
-    u8g2.setContrast(contrast);
+    dp.getU8g2()->setContrast(contrast);
     printf_log("Menu: applySettings: Contrast set to %d\n", contrast);
     pm.setBacklightTimeout(backlightTimeoutSec * 1000);
     pm.feedBacklightTimeout();
@@ -295,7 +295,7 @@ void Menu::enterMenu() {
 
 void Menu::exitMenu() {
     context->showingMenu = false;
-    context->u8g2.clear();
+    context->dp.getU8g2()->clear();
     context->kbdMgr.clear();
     context->emu.resume();
 

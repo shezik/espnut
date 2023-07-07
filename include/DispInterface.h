@@ -20,4 +20,5 @@ class DispInterface {
         void setU8g2PowerSave(uint8_t);
         void setLowBatAnnunciator(bool);
         void setLowBatAnnunciatiorBlink(uint16_t);
+        U8G2_DISPLAY_TYPE *getU8g2();
 };

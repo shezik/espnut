@@ -107,3 +107,8 @@ bool DispInterface::blinkTick() {
 void DispInterface::setLowBatAnnunciatiorBlink(uint16_t ms) {
     blinkMs = ms;
 }
+
+U8G2_DISPLAY_TYPE *DispInterface::getU8g2() {
+    return &u8g2;
+}
+

@@ -5,6 +5,7 @@
 #include "KeyboardMgr.h"
 #include "PowerMgr.h"
 #include "NutEmuInterface.h"
+#include "DispInterface.h"
 #include "Configuration.h"
 
 #define FILE_LIST_LENGTH 64
@@ -15,7 +16,7 @@
 class Menu {
     protected:
         KeyboardMgr &kbdMgr;
-        U8G2_DISPLAY_TYPE &u8g2;
+        DispInterface &dp;
         PowerMgr &pm;
         NutEmuInterface &emu;
 
@@ -71,7 +72,7 @@ class Menu {
         char *generateMainPageTitle();
         void freeFileList();
     public:
-        Menu(KeyboardMgr &, U8G2_DISPLAY_TYPE &, PowerMgr &, NutEmuInterface &);
+        Menu(KeyboardMgr &, DispInterface &, PowerMgr &, NutEmuInterface &);
         ~Menu();
         void init(bool = true);
         void tick();

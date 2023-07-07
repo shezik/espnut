@@ -7,8 +7,9 @@
 
 PowerMgr *PowerMgr::context = nullptr;  // classic
 
-PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, uint8_t wakeUpInterruptPin_, uint8_t LDOEnablePin_, uint8_t displayBacklightPin_, uint8_t batLvlChk_, uint8_t batChrg_)
+PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, DispInterface &dp_, uint8_t wakeUpInterruptPin_, uint8_t LDOEnablePin_, uint8_t displayBacklightPin_, uint8_t batLvlChk_, uint8_t batChrg_)
     : kbdMgr(kbdMgr_)
+    , dp(dp_)
     , wakeUpInterruptPin(wakeUpInterruptPin_)
     , LDOEnablePin(LDOEnablePin_)
     , displayBacklightPin(displayBacklightPin_)

@@ -2,11 +2,13 @@
 
 #include <Arduino.h>
 #include "KeyboardMgr.h"
+#include "DispInterface.h"
 #include <esp_adc_cal.h>
 
 class PowerMgr {
     protected:
         KeyboardMgr &kbdMgr;
+        DispInterface &dp;
         uint8_t wakeUpInterruptPin;
         uint8_t LDOEnablePin;
         uint8_t displayBacklightPin;
@@ -22,7 +24,7 @@ class PowerMgr {
         void (*deepSleepCallback)() = nullptr;
         static PowerMgr *context;
     public:
-        PowerMgr(KeyboardMgr &, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
+        PowerMgr(KeyboardMgr &, DispInterface &, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
         ~PowerMgr();
 
         bool enterModemSleep();
