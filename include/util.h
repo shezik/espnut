@@ -66,7 +66,7 @@ void trim_trailing_whitespace(char *s);
         printf("%s", buf);                                                                                                                    \
         appendLog(buf);                                                                                                                       \
         snprintf(buf, sizeof(buf), format, ##__VA_ARGS__);                                                                                    \
-        dispInterface.drawAndSendDialog(buf);                                                                                                 \
+        dispInterface.sendCriticalMsg(buf);                                                                                                 \
         exit(ret);                                                                                                                            \
     } while (false)
 

@@ -66,7 +66,7 @@ void DispInterface::updateDisplay(nut_reg_t *nv, bool force) {
     }
 }
 
-void DispInterface::drawAndSendDialog(char *message) {
+void DispInterface::sendCriticalMsg(char *message) {
     u8g2.setFontMode(0);
     u8g2.setDrawColor(1);
     u8g2.setFont(u8g2_font_tom_thumb_4x6_mr);

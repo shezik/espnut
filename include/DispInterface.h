@@ -16,7 +16,7 @@ class DispInterface {
     public:
         DispInterface(U8G2_DISPLAY_TYPE &);
         void updateDisplay(nut_reg_t *, bool = false);
-        void drawAndSendDialog(char *);
+        void sendCriticalMsg(char *);
         void setU8g2PowerSave(uint8_t);
         void setLowBatAnnunciator(bool);
         void setLowBatAnnunciatiorBlink(uint16_t);
