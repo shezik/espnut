@@ -59,6 +59,7 @@ void exit (int ret)
 {
 	printf_log("Program returned %d\nSystem halt. Press any key to reset.\n", ret);
 	extern KeyboardMgr keyboardMgr;  // Instantiated in main.cpp
+    xSemaphoreGive(keyboardMgr.getMutex());
 	keyboardMgr.blockingWaitForKey();
 	ESP.restart();
 	while (true);  // THIS FUNCTION DOES NOT RETURN STFU

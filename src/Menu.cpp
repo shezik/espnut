@@ -154,21 +154,27 @@ void Menu::tick() {
                     gem->registerKeyPress(GEM_KEY_NONE);
             }
         }
-    } else if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == MakeKeycodeFromCode(true, 24 /*ON*/)) {  // !! you might want to freeze the queue first
-        printf_log("Menu: ON key detected in background\n");
-        uint16_t tempKeycode;
-        uint16_t onKeycode = MakeKeycodeFromCode(true, 24 /*ON*/);
-        QueueHandle_t queue = kbdMgr.getKeyQueue();
+    } else {
+        // -------- BEGINNING OF CRITICAL SECTION --------
+        xSemaphoreTake(kbdMgr.getMutex(), portMAX_DELAY);
+        if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == MakeKeycodeFromCode(true, 24 /*ON*/)) {
+            printf_log("Menu: ON key detected in background\n");
+            uint16_t tempKeycode;
+            uint16_t onKeycode = MakeKeycodeFromCode(true, 24 /*ON*/);
+            QueueHandle_t queue = kbdMgr.getKeyQueue();
 
-        kbdMgr.getLastKeycode();  // Remove 'ON' keycode, emptying the queue
-        BaseType_t ret = xQueueReceive(queue, &tempKeycode, pdMS_TO_TICKS(HOLD_DOWN_LENGTH));
-        // Note that releasing a key also generates a keycode.
-        if (ret == errQUEUE_EMPTY)
-            enterMenu();
-        else {
-            // Give them back  // !! Is this reversed?
-            xQueueSendToFront(queue, &tempKeycode, 0);
-            xQueueSendToFront(queue, &onKeycode, 0);
+            kbdMgr.getLastKeycode();  // Remove 'ON' keycode, emptying the queue
+            xSemaphoreGive(kbdMgr.getMutex());
+            BaseType_t ret = xQueueReceive(queue, &tempKeycode, pdMS_TO_TICKS(HOLD_DOWN_LENGTH));
+            xSemaphoreTake(kbdMgr.getMutex(), portMAX_DELAY);
+            // Note that releasing a key also generates a keycode.
+            if (ret == errQUEUE_EMPTY)
+                enterMenu();
+            else {
+                // Give them back
+                xQueueSendToFront(queue, &tempKeycode, 0);
+                xQueueSendToFront(queue, &onKeycode, 0);
+            }
         }
     }
 }
@@ -279,6 +285,7 @@ void Menu::enterMenu() {
     showingMenu = true;
     emu.pause();
     kbdMgr.clear();
+    xSemaphoreGive(kbdMgr.getMutex());
 
     bool isProcessorPresent = emu.isProcessorPresent();
     resumeBtn->hide(!isProcessorPresent);

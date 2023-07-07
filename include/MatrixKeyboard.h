@@ -50,6 +50,7 @@ typedef struct {
     uint8_t debounce_stable_count;
     uint8_t debounce_reset_max_count;
     QueueHandle_t key_queue;
+    SemaphoreHandle_t mutex;
     char *task_name;
     void (*key_event)();
 } matrix_keyboard_config_t;
@@ -62,6 +63,7 @@ typedef struct {
     uint8_t debounce_stable_count;
     uint8_t debounce_reset_max_count;
     QueueHandle_t key_queue;
+    SemaphoreHandle_t mutex;
     char *task_name = nullptr;
     void (*key_event)();
 

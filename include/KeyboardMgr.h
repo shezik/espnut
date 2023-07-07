@@ -13,7 +13,8 @@ class KeyboardMgr {
         static void powerButtonCallback(void *);
         void (*keyPressCallback)() = nullptr;
         matrix_keyboard_handle_t *mkHandle = nullptr;
-        QueueHandle_t keyQueue = nullptr;
+        QueueHandle_t keyQueue = NULL;
+        SemaphoreHandle_t mutex = NULL;
     public:
         KeyboardMgr(uint8_t);
         ~KeyboardMgr();
@@ -31,4 +32,5 @@ class KeyboardMgr {
         uint16_t peekLastKeycode();
         uint8_t keysAvailable();
         QueueHandle_t getKeyQueue();
+        SemaphoreHandle_t getMutex();
 };

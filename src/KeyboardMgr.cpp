@@ -29,6 +29,7 @@ void KeyboardMgr::init() {
     attachInterruptArg(powerButtonPin, KeyboardMgr::powerButtonCallback, this, CHANGE);
 
     keyQueue = xQueueCreate(KEY_QUEUE_LENGTH, sizeof(uint16_t));
+    mutex = xSemaphoreCreateMutex();
     int rowGPIOs[ROW_GPIOS_N] = {ROW_GPIOS};
     int colGPIOs[COL_GPIOS_N] = {COL_GPIOS};
     matrix_keyboard_config_t mkConf = {
@@ -39,6 +40,7 @@ void KeyboardMgr::init() {
         .debounce_stable_count = 8,
         .debounce_reset_max_count = 2,  // ?
         .key_queue = keyQueue,
+        .mutex = mutex,
         .task_name = "MatrixKbd",
         .key_event = keyPressCallback
     };
@@ -105,4 +107,8 @@ uint8_t KeyboardMgr::keysAvailable() {
 
 QueueHandle_t KeyboardMgr::getKeyQueue() {
     return keyQueue;
+}
+
+SemaphoreHandle_t KeyboardMgr::getMutex() {
+    return mutex;
 }

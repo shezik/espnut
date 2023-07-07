@@ -156,8 +156,6 @@ void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
 }
 
 void NutEmuInterface::tick() {
-    static bool keycodeCheckedByMenu = true;
-
     if (!nv || !emulatorRunFlag)
         return;
 
@@ -169,20 +167,18 @@ void NutEmuInterface::tick() {
         tickActionOverride();
     } else {
         // This is the default 'tick action'.
-        uint8_t keysAvailable = kbdMgr.keysAvailable();
-        if (keysAvailable == 1 && kbdMgr.peekLastKeycode() == MakeKeycodeFromCode(true, 24 /*ON*/)) {
-            keycodeCheckedByMenu = !keycodeCheckedByMenu;
-        } else {
-            keycodeCheckedByMenu = true;
-        }
-        if (keysAvailable && keycodeCheckedByMenu) {
+        if (kbdMgr.keysAvailable()) {
             uint16_t keycode = kbdMgr.getLastKeycode();
             if (GetKeycodeStatus(keycode))
                 keyPressed(GetKeycodeContent(keycode));
             else
                 keyReleased(GetKeycodeContent(keycode));
         }
+        
     }
+    
+    xSemaphoreGive(kbdMgr.getMutex());
+    // -------- END OF CRITICAL SECTION --------
 
     sim_run();
 }

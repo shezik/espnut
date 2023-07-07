@@ -56,7 +56,9 @@ static void getKeycode(matrix_keyboard_handle_t *handle) {
                 handle->skip_key_releases = false;
             }
             printf_log(MatrixKeyboardTag "Got keycode %d (row %d, col %d), adding to queue\n", keycode, row, col);
+            xSemaphoreTake(handle->mutex, portMAX_DELAY);
             xQueueSend(handle->key_queue, (void *) &keycode, 0);
+            xSemaphoreGive(handle->mutex);
         }
     }
 }
@@ -94,6 +96,7 @@ esp_err_t MatrixKeyboardInit(const matrix_keyboard_config_t *config, matrix_keyb
     mkhandle->debounce_stable_count = config->debounce_stable_count;
     mkhandle->debounce_reset_max_count = config->debounce_reset_max_count;
     mkhandle->key_queue = config->key_queue;
+    mkhandle->mutex = config->mutex;
     mkhandle->key_event = config->key_event;
     mkhandle->skip_key_releases = false;
     
