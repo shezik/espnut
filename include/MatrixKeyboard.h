@@ -47,6 +47,7 @@ typedef struct {
     const int *col_gpios;
     uint8_t row_gpios_n;
     uint8_t col_gpios_n;
+    uint8_t power_btn_pin;
     uint8_t debounce_stable_count;
     uint8_t debounce_reset_max_count;
     QueueHandle_t key_queue;
@@ -60,6 +61,7 @@ typedef struct {
     int *col_gpios = nullptr;
     uint8_t row_gpios_n;
     uint8_t col_gpios_n;
+    uint8_t power_btn_pin;
     uint8_t debounce_stable_count;
     uint8_t debounce_reset_max_count;
     QueueHandle_t key_queue;

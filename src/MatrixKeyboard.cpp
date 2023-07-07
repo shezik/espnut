@@ -63,9 +63,27 @@ static void getKeycode(matrix_keyboard_handle_t *handle) {
     }
 }
 
+static void checkPowerBtn(matrix_keyboard_handle_t *handle) {
+    bool state = !digitalRead(handle->power_btn_pin);
+    static bool prevState = state;
+
+    if (state == prevState)
+        return;
+
+    prevState = state;
+    if (handle->key_event)
+        handle->key_event();
+
+    uint16_t keycode = MakeKeycodeFromCode(state, 24 /*ON*/);
+    xSemaphoreTake(handle->mutex, portMAX_DELAY);
+    xQueueSend(handle->key_queue, (void *) &keycode, 0);
+    xSemaphoreGive(handle->mutex);
+}
+
 static void matrixKeyboardLoop(void *pvParameters) {
     matrix_keyboard_handle_t *handle = static_cast<matrix_keyboard_handle_t *>(pvParameters);
     for (;;) {
+        checkPowerBtn(handle);
         getKeycode(handle);
         vTaskDelay(pdMS_TO_TICKS(KEY_SCAN_INTERVAL));
     }
@@ -93,6 +111,7 @@ esp_err_t MatrixKeyboardInit(const matrix_keyboard_config_t *config, matrix_keyb
     strcpy(mkhandle->task_name, config->task_name);
     mkhandle->row_gpios_n = config->row_gpios_n;
     mkhandle->col_gpios_n = config->col_gpios_n;
+    mkhandle->power_btn_pin = config->power_btn_pin;
     mkhandle->debounce_stable_count = config->debounce_stable_count;
     mkhandle->debounce_reset_max_count = config->debounce_reset_max_count;
     mkhandle->key_queue = config->key_queue;
@@ -100,6 +119,7 @@ esp_err_t MatrixKeyboardInit(const matrix_keyboard_config_t *config, matrix_keyb
     mkhandle->key_event = config->key_event;
     mkhandle->skip_key_releases = false;
     
+    pinMode(config->power_btn_pin, INPUT_PULLUP);
     for (uint8_t i = 0; i < config->row_gpios_n; i++)
         pinMode(config->row_gpios[i], OUTPUT);
     for (uint8_t i = 0; i < config->col_gpios_n; i++)

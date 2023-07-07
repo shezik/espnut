@@ -13,21 +13,7 @@ KeyboardMgr::~KeyboardMgr() {
     mkHandle = nullptr;
 }
 
-void KeyboardMgr::powerButtonCallback(void *ptr) {
-    // No printf / putc in ISR!
-    KeyboardMgr *context = static_cast<KeyboardMgr *>(ptr);
-    if (context->keyPressCallback)
-        context->keyPressCallback();
-    uint16_t keycode = MakeKeycodeFromCode(!digitalRead(context->powerButtonPin), 24 /*ON*/);
-    BaseType_t flag = pdFALSE;
-    xQueueSendFromISR(context->keyQueue, &keycode, &flag);  // !!
-    portYIELD_FROM_ISR(flag);
-}
-
 void KeyboardMgr::init() {
-    pinMode(powerButtonPin, INPUT_PULLUP);
-    attachInterruptArg(powerButtonPin, KeyboardMgr::powerButtonCallback, this, CHANGE);
-
     keyQueue = xQueueCreate(KEY_QUEUE_LENGTH, sizeof(uint16_t));
     mutex = xSemaphoreCreateMutex();
     int rowGPIOs[ROW_GPIOS_N] = {ROW_GPIOS};
@@ -37,6 +23,7 @@ void KeyboardMgr::init() {
         .col_gpios = colGPIOs,
         .row_gpios_n = ROW_GPIOS_N,
         .col_gpios_n = COL_GPIOS_N,
+        .power_btn_pin = powerButtonPin,
         .debounce_stable_count = 8,
         .debounce_reset_max_count = 2,  // ?
         .key_queue = keyQueue,

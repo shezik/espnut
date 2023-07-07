@@ -10,7 +10,6 @@
 class KeyboardMgr {
     protected:
         uint8_t powerButtonPin;
-        static void powerButtonCallback(void *);
         void (*keyPressCallback)() = nullptr;
         matrix_keyboard_handle_t *mkHandle = nullptr;
         QueueHandle_t keyQueue = NULL;
