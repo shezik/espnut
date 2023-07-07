@@ -21,7 +21,7 @@ class DispInterface {
         void setLowBatAnnunciator(bool);
         void setLowBatAnnunciatiorBlink(uint16_t);
         U8G2_DISPLAY_TYPE *getU8g2();
-        void drawBattery(uint8_t, uint8_t, uint8_t);
+        void drawBattery(uint8_t, uint8_t, uint8_t, bool);
         void drawCheckerboard(bool = false);
         void sendLowBattery();
         const uint8_t batteryIconWidth = 11, batteryIconHeight = 5;

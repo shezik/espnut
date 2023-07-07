@@ -108,13 +108,20 @@ U8G2_DISPLAY_TYPE *DispInterface::getU8g2() {
     return &u8g2;
 }
 
-void DispInterface::drawBattery(uint8_t x, uint8_t y, uint8_t percentage) {
+void DispInterface::drawBattery(uint8_t x, uint8_t y, uint8_t percentage, bool charging) {
     u8g2.setDrawColor(1);
     u8g2.drawLine(x, y + 1, x, y + 3);
     u8g2.drawBox(x + 1, y, 10, 5);
     u8g2.setDrawColor(0);
+    if (charging)
+        percentage = 0;
     uint8_t batLvlWidth = floor((100 - percentage) / 12);
     u8g2.drawBox(x + 2, y + 1, batLvlWidth, 3);
+    if (charging) {
+        u8g2.setDrawColor(1);
+        u8g2.drawLine(x + 5, y + 1, x + 5, y + 2);
+        u8g2.drawLine(x + 6, y + 2, x + 6, y + 3);
+    }
 }
 
 void DispInterface::drawCheckerboard(bool polarity) {
@@ -129,6 +136,6 @@ void DispInterface::sendLowBattery() {
     uint8_t x = floor((u8g2.getDisplayWidth() - batteryIconWidth) / 2), y = floor((u8g2.getDisplayHeight() - batteryIconHeight) / 2);
     u8g2.setDrawColor(0);
     u8g2.drawBox(x - 1, y - 1, batteryIconWidth + 2, batteryIconHeight + 2);
-    drawBattery(x, y, 0);
+    drawBattery(x, y, 0, false);
     u8g2.sendBuffer();
 }

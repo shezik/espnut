@@ -472,6 +472,6 @@ void Menu::drawBatteryCallback() {
     GEMPage *menuPageCurrent = context->gem->getMenuPageCurrent();
     if (!menuPageCurrent || memcmp(menuPageCurrent->getTitle(), "espnut", 6))
         return;  // Not in main menu, don't draw
-    context->dp.drawBattery(context->dp.getU8g2()->getDisplayWidth() - context->dp.batteryIconWidth - 1, 1, context->pm.getBatteryPercentage());
+    context->dp.drawBattery(context->dp.getU8g2()->getDisplayWidth() - context->dp.batteryIconWidth - 1, 1, context->pm.getBatteryPercentage(), context->pm.getBatteryCharging());
     context->dp.getU8g2()->setDrawColor(1);  // Reset color!
 }
