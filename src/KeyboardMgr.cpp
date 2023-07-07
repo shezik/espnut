@@ -49,7 +49,8 @@ void KeyboardMgr::init() {
 void KeyboardMgr::blockingWaitForKey() {
     clear();
     uint16_t keycode;
-    while (!(xQueueReceive(keyQueue, &keycode, portMAX_DELAY) == pdPASS && GetKeycodeStatus(keycode)));  // !! vTaskDelay() if required.
+    while (!(xQueueReceive(keyQueue, &keycode, portMAX_DELAY) == pdPASS && GetKeycodeStatus(keycode)))
+        vTaskDelay(pdMS_TO_TICKS(10));
     clear();
 }
 
