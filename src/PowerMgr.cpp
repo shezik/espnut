@@ -65,6 +65,18 @@ bool PowerMgr::wokenUpFromDeepSleep() {
 
 void PowerMgr::init() {
     pinMode(LDOEnablePin, OUTPUT);
+    
+    #ifdef USE_ESP_DEEP_SLEEP
+        // Deep Sleep Cleanup
+        esp_sleep_wakeup_cause_t wakeupReason = esp_sleep_get_wakeup_cause();
+        if (wakeupReason == ESP_SLEEP_WAKEUP_EXT0) {
+            wokenUp = true;
+            rtc_gpio_deinit((gpio_num_t) wakeUpInterruptPin);  // This one doesn't reset on wakeup according to https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/sleep_modes.html
+        }
+    #else
+        enableLDO(true);  // Hold LDO 3V3 output
+    #endif
+
     pinMode(displayBacklightPin, OUTPUT);
     pinMode(batChrg, INPUT);
 
@@ -79,20 +91,8 @@ void PowerMgr::init() {
     }
     adc1_config_width((adc_bits_width_t) ADC_WIDTH_BIT_DEFAULT);
     adc1_config_channel_atten(BAT_LVL_CHK_ADC_CHANNEL, ADC_ATTEN_11db);  // 0 mV ~ 3100 mV
-    
-    #ifdef USE_ESP_DEEP_SLEEP
-        // Deep Sleep Cleanup
-        esp_sleep_wakeup_cause_t wakeupReason = esp_sleep_get_wakeup_cause();
-        if (wakeupReason == ESP_SLEEP_WAKEUP_EXT0) {
-            wokenUp = true;
-            rtc_gpio_deinit((gpio_num_t) wakeUpInterruptPin);  // This one doesn't reset on wakeup according to https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/sleep_modes.html
-        }
-    #else
-        enableLDO(true);  // Hold LDO 3V3 output
-    #endif
 
     setFrequency(FALLBACK_CPU_FREQUENCY_MHZ);  // !! Only if we had a config manager...
-
     setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT * 1000);  // Updated after Menu initialization
     feedBacklightTimeout();
     setDeepSleepTimeout(FALLBACK_DEEP_SLEEP_TIMEOUT * 1000 * 60);  // Updated after Menu initialization
