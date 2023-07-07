@@ -61,14 +61,6 @@ void Menu::init(bool showMenuFlag_) {
     // Allocate GEM objects here
     // Any one-line function is written as lambda expression
     // It's quite interesting that static class methods can access protected members via the (class member) pointer 'context'.
-    gem = new GEMProxy(*dp.getU8g2(), GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
-    gem->registerDrawMenuCallback(drawBatteryCallback);
-    pm.registerBatPercentChangedCallback(drawBatteryCallback);
-    gem->setSplash(peanut_width, peanut_height, peanut_bits);
-    if (!showMenuFlag)
-        gem->setSplashDelay(0);
-    gem->init();
-
     mainPage = new GEMPage(generateMainPageTitle(), [](){if (context->emu.isProcessorPresent()) context->exitMenu();});
     resumeBtn = new GEMItem("Resume", exitMenu);
     saveStateBtn = new GEMItem("Save State", saveStateButtonCallback);  // These are placeholders.
@@ -119,6 +111,14 @@ void Menu::init(bool showMenuFlag_) {
 
     loadSettings();
     applySettings();
+
+    gem = new GEMProxy(*dp.getU8g2(), GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
+    gem->registerDrawMenuCallback(drawBatteryCallback);
+    pm.registerBatPercentChangedCallback(drawBatteryCallback);
+    gem->setSplash(peanut_width, peanut_height, peanut_bits);
+    if (!showMenuFlag)
+        gem->setSplashDelay(0);
+    gem->init();
 }
 
 void Menu::tick() {
