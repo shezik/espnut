@@ -114,7 +114,7 @@ void Menu::init(bool showMenuFlag_) {
 
     gem = new GEMProxy(*dp.getU8g2(), GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
     gem->registerDrawMenuCallback(drawBatteryCallback);
-    pm.registerBatPercentChangedCallback(drawBatteryCallback);
+    pm.registerBatPercentChangedCallback([](){context->drawBatteryCallback(); context->dp.getU8g2()->sendBuffer();});
     gem->setSplash(peanut_width, peanut_height, peanut_bits);
     if (!showMenuFlag)
         gem->setSplashDelay(0);
