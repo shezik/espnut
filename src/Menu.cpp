@@ -130,7 +130,7 @@ void Menu::tick() {
     if (showingMenu) {
         if (gem->readyForKey() && kbdMgr.keysAvailable()) {
             uint16_t keycode = GetKeycodeContent(kbdMgr.getPositiveKeycode());  // Key release is of no use here
-            printf_log("Menu: Keycode: %d\n", keycode);  // !! DEBUG
+            printf_log("Menu: Keycode: %d\n", keycode);
             switch (keycode) {
                 case 116:  // 2
                     gem->registerKeyPress(GEM_KEY_UP);
@@ -255,7 +255,6 @@ void Menu::resetSettingsButtonCallback() {
     context->loadDefaultSettings();
     context->applySettings();
     context->saveSettings();
-    // !! Redraw menu here?
     context->gem->drawMenu();
 }
 
