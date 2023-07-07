@@ -67,14 +67,10 @@ void DispInterface::updateDisplay(nut_reg_t *nv, bool force) {
 }
 
 void DispInterface::sendCriticalMsg(char *message) {
+    drawCheckerboard();  // Includes setDrawColor(1);
+
     u8g2.setFontMode(0);
-    u8g2.setDrawColor(1);
     u8g2.setFont(u8g2_font_tom_thumb_4x6_mr);
-
-    for (uint8_t y = 0; y < u8g2.getDisplayHeight(); y++)
-        for (uint8_t x = (y % 2); x < u8g2.getDisplayWidth(); x += 2)
-            u8g2.drawPixel(x, y);
-
     u8g2.drawStr(0, 0, message);  // !! Beautify this later
     u8g2.sendBuffer();
 }
@@ -112,3 +108,27 @@ U8G2_DISPLAY_TYPE *DispInterface::getU8g2() {
     return &u8g2;
 }
 
+void DispInterface::drawBattery(uint8_t x, uint8_t y, uint8_t percentage) {
+    u8g2.setDrawColor(1);
+    u8g2.drawLine(x, y + 1, x, y + 3);
+    u8g2.drawBox(x + 1, y, 10, 5);
+    u8g2.setDrawColor(0);
+    uint8_t batLvlWidth = floor((100 - percentage) / 12);
+    u8g2.drawBox(x + 2, y + 1, batLvlWidth, 3);
+}
+
+void DispInterface::drawCheckerboard(bool polarity) {
+    u8g2.setDrawColor(1);
+    for (uint8_t y = 0; y < u8g2.getDisplayHeight(); y++)
+        for (uint8_t x = ((y + (uint8_t) polarity) % 2); x < u8g2.getDisplayWidth(); x += 2)
+            u8g2.drawPixel(x, y);
+}
+
+void DispInterface::sendLowBattery() {
+    drawCheckerboard();
+    uint8_t x = floor((u8g2.getDisplayWidth() - batteryIconWidth) / 2), y = floor((u8g2.getDisplayHeight() - batteryIconHeight) / 2);
+    u8g2.setDrawColor(0);
+    u8g2.drawBox(x - 1, y - 1, batteryIconWidth + 2, batteryIconHeight + 2);
+    drawBattery(x, y, 0);
+    u8g2.sendBuffer();
+}
