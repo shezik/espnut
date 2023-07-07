@@ -52,6 +52,7 @@ Menu::~Menu() {
     delete ramSizePage; ramSizePage = nullptr;
     delete smallRAMBtn; smallRAMBtn = nullptr;
     delete largeRAMBtn; largeRAMBtn = nullptr;
+    pm.registerBatPercentChangedCallback(nullptr);
 }
 
 void Menu::init(bool showMenuFlag_) {
@@ -62,6 +63,7 @@ void Menu::init(bool showMenuFlag_) {
     // It's quite interesting that static class methods can access protected members via the (class member) pointer 'context'.
     gem = new GEMProxy(*dp.getU8g2(), GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
     gem->registerDrawMenuCallback(drawBatteryCallback);
+    pm.registerBatPercentChangedCallback(drawBatteryCallback);
     gem->setSplash(peanut_width, peanut_height, peanut_bits);
     if (!showMenuFlag)
         gem->setSplashDelay(0);

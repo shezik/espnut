@@ -22,6 +22,7 @@ class PowerMgr {
         uint32_t frequency;
         bool wokenUp = false;
         void (*deepSleepCallback)() = nullptr;
+        void (*batPercentChangedCallback)() = nullptr;
         static PowerMgr *context;
     public:
         PowerMgr(KeyboardMgr &, DispInterface &, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
@@ -55,5 +56,6 @@ class PowerMgr {
         bool isFrequencyReduced();
         
         void registerDeepSleepCallback(void (*)());
+        void registerBatPercentChangedCallback(void (*)());
         static void keyPressCallback();
 };

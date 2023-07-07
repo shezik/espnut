@@ -105,7 +105,28 @@ void PowerMgr::init() {
 void PowerMgr::tick() {
     int64_t timeNow = get_timer_ms();
 
+    static int64_t nextBatteryCheck = 0;
+    static uint8_t prevBatPercent = -1;  // Force update
+    uint8_t batPercentNow;
+
     // printf_log("PowerMgr: timeNow: %llu, nextBacklightOff: %llu, nextDeepSleep: %llu\n", timeNow, nextBacklightOff, nextDeepSleep);
+
+    if (timeNow >= nextBatteryCheck) {
+        batPercentNow = getBatteryPercentage();
+        nextBatteryCheck = timeNow + 1000;
+        if (batPercentNow != prevBatPercent) {
+            prevBatPercent = batPercentNow;
+            printf_log("PowerMgr: Battery status updated\n");
+            if (batPercentChangedCallback)
+                batPercentChangedCallback();
+            if (!batPercentNow) {
+                printf_log("PowerMgr: Low battery, going to deep sleep\n");
+                dp.sendLowBattery();
+                vTaskDelay(pdMS_TO_TICKS(LOW_BAT_SHUTDOWN_DELAY));
+                enterDeepSleep();
+            }
+        }
+    }
 
     if (getBacklightPower() && (timeNow >= nextBacklightOff || !backlightTimeout))
         setBacklightPower(false);
@@ -222,4 +243,8 @@ bool PowerMgr::isFrequencyReduced() {
 
 void PowerMgr::registerDeepSleepCallback(void (*callback)()) {
     deepSleepCallback = callback;
+}
+
+void PowerMgr::registerBatPercentChangedCallback(void (*callback)()) {
+    batPercentChangedCallback = callback;
 }
