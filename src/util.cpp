@@ -34,7 +34,7 @@ void *alloc (size_t size)
 	
 	p = calloc (1, size);
 	if (! p)
-		fatal(2, "Memory allocation failed\n");
+		fatal(4, "Memory allocation failed\n");
 	// printf("Leaving %s!\n", __func__);  // debug
 	return (p);
 }

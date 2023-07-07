@@ -55,7 +55,7 @@ void PowerMgr::enterDeepSleep() {
     #else
         enableLDO(false);  // Turn off 3V3 power supply
         vTaskDelay(pdMS_TO_TICKS(1000));
-        fatal(1, "Failed to power off LDO power supply!\n");
+        fatal(5, "Failed to power off LDO power supply!\n");
     #endif
 }
 
