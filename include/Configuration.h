@@ -16,7 +16,7 @@
 #define SPI_CLK 41
 #define SPI_CS 38
 #define U8G2_RESET_PIN 39
-#define U8G2_BUS_CLK 4000000  // Visit https://github.com/olikraus/u8g2/wiki/u8g2reference#setbusclock
+#define U8G2_BUS_CLK 4E6  // Visit https://github.com/olikraus/u8g2/wiki/u8g2reference#setbusclock
 
 // PowerMgr
 #define LDO_ENABLE 21

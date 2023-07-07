@@ -152,7 +152,7 @@ void Menu::tick() {
                     gem->registerKeyPress(GEM_KEY_NONE);
             }
         }
-    } else if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == MakeKeycodeFromCode(true, 24 /*ON*/)) {
+    } else if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == MakeKeycodeFromCode(true, 24 /*ON*/)) {  // !! you might want to freeze the queue first
         printf_log("Menu: ON key detected in background\n");
         uint16_t tempKeycode;
         uint16_t onKeycode = MakeKeycodeFromCode(true, 24 /*ON*/);
@@ -164,7 +164,7 @@ void Menu::tick() {
         if (ret == errQUEUE_EMPTY)
             enterMenu();
         else {
-            // Give them back
+            // Give them back  // !! Is this reversed?
             xQueueSendToFront(queue, &tempKeycode, 0);
             xQueueSendToFront(queue, &onKeycode, 0);
         }

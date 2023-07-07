@@ -66,7 +66,7 @@ void DispInterface::updateDisplay(nut_reg_t *nv, bool force) {
     }
 }
 
-void DispInterface::drawAndSendDialog(char *messsage) {
+void DispInterface::drawAndSendDialog(char *message) {
     u8g2.setFontMode(0);
     u8g2.setDrawColor(1);
     u8g2.setFont(u8g2_font_squeezed_r6_tr);
@@ -75,7 +75,7 @@ void DispInterface::drawAndSendDialog(char *messsage) {
         for (uint8_t x = (y % 2); x < u8g2.getDisplayWidth(); x += 2)
             u8g2.drawPixel(x, y);
 
-    u8g2.drawStr(0, 0, messsage);  // !! Beautify this later
+    u8g2.drawStr(0, 0, message);  // !! Beautify this later
     u8g2.sendBuffer();
 }
 
