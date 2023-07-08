@@ -11,14 +11,12 @@ class DispInterface {
         U8G2_DISPLAY_TYPE &u8g2;
         uint16_t blinkMs = 0;
         bool lowBatAnnOverride = false;
-        bool powerSaveState = false;
         void drawSegments(segment_bitmap_t *, bool);
         bool blinkTick();
     public:
         DispInterface(U8G2_DISPLAY_TYPE &);
         void updateDisplay(nut_reg_t *, bool = false);
         void sendCriticalMsg(char *);
-        void setU8g2PowerSave(uint8_t);
         void setLowBatAnnunciator(bool);
         void setLowBatAnnunciatiorBlink(uint16_t);
         U8G2_DISPLAY_TYPE *getU8g2();

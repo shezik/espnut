@@ -63,7 +63,6 @@ void DispInterface::updateDisplay(nut_reg_t *nv, bool force) {
     if (doUpdate || force) {
         lastLowBat = lowBat;
         drawSegments(nv->display_segments, lowBat);
-        setU8g2PowerSave(false);
         u8g2.sendBuffer();
     }
 }
@@ -74,15 +73,7 @@ void DispInterface::sendCriticalMsg(char *message) {
     u8g2.setFontMode(0);
     u8g2.setFont(u8g2_font_tom_thumb_4x6_mr);
     u8g2.drawStr(0, 0, message);  // !! Beautify this later
-    setU8g2PowerSave(false);
     u8g2.sendBuffer();
-}
-
-void DispInterface::setU8g2PowerSave(uint8_t state) {
-    if (state == powerSaveState)
-        return;
-    powerSaveState = state;
-    u8g2.setPowerSave(state);
 }
 
 // Overrides blinking (does not clear it)
@@ -143,6 +134,5 @@ void DispInterface::sendLowBattery() {
     u8g2.setDrawColor(0);
     u8g2.drawBox(x - 1, y - 1, batteryIconWidth + 2, batteryIconHeight + 2);
     drawBattery(x, y, 0, false);
-    setU8g2PowerSave(false);
     u8g2.sendBuffer();
 }
