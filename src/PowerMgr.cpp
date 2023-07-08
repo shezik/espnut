@@ -148,7 +148,6 @@ void PowerMgr::enableLDO(bool state) {
     digitalWrite(LDOEnablePin, state ? HIGH : LOW);
 }
 
-#define convertTime(ms) ((uint16_t) round(( 61.0 / 15640.0 * getCpuFrequencyMhz() + 25.0 / 391.0) * 240.0 / frequency * ms))  // Calculated by hand, not tested with timer initialized on frequency other than 240 MHz.
 void PowerMgr::setBacklightPower(bool state) {
     // digitalWrite(displayBacklightPin, state ? HIGH : LOW);
     static bool prevState = false;
@@ -164,7 +163,6 @@ void PowerMgr::setBacklightPower(bool state) {
     ledc_set_fade_with_time(ledcChannelConf.speed_mode, ledcChannelConf.channel, state ? (1 << (uint8_t) ledcTimerConf.duty_resolution - 1) : 0, state ? convertTime(100) : convertTime(350));
     ledc_fade_start(ledcChannelConf.speed_mode, ledcChannelConf.channel, LEDC_FADE_NO_WAIT);
 }
-#undef convertTime
 
 uint16_t PowerMgr::getBacklightTimeout() {
     return backlightTimeout;

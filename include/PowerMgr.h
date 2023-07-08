@@ -6,6 +6,9 @@
 #include <esp_adc_cal.h>
 #include <driver/ledc.h>
 
+// Calculated by hand, not tested with timer initialized on frequency other than 240 MHz.
+#define convertTime(ms) ((uint16_t) round(( 61.0 / 15640.0 * getCpuFrequencyMhz() + 25.0 / 391.0) * 240.0 / frequency * ms))
+
 class PowerMgr {
     protected:
         KeyboardMgr &kbdMgr;
