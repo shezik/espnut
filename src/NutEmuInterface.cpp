@@ -432,18 +432,14 @@ char *NutEmuInterface::getRomFilename() {
 
 void NutEmuInterface::updateDisplayCallback() {
     displayEnabled = nv->display_chip->enable;  // The value is the most reliable FOR NOW
-
-    /*
     static bool lastState = !displayEnabled;
-    if (displayEnabled != lastState) {
-        lastState = displayEnabled;
-        printf_log(EMU_TAG "updateDisplayCallback: displayEnabled: %d\n", displayEnabled);
-    }
-    */
 
     if (displayEnabled) {
         disp.updateDisplay(nv);
-    }
+    } else if (/*!unlockSpeed && */lastState)  // For the sake of accuracy
+        disp.getU8g2()->clear();  // !! What about the low bat annunciator?
+
+    lastState = displayEnabled;
 }
 
 void NutEmuInterface::setEnablePowerMgmt(bool enablePowerMgmt_) {
