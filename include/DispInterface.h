@@ -11,6 +11,7 @@ class DispInterface {
         U8G2_DISPLAY_TYPE &u8g2;
         uint16_t blinkMs = 0;
         bool lowBatAnnOverride = false;
+        bool powerSaveState = false;
         void drawSegments(segment_bitmap_t *, bool);
         bool blinkTick();
     public:

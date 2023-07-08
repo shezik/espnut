@@ -59,7 +59,7 @@ class NutEmuInterface {
         char *getRomFilename();
 
         void updateDisplayCallback();
-        void setDisplayPowerSave(bool);
+        // void setDisplayPowerSave(bool);
         void setEnablePowerMgmt(bool);
         void setUnlockSpeed(bool);
 

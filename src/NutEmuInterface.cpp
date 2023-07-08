@@ -187,6 +187,7 @@ void NutEmuInterface::pause() {
     emulatorRunFlag = false;
     printf_log(EMU_TAG "Quitting light sleep for pausing\n");
     pm.restoreFrequency();
+    disp.setU8g2PowerSave(false);
 }
 
 void NutEmuInterface::resume() {
@@ -433,24 +434,28 @@ char *NutEmuInterface::getRomFilename() {
 void NutEmuInterface::updateDisplayCallback() {
     displayEnabled = nv->display_chip->enable;  // The value is the most reliable FOR NOW
 
+    /*
     static bool lastState = !displayEnabled;
     if (displayEnabled != lastState) {
         lastState = displayEnabled;
         // printf_log(EMU_TAG "updateDisplayCallback: displayEnabled: %d\n", displayEnabled);
+        printf_log(EMU_TAG "updateDisplayCallback: displayEnabled: %d\n", displayEnabled);
     }
+    */
 
+    disp.setU8g2PowerSave(enablePowerMgmt && !displayEnabled);
     if (displayEnabled) {
-        setDisplayPowerSave(false);
         disp.updateDisplay(nv);
-    }// else
-        // setDisplayPowerSave(true);  // I believe this counts as updating display rather than managing power ;)
+    }
 }
 
+/*
 void NutEmuInterface::setDisplayPowerSave(bool state) {
     disp.setU8g2PowerSave(state);
     if (state)  // Actively turn off backlight, don't actively turn on
         pm.setBacklightPower(false);
 }
+*/
 
 void NutEmuInterface::setEnablePowerMgmt(bool enablePowerMgmt_) {
     enablePowerMgmt = enablePowerMgmt_;
