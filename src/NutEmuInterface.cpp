@@ -436,7 +436,7 @@ void NutEmuInterface::updateDisplayCallback() {
     static bool lastState = !displayEnabled;
 
     if (displayEnabled) {
-        disp.updateDisplay(nv);
+        disp.updateDisplay(nv, !lastState);
     } else if (/*!unlockSpeed && */lastState)  // For the sake of accuracy
         disp.getU8g2()->clear();  // !! What about the low bat annunciator?
 
