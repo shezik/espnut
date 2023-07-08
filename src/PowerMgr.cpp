@@ -122,7 +122,7 @@ void PowerMgr::tick() {
     static uint8_t prevBatPercent = -1;  // Force update
     uint8_t batPercentNow;
 
-    // printf_log("PowerMgr: timeNow: %llu, nextBacklightOff: %llu, nextDeepSleep: %llu\n", timeNow, nextBacklightOff, nextDeepSleep);
+    // printf_log("PowerMgr: timeNow: %lld, nextBacklightOff: %lld, nextDeepSleep: %lld\n", timeNow, nextBacklightOff, nextDeepSleep);
 
     if (timeNow >= nextBatteryCheck) {
         batPercentNow = getBatteryPercentage();
@@ -196,7 +196,7 @@ uint32_t PowerMgr::getDeepSleepTimeout() {
 void PowerMgr::setDeepSleepTimeout(uint32_t ms) {
     nextDeepSleep += (ms - deepSleepTimeout);
     deepSleepTimeout = ms;
-    printf_log("PowerMgr: nextDeepSleep set to %lld, deepSleepTimeout set to %lu\n", nextDeepSleep, deepSleepTimeout);
+    // printf_log("PowerMgr: nextDeepSleep set to %lld, deepSleepTimeout set to %lu\n", nextDeepSleep, deepSleepTimeout);
 }
 
 void PowerMgr::feedDeepSleepTimeout() {
