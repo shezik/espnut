@@ -23,6 +23,7 @@ class PowerMgr {
         bool wokenUp = false;
         void (*deepSleepCallback)() = nullptr;
         void (*batPercentChangedCallback)() = nullptr;
+        SemaphoreHandle_t keyPressSignal = NULL;
         static PowerMgr *context;
     public:
         PowerMgr(KeyboardMgr &, DispInterface &, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);

@@ -26,11 +26,7 @@ PowerMgr::~PowerMgr() {
 }
 
 void PowerMgr::keyPressCallback() {
-    if (context) {
-        context->restoreFrequency();
-        context->feedBacklightTimeout();
-        context->feedDeepSleepTimeout();
-    }
+    xSemaphoreGive(context->keyPressSignal);
 }
 
 bool PowerMgr::enterModemSleep() {
@@ -99,10 +95,17 @@ void PowerMgr::init() {
     setDeepSleepTimeout(FALLBACK_DEEP_SLEEP_TIMEOUT * 1000 * 60);  // Updated after Menu initialization
     feedDeepSleepTimeout();
 
+    keyPressSignal = xSemaphoreCreateBinary();
     kbdMgr.registerKeyPressCallback(keyPressCallback);
 }
 
 void PowerMgr::tick() {
+    if (xSemaphoreTake(keyPressSignal, 0) == pdPASS) {
+        restoreFrequency();
+        feedBacklightTimeout();
+        feedDeepSleepTimeout();
+    }
+
     int64_t timeNow = get_timer_ms();
 
     static int64_t nextBatteryCheck = 0;
