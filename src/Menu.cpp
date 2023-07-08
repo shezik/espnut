@@ -102,7 +102,7 @@ void Menu::init(bool showMenuFlag_) {
     settingsPage->addMenuItem(*powerOffTimeoutItem);
     settingsPage->addMenuItem(*enablePowerMgmtItem);
     settingsPage->addMenuItem(*unlockEmulationSpeedItem);
-    settingsPage->addMenuItem(*enableLoggingItem);
+    // settingsPage->addMenuItem(*enableLoggingItem);  // !! Not implemented
     settingsPage->addMenuItem(*clearLogfileBtn);
     settingsPage->addMenuItem(*saveSettingsBtn);
     settingsPage->addMenuItem(*exitSettingsBtn);
