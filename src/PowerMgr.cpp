@@ -43,6 +43,8 @@ bool PowerMgr::enterModemSleep() {
 }
 
 void PowerMgr::enterDeepSleep() {
+    setBacklightPower(false);
+
     if (deepSleepCallback)
         deepSleepCallback();
 
