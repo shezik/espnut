@@ -7,8 +7,9 @@
 
 PowerMgr *PowerMgr::context = nullptr;  // classic
 
-PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, DispInterface &dp_, uint8_t wakeUpInterruptPin_, uint8_t LDOEnablePin_, uint8_t displayBacklightPin_, uint8_t batLvlChk_, uint8_t batChrg_)
-    : kbdMgr(kbdMgr_)
+PowerMgr::PowerMgr(SettingsMgr &sm_, KeyboardMgr &kbdMgr_, DispInterface &dp_, uint8_t wakeUpInterruptPin_, uint8_t LDOEnablePin_, uint8_t displayBacklightPin_, uint8_t batLvlChk_, uint8_t batChrg_)
+    : sm(sm_)
+    , kbdMgr(kbdMgr_)
     , dp(dp_)
     , wakeUpInterruptPin(wakeUpInterruptPin_)
     , LDOEnablePin(LDOEnablePin_)
@@ -61,6 +62,15 @@ bool PowerMgr::wokenUpFromDeepSleep() {
     return wokenUp;
 }
 
+void PowerMgr::applySettings() {
+    context->setFrequency(*context->sm.getCpuFrequency());
+    context->setBacklightTimeout(*context->sm.getBacklightTimeoutSec() * 1000);
+    context->setBrightnessPercent(*context->sm.getBrightnessPercent());  // Get ledDutyCycle variable ready
+    context->feedBacklightTimeout();
+    context->setDeepSleepTimeout(*context->sm.getPowerOffTimeoutMin() * 1000 * 60);
+    context->feedDeepSleepTimeout();
+}
+
 void PowerMgr::init() {
     pinMode(LDOEnablePin, OUTPUT);
     
@@ -75,9 +85,7 @@ void PowerMgr::init() {
         enableLDO(true);  // Hold LDO 3V3 output
     #endif
 
-    setFrequency(FALLBACK_CPU_FREQUENCY_MHZ);  // !! Only if we had a config manager...
     pinMode(batChrg, INPUT);
-
     pinMode(batLvlChk, ANALOG);
     esp_err_t ret = esp_adc_cal_check_efuse(ESP_ADC_CAL_VAL_EFUSE_TP_FIT);
     if (ret == ESP_OK) {
@@ -94,11 +102,8 @@ void PowerMgr::init() {
     ledc_channel_config(&ledcChannelConf);
     ledc_fade_func_install(0);
 
-    setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT * 1000);  // Updated after Menu initialization
-    feedBacklightTimeout();
-    setDeepSleepTimeout(FALLBACK_DEEP_SLEEP_TIMEOUT * 1000 * 60);  // Updated after Menu initialization
-    feedDeepSleepTimeout();
-    setBrightnessPercent(FALLBACK_BRIGHTNESS);
+    applySettings();
+    sm.registerApplySettingsCallback(applySettings);
 
     keyPressSignal = xSemaphoreCreateBinary();
     kbdMgr.registerKeyPressCallback(keyPressCallback);

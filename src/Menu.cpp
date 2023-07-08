@@ -12,8 +12,9 @@ static unsigned char peanut_bits[] = {
 
 Menu *Menu::context = nullptr;
 
-Menu::Menu(KeyboardMgr &kbdMgr_, DispInterface &dp_, PowerMgr &pm_, NutEmuInterface &emu_)
-    : kbdMgr(kbdMgr_)
+Menu::Menu(SettingsMgr &sm_, KeyboardMgr &kbdMgr_, DispInterface &dp_, PowerMgr &pm_, NutEmuInterface &emu_)
+    : sm(sm_)
+    , kbdMgr(kbdMgr_)
     , dp(dp_)
     , pm(pm_)
     , emu(emu_)
@@ -84,13 +85,13 @@ void Menu::init(bool showMenuFlag_) {
     mainPage->addMenuItem(*settingsBtn);
     mainPage->addMenuItem(*powerOffBtn);
     settingsPage = new GEMPage("Settings", [](){exitSettingsPageCallback(false);});
-    brightnessItem = new GEMItem("Brightness", brightness, [](){context->applySettings();});
-    contrastItem = new GEMItem("Contrast", contrast, [](){context->applySettings();});
-    backlightTimeoutItem = new GEMItem("Backlight Timeout (sec)", backlightTimeoutSec, [](){context->applySettings();});
-    powerOffTimeoutItem = new GEMItem("Power Off Timeout (min)", powerOffTimeoutMin, [](){context->applySettings();});
-    enablePowerMgmtItem = new GEMItem("Power Mgmt", enablePowerMgmt, [](){context->applySettings();});
-    unlockEmulationSpeedItem = new GEMItem("Unlock Speed", unlockSpeed, [](){context->applySettings();});
-    enableLoggingItem = new GEMItem("Enable Logging", enableLogging, [](){context->applySettings();});
+    brightnessItem = new GEMItem("Brightness", *sm.getBrightnessPercent(), [](){context->sm.applySettings();});
+    contrastItem = new GEMItem("Contrast", *sm.getContrast(), [](){context->sm.applySettings();});
+    backlightTimeoutItem = new GEMItem("Backlight Timeout (sec)", *sm.getBacklightTimeoutSec(), [](){context->sm.applySettings();});
+    powerOffTimeoutItem = new GEMItem("Power Off Timeout (min)", *sm.getPowerOffTimeoutMin(), [](){context->sm.applySettings();});
+    enablePowerMgmtItem = new GEMItem("Power Mgmt", *sm.getEnablePowerMgmt(), [](){context->sm.applySettings();});
+    unlockEmulationSpeedItem = new GEMItem("Unlock Speed", *sm.getUnlockSpeed(), [](){context->sm.applySettings();});
+    enableLoggingItem = new GEMItem("Enable Logging", *sm.getEnableLogging(), [](){context->sm.applySettings();});
     clearLogfileBtn = new GEMItem("Clear Logs", [](){});
     saveSettingsBtn = new GEMItem("Exit & Save", exitSettingsPageCallback, true);
     exitSettingsBtn = new GEMItem("Exit w/o Saving", exitSettingsPageCallback, false);
@@ -112,8 +113,8 @@ void Menu::init(bool showMenuFlag_) {
     ramSizePage->addMenuItem(*smallRAMBtn);
     ramSizePage->addMenuItem(*largeRAMBtn);
 
-    loadSettings();
     applySettings();
+    sm.registerApplySettingsCallback(applySettings);
 
     gem = new GEMProxy(*dp.getU8g2(), GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
     gem->registerDrawMenuCallback(drawBatteryCallback);
@@ -122,6 +123,16 @@ void Menu::init(bool showMenuFlag_) {
     if (!showMenuFlag)
         gem->setSplashDelay(0);
     gem->init();
+}
+
+void Menu::applySettings() {
+    bool enableLogging = *context->sm.getEnableLogging();
+    context->showLogfileBtn->hide(!enableLogging);
+    context->clearLogfileBtn->hide(!enableLogging);
+    if (!enableLogging) {
+        // !! clear logfile here
+    }
+    // !! enable log saving
 }
 
 void Menu::tick() {
@@ -182,105 +193,25 @@ void Menu::tick() {
     }
 }
 
-bool Menu::loadSettings() {
-    File file = LittleFS.open(CONFIG_FILENAME, "r");
-    if (!file) {
-        printf_log("Menu: loadSettings: Failed to open file %s for reading, loading defaults\n", CONFIG_FILENAME);
-        loadDefaultSettings();
-        return false;
-    }
-
-    brightness = file.read();
-    printf_log("Menu: loadSettings: brightness: %d\n", brightness);
-    contrast = file.read();
-    printf_log("Menu: loadSettings: contrast: %d\n", contrast);
-    backlightTimeoutSec = file.read();
-    printf_log("Menu: loadSettings: backlightTimeoutSec: %d\n", backlightTimeoutSec);
-    powerOffTimeoutMin = file.read();
-    printf_log("Menu: loadSettings: powerOffTimeoutMin: %d\n", powerOffTimeoutMin);
-    enablePowerMgmt = (bool) file.read();
-    printf_log("Menu: loadSettings: enablePowerMgmt: %d\n", enablePowerMgmt);
-    unlockSpeed = (bool) file.read();
-    printf_log("Menu: loadSettings: unlockSpeed: %d\n", unlockSpeed);
-    enableLogging = (bool) file.read();
-    printf_log("Menu: loadSettings: enableLogging: %d\n", enableLogging);
-
-    file.close();
-    return true;
-}
-
-void Menu::applySettings() {
-    brightness = brightness > 100 ? 100 : brightness;
-    pm.setBrightnessPercent(brightness);
-    printf_log("Menu: applySettings: Brightness set to %d\n", brightness);
-    dp.getU8g2()->setContrast(contrast);
-    printf_log("Menu: applySettings: Contrast set to %d\n", contrast);
-    pm.setBacklightTimeout(backlightTimeoutSec * 1000);
-    pm.feedBacklightTimeout();
-    printf_log("Menu: applySettings: Backlight timeout set to %lu ms\n", backlightTimeoutSec * 1000);
-    if (powerOffTimeoutMin < 1)
-        powerOffTimeoutMin = 1;
-    pm.setDeepSleepTimeout(powerOffTimeoutMin * 1000 * 60);
-    pm.feedDeepSleepTimeout();
-    printf_log("Menu: applySettings: Deep sleep timeout set to %lu ms\n", powerOffTimeoutMin * 1000 * 60);
-    emu.setEnablePowerMgmt(enablePowerMgmt);
-    emu.setUnlockSpeed(unlockSpeed);
-    showLogfileBtn->hide(!enableLogging);
-    clearLogfileBtn->hide(!enableLogging);
-    if (!enableLogging) {
-        // !! clear logfile here
-    }
-    // !! enable log saving
-}
-
-bool Menu::saveSettings() {
-    File file = LittleFS.open(CONFIG_FILENAME, "w");
-    if (!file) {
-        printf_log("Menu: saveSettings: Failed to open file %s for writing\n", CONFIG_FILENAME);
-        return false;
-    }
-
-    file.write(brightness);
-    file.write(contrast);
-    file.write(backlightTimeoutSec);
-    file.write(powerOffTimeoutMin);
-    file.write((uint8_t) enablePowerMgmt);
-    file.write((uint8_t) unlockSpeed);
-    file.write((uint8_t) enableLogging);
-    
-    file.close();
-    return true;
-}
-
-void Menu::loadDefaultSettings() {
-    brightness = FALLBACK_BRIGHTNESS;
-    contrast = FALLBACK_CONTRAST;
-    backlightTimeoutSec = FALLBACK_BACKLIGHT_TIMEOUT;
-    powerOffTimeoutMin = FALLBACK_DEEP_SLEEP_TIMEOUT;
-    enablePowerMgmt = FALLBACK_ENABLE_POWER_MGMT;
-    unlockSpeed = FALLBACK_UNLOCK_SPEED;
-    enableLogging = FALLBACK_ENABLE_LOGGING;
-}
-
 void Menu::settingsButtonCallback() {
     context->gem->setMenuPageCurrent(*context->settingsPage);
     context->gem->drawMenu();
 }
 
 void Menu::resetSettingsButtonCallback() {
-    context->loadDefaultSettings();
-    context->applySettings();
-    context->saveSettings();
+    context->sm.loadDefaults();
+    context->sm.applySettings();
+    context->sm.saveSettings();
     context->gem->drawMenu();
 }
 
 void Menu::exitSettingsPageCallback(bool doSave) {
     if (doSave) {
-        context->saveSettings();
+        context->sm.saveSettings();
     } else {
         // Then restore previous settings
-        context->loadSettings();
-        context->applySettings();
+        context->sm.loadSettings();
+        context->sm.applySettings();
     }
     // Go back to main menu
     context->enterMenu();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include "SettingsMgr.h"
 #include "KeyboardMgr.h"
 #include "DispInterface.h"
 #include "proc_nut.h"
@@ -19,6 +20,7 @@
 
 class NutEmuInterface {
     protected:
+        SettingsMgr &sm;
         KeyboardMgr &kbdMgr;  // Named differently to avoid collision with keyboardMgr in main.cpp
         DispInterface &disp;
         PowerMgr &pm;
@@ -45,8 +47,10 @@ class NutEmuInterface {
         // Executed every tick before sim_run(), overrides key detection, and keeps emulator from sleeping if not nullptr.
         void (*tickActionOverride)() = nullptr;
     public:
-        NutEmuInterface(KeyboardMgr &, DispInterface &, PowerMgr &);
+        NutEmuInterface(SettingsMgr &, KeyboardMgr &, DispInterface &, PowerMgr &);
         ~NutEmuInterface();
+        bool init();
+        static void applySettings();
         bool newProcessor(int, int, char *);
         bool newProcessorFromStatefile(int, char *);
         void tick();

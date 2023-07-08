@@ -1,11 +1,12 @@
 #pragma once
 
 #include <Arduino.h>
-#include "GEMProxy.h"
+#include "SettingsMgr.h"
 #include "KeyboardMgr.h"
 #include "PowerMgr.h"
 #include "NutEmuInterface.h"
 #include "DispInterface.h"
+#include "GEMProxy.h"
 #include "Configuration.h"
 
 #define FILE_LIST_LENGTH 64
@@ -15,6 +16,7 @@
 
 class Menu {
     protected:
+        SettingsMgr &sm;
         KeyboardMgr &kbdMgr;
         DispInterface &dp;
         PowerMgr &pm;
@@ -53,15 +55,7 @@ class Menu {
         GEMPage *ramSizePage = nullptr;
         GEMItem *smallRAMBtn = nullptr;
         GEMItem *largeRAMBtn = nullptr;
-
-        uint8_t brightness;
-        uint8_t contrast;
-        uint8_t backlightTimeoutSec;
-        uint8_t powerOffTimeoutMin;
-        bool enablePowerMgmt;
-        bool unlockSpeed;
-        bool enableLogging;
-
+        
         bool showingMenu = false;
         bool showMenuFlag;
 
@@ -73,15 +67,13 @@ class Menu {
         void dirGoUp(char *);
         char *generateMainPageTitle();
         void freeFileList();
+
     public:
-        Menu(KeyboardMgr &, DispInterface &, PowerMgr &, NutEmuInterface &);
+        Menu(SettingsMgr &, KeyboardMgr &, DispInterface &, PowerMgr &, NutEmuInterface &);
         ~Menu();
         void init(bool = true);
+        static void applySettings();
         void tick();
-        bool loadSettings();  // Load settings from file to menu
-        void applySettings();  // Apply settings in Menu to other classes
-        bool saveSettings();
-        void loadDefaultSettings();
         void enterMenu();
         void enterFileManager(char *);
         static void enterFileManager(GEMCallbackData);

@@ -1,16 +1,19 @@
 #pragma once
 
 #include <Arduino.h>
+#include "SettingsMgr.h"
 #include "KeyboardMgr.h"
 #include "DispInterface.h"
 #include <esp_adc_cal.h>
 #include <driver/ledc.h>
+#include "SettingsMgr.h"
 
 // Calculated by hand, not tested with timer initialized on frequency other than 240 MHz.
 #define convertTime(ms) ((uint16_t) round(( 61.0 / 15640.0 * getCpuFrequencyMhz() + 25.0 / 391.0) * 240.0 / frequency * ms))
 
 class PowerMgr {
     protected:
+        SettingsMgr &sm;
         KeyboardMgr &kbdMgr;
         DispInterface &dp;
         uint8_t wakeUpInterruptPin;
@@ -49,13 +52,15 @@ class PowerMgr {
         void (*batPercentChangedCallback)() = nullptr;
         SemaphoreHandle_t keyPressSignal = NULL;
         static PowerMgr *context;
+
     public:
-        PowerMgr(KeyboardMgr &, DispInterface &, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
+        PowerMgr(SettingsMgr &, KeyboardMgr &, DispInterface &, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
         ~PowerMgr();
 
         bool enterModemSleep();
         void enterDeepSleep() __attribute__ ((noreturn));
         bool wokenUpFromDeepSleep();
+        static void applySettings();
         void init();
         void tick();
 

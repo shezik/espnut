@@ -4,8 +4,9 @@
 
 NutEmuInterface *NutEmuInterface::context = nullptr;
 
-NutEmuInterface::NutEmuInterface(KeyboardMgr &kbdMgr_, DispInterface &disp_, PowerMgr &pm_)
-    : kbdMgr(kbdMgr_)
+NutEmuInterface::NutEmuInterface(SettingsMgr &sm_, KeyboardMgr &kbdMgr_, DispInterface &disp_, PowerMgr &pm_)
+    : sm(sm_)
+    , kbdMgr(kbdMgr_)
     , disp(disp_)
     , pm(pm_)
 {
@@ -84,6 +85,16 @@ void NutEmuInterface::sim_run() {
 
 
     lastRunTime = get_timer_ms();
+}
+
+bool NutEmuInterface::init() {
+    applySettings();
+    return sm.registerApplySettingsCallback(applySettings);
+}
+
+void NutEmuInterface::applySettings() {
+    context->setEnablePowerMgmt(*context->sm.getEnablePowerMgmt());
+    context->setUnlockSpeed(*context->sm.getUnlockSpeed());
 }
 
 bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filename) {

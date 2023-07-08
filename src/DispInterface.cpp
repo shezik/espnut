@@ -1,9 +1,45 @@
 #include "DispInterface.h"
 
-DispInterface::DispInterface(U8G2_DISPLAY_TYPE &u8g2_)
-    : u8g2(u8g2_)
+DispInterface *DispInterface::context = nullptr;
+
+DispInterface::DispInterface(SettingsMgr &sm_, U8G2_DISPLAY_TYPE &u8g2_)
+    : sm(sm_)
+    , u8g2(u8g2_)
 {
-    // Do nothing
+    context = this;
+}
+
+DispInterface::~DispInterface() {
+    context = nullptr;
+}
+
+static void remapSPIPins() {
+    // Reference: https://www.esp32.com/viewtopic.php?t=1929#p9108
+
+    // Connect the pin to the GPIO matrix.
+    PIN_FUNC_SELECT(GPIO_PIN_MUX_REG[SPI_DATA], PIN_FUNC_GPIO);
+    PIN_FUNC_SELECT(GPIO_PIN_MUX_REG[SPI_CLK], PIN_FUNC_GPIO);
+    // Set the direction. GPIO_MODE_INPUT always makes it an input, GPIO_MODE_OUTPUT always makes it an output, GPIO_MODE_INPUT_OUTPUT lets the peripheral decide what direction it has. You usually want the last one.
+    gpio_set_direction((gpio_num_t) SPI_DATA, GPIO_MODE_INPUT_OUTPUT);
+    gpio_set_direction((gpio_num_t) SPI_CLK, GPIO_MODE_INPUT_OUTPUT);
+    // Connect the output functionality of a peripheral to the pin you want. This allows a peripheral to set the direction of the pin (in case it's configured as GPIO_INPUT_OUTPUT) and set the output value.
+    gpio_matrix_out(SPI_DATA, FSPID_OUT_IDX, false, false);
+    gpio_matrix_out(SPI_CLK, FSPICLK_OUT_IDX, false, false);
+    // Connect the input functionality of a peripheral to the pin. This allows the peripheral to read the signal indicated from this pin.
+    gpio_matrix_in(SPI_DATA, FSPID_IN_IDX, false);
+    gpio_matrix_in(SPI_CLK, FSPICLK_IN_IDX, false);
+}
+
+bool DispInterface::init() {
+    remapSPIPins();
+    u8g2.setBusClock(U8G2_BUS_CLK);
+    bool result = u8g2.begin();
+    applySettings();
+    return sm.registerApplySettingsCallback(applySettings) && result;
+}
+
+void DispInterface::applySettings() {
+    context->getU8g2()->setContrast(*context->sm.getContrast());
 }
 
 void DispInterface::drawSegments(segment_bitmap_t *ds, bool lowBat) {
