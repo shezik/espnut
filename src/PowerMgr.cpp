@@ -17,6 +17,7 @@ PowerMgr::PowerMgr(KeyboardMgr &kbdMgr_, DispInterface &dp_, uint8_t wakeUpInter
     , batChrg(batChrg_)
 {
     context = this;
+    ledcChannelConf.gpio_num = displayBacklightPin_;
 }
 
 PowerMgr::~PowerMgr() {
@@ -74,7 +75,7 @@ void PowerMgr::init() {
         enableLDO(true);  // Hold LDO 3V3 output
     #endif
 
-    pinMode(displayBacklightPin, OUTPUT);
+    setFrequency(FALLBACK_CPU_FREQUENCY_MHZ);  // !! Only if we had a config manager...
     pinMode(batChrg, INPUT);
 
     pinMode(batLvlChk, ANALOG);
@@ -89,7 +90,10 @@ void PowerMgr::init() {
     adc1_config_width((adc_bits_width_t) ADC_WIDTH_BIT_DEFAULT);
     adc1_config_channel_atten(BAT_LVL_CHK_ADC_CHANNEL, ADC_ATTEN_11db);  // 0 mV ~ 3100 mV
 
-    setFrequency(FALLBACK_CPU_FREQUENCY_MHZ);  // !! Only if we had a config manager...
+    ledc_timer_config(&ledcTimerConf);
+    ledc_channel_config(&ledcChannelConf);
+    ledc_fade_func_install(0);
+
     setBacklightTimeout(FALLBACK_BACKLIGHT_TIMEOUT * 1000);  // Updated after Menu initialization
     feedBacklightTimeout();
     setDeepSleepTimeout(FALLBACK_DEEP_SLEEP_TIMEOUT * 1000 * 60);  // Updated after Menu initialization
@@ -131,7 +135,7 @@ void PowerMgr::tick() {
         }
     }
 
-    if (getBacklightPower() && (timeNow >= nextBacklightOff || !backlightTimeout))
+    if (timeNow >= nextBacklightOff || !backlightTimeout)
         setBacklightPower(false);
     
     if (deepSleepTimeout && timeNow >= nextDeepSleep)
@@ -144,13 +148,23 @@ void PowerMgr::enableLDO(bool state) {
     digitalWrite(LDOEnablePin, state ? HIGH : LOW);
 }
 
-bool PowerMgr::getBacklightPower() {
-    return digitalRead(displayBacklightPin);
-}
-
+#define convertTime(ms) ((uint16_t) round(( 61.0 / 15640.0 * getCpuFrequencyMhz() + 25.0 / 391.0) * 240.0 / frequency * ms))  // Calculated by hand, not tested with timer initialized on frequency other than 240 MHz.
 void PowerMgr::setBacklightPower(bool state) {
-    digitalWrite(displayBacklightPin, state ? HIGH : LOW);
+    // digitalWrite(displayBacklightPin, state ? HIGH : LOW);
+    static bool prevState = false;
+    if (state == prevState)
+        return;
+    prevState = state;
+
+    // Works the same as ledc_fade_stop() which is not available yet
+    ledc_fade_func_uninstall();
+    ledc_fade_func_install(0);
+
+    printf_log("PowerMgr: Freq: %d, orig. freq: %d; Fade time: 100 -> %d, 350 -> %d\n", getCpuFrequencyMhz(), frequency, convertTime(100), convertTime(350));
+    ledc_set_fade_with_time(ledcChannelConf.speed_mode, ledcChannelConf.channel, state ? (1 << (uint8_t) ledcTimerConf.duty_resolution - 1) : 0, state ? convertTime(100) : convertTime(350));
+    ledc_fade_start(ledcChannelConf.speed_mode, ledcChannelConf.channel, LEDC_FADE_NO_WAIT);
 }
+#undef convertTime
 
 uint16_t PowerMgr::getBacklightTimeout() {
     return backlightTimeout;
@@ -167,8 +181,8 @@ void PowerMgr::feedBacklightTimeout() {
     if (!backlightTimeout)
         return;
     
-    setBacklightPower(true);
     nextBacklightOff = get_timer_ms() + backlightTimeout;
+    setBacklightPower(true);
 }
 
 uint32_t PowerMgr::getDeepSleepTimeout() {
