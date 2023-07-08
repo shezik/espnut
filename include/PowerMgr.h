@@ -43,6 +43,7 @@ class PowerMgr {
             }
         };
         uint32_t frequency;
+        uint32_t ledDutyCycle;
         bool wokenUp = false;
         void (*deepSleepCallback)() = nullptr;
         void (*batPercentChangedCallback)() = nullptr;
@@ -60,7 +61,7 @@ class PowerMgr {
 
         void enableLDO(bool);
 
-        void setBacklightPower(bool);
+        void setBacklightPower(bool, bool = false);
 
         uint16_t getBacklightTimeout();
         void setBacklightTimeout(uint32_t);
@@ -77,6 +78,8 @@ class PowerMgr {
         bool reduceFrequency();
         bool restoreFrequency();
         bool isFrequencyReduced();
+
+        void setBrightnessPercent(uint8_t);
         
         void registerDeepSleepCallback(void (*)());
         void registerBatPercentChangedCallback(void (*)());

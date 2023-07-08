@@ -35,6 +35,7 @@ class Menu {
         GEMItem *powerOffBtn = nullptr;
         // Settings page
         GEMPage *settingsPage = nullptr;
+        GEMItem *brightnessItem = nullptr;
         GEMItem *contrastItem = nullptr;
         GEMItem *backlightTimeoutItem = nullptr;
         GEMItem *powerOffTimeoutItem = nullptr;
@@ -53,6 +54,7 @@ class Menu {
         GEMItem *smallRAMBtn = nullptr;
         GEMItem *largeRAMBtn = nullptr;
 
+        uint8_t brightness;
         uint8_t contrast;
         uint8_t backlightTimeoutSec;
         uint8_t powerOffTimeoutMin;

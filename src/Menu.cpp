@@ -37,6 +37,7 @@ Menu::~Menu() {
     delete settingsBtn; settingsBtn = nullptr;
     delete powerOffBtn; powerOffBtn = nullptr;
     delete settingsPage; settingsPage = nullptr;
+    delete brightnessItem; brightnessItem = nullptr;
     delete contrastItem; contrastItem = nullptr;
     delete backlightTimeoutItem; backlightTimeoutItem = nullptr;
     delete powerOffTimeoutItem; powerOffTimeoutItem = nullptr;
@@ -83,6 +84,7 @@ void Menu::init(bool showMenuFlag_) {
     mainPage->addMenuItem(*settingsBtn);
     mainPage->addMenuItem(*powerOffBtn);
     settingsPage = new GEMPage("Settings", [](){exitSettingsPageCallback(false);});
+    brightnessItem = new GEMItem("Brightness", brightness, [](){context->applySettings();});
     contrastItem = new GEMItem("Contrast", contrast, [](){context->applySettings();});
     backlightTimeoutItem = new GEMItem("Backlight Timeout (sec)", backlightTimeoutSec, [](){context->applySettings();});
     powerOffTimeoutItem = new GEMItem("Power Off Timeout (min)", powerOffTimeoutMin, [](){context->applySettings();});
@@ -93,6 +95,7 @@ void Menu::init(bool showMenuFlag_) {
     saveSettingsBtn = new GEMItem("Exit & Save", exitSettingsPageCallback, true);
     exitSettingsBtn = new GEMItem("Exit w/o Saving", exitSettingsPageCallback, false);
     resetSettingsBtn = new GEMItem("Reset All", resetSettingsButtonCallback);
+    settingsPage->addMenuItem(*brightnessItem);
     settingsPage->addMenuItem(*contrastItem);
     settingsPage->addMenuItem(*backlightTimeoutItem);
     settingsPage->addMenuItem(*powerOffTimeoutItem);
@@ -187,6 +190,8 @@ bool Menu::loadSettings() {
         return false;
     }
 
+    brightness = file.read();
+    printf_log("Menu: loadSettings: brightness: %d\n", brightness);
     contrast = file.read();
     printf_log("Menu: loadSettings: contrast: %d\n", contrast);
     backlightTimeoutSec = file.read();
@@ -205,6 +210,9 @@ bool Menu::loadSettings() {
 }
 
 void Menu::applySettings() {
+    brightness = brightness > 100 ? 100 : brightness;
+    pm.setBrightnessPercent(brightness);
+    printf_log("Menu: applySettings: Brightness set to %d\n", brightness);
     dp.getU8g2()->setContrast(contrast);
     printf_log("Menu: applySettings: Contrast set to %d\n", contrast);
     pm.setBacklightTimeout(backlightTimeoutSec * 1000);
@@ -232,6 +240,7 @@ bool Menu::saveSettings() {
         return false;
     }
 
+    file.write(brightness);
     file.write(contrast);
     file.write(backlightTimeoutSec);
     file.write(powerOffTimeoutMin);
@@ -244,6 +253,7 @@ bool Menu::saveSettings() {
 }
 
 void Menu::loadDefaultSettings() {
+    brightness = FALLBACK_BRIGHTNESS;
     contrast = FALLBACK_CONTRAST;
     backlightTimeoutSec = FALLBACK_BACKLIGHT_TIMEOUT;
     powerOffTimeoutMin = FALLBACK_DEEP_SLEEP_TIMEOUT;

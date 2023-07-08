@@ -98,6 +98,7 @@ void PowerMgr::init() {
     feedBacklightTimeout();
     setDeepSleepTimeout(FALLBACK_DEEP_SLEEP_TIMEOUT * 1000 * 60);  // Updated after Menu initialization
     feedDeepSleepTimeout();
+    setBrightnessPercent(FALLBACK_BRIGHTNESS);
 
     keyPressSignal = xSemaphoreCreateBinary();
     kbdMgr.registerKeyPressCallback(keyPressCallback);
@@ -148,10 +149,10 @@ void PowerMgr::enableLDO(bool state) {
     digitalWrite(LDOEnablePin, state ? HIGH : LOW);
 }
 
-void PowerMgr::setBacklightPower(bool state) {
+void PowerMgr::setBacklightPower(bool state, bool force) {
     // digitalWrite(displayBacklightPin, state ? HIGH : LOW);
     static bool prevState = false;
-    if (state == prevState)
+    if (!force && state == prevState)
         return;
     prevState = state;
 
@@ -160,7 +161,7 @@ void PowerMgr::setBacklightPower(bool state) {
     ledc_fade_func_install(0);
 
     printf_log("PowerMgr: Freq: %d, orig. freq: %d; Fade time: 100 -> %d, 350 -> %d\n", getCpuFrequencyMhz(), frequency, convertTime(100), convertTime(350));
-    ledc_set_fade_with_time(ledcChannelConf.speed_mode, ledcChannelConf.channel, state ? (1 << (uint8_t) ledcTimerConf.duty_resolution - 1) : 0, state ? convertTime(100) : convertTime(350));
+    ledc_set_fade_with_time(ledcChannelConf.speed_mode, ledcChannelConf.channel, state ? ledDutyCycle : 0, state ? convertTime(100) : convertTime(350));
     ledc_fade_start(ledcChannelConf.speed_mode, ledcChannelConf.channel, LEDC_FADE_NO_WAIT);
 }
 
@@ -254,6 +255,11 @@ bool PowerMgr::restoreFrequency() {
 
 bool PowerMgr::isFrequencyReduced() {
     return getCpuFrequencyMhz() < frequency;
+}
+
+void PowerMgr::setBrightnessPercent(uint8_t brightness_) {
+    ledDutyCycle = brightness_ / 100.0 * (1 << (uint8_t) ledcTimerConf.duty_resolution - 1);
+    setBacklightPower((bool) backlightTimeout, true);
 }
 
 void PowerMgr::registerDeepSleepCallback(void (*callback)()) {
