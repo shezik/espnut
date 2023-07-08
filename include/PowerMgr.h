@@ -23,9 +23,9 @@ class PowerMgr {
         uint8_t batChrg;
         esp_adc_cal_characteristics_t *adcCalCharacteristics = nullptr;
         uint32_t backlightTimeout;  // In ms
-        int64_t nextBacklightOff;   // In ms
+        int64_t nextBacklightOff = 0;   // In ms
         uint32_t deepSleepTimeout;  // In ms
-        int64_t nextDeepSleep;      // In ms
+        int64_t nextDeepSleep = 0;      // In ms
         ledc_timer_config_t ledcTimerConf = {
             .speed_mode = LEDC_LOW_SPEED_MODE,
             .duty_resolution = LEDC_TIMER_13_BIT,
