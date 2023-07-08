@@ -1,5 +1,6 @@
 #include "KeyboardMgr.h"
 #include "freertos/portmacro.h"
+#include "Configuration.h"
 
 KeyboardMgr::KeyboardMgr(uint8_t powerButtonPin_)
     : powerButtonPin(powerButtonPin_)

@@ -7,7 +7,6 @@
 #include "NutEmuInterface.h"
 #include "DispInterface.h"
 #include "GEMProxy.h"
-#include "Configuration.h"
 
 #define FILE_LIST_LENGTH 64
 #define MAIN_PAGE_TITLE_LENGTH 64

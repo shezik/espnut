@@ -1,6 +1,7 @@
 #include "MatrixKeyboard.h"
 #include "util.h"
 #include "Configuration.h"
+#include "freertos/task.h"
 
 static void writeRow(matrix_keyboard_handle_t *handle, uint8_t index) {
     for (uint8_t i = 0; i < handle->row_gpios_n; i++)

@@ -1,4 +1,5 @@
 #include "menu.h"
+#include "Configuration.h"
 
 #define peanut_width 24
 #define peanut_height 24

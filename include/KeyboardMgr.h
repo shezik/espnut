@@ -2,7 +2,6 @@
 
 #include <Arduino.h>
 #include "MatrixKeyboard.h"
-#include "Configuration.h"
 
 #define INVALID_KEYCODE 0xFFFF
 #define ValidateKeycode(keycode) (keycode != INVALID_KEYCODE && keycode != INVALID_KEYCODE >> 1)
