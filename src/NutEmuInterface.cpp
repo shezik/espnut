@@ -156,8 +156,10 @@ void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
 }
 
 void NutEmuInterface::tick() {
-    if (!nv || !emulatorRunFlag)
+    if (!nv || !emulatorRunFlag) {
+        // xSemaphoreGive(kbdMgr.getMutex());
         return;
+    }
 
     disp.setLowBatAnnunciatiorBlink((pm.getBatteryPercentage() <= 16) ? 500 : 0);
     disp.setLowBatAnnunciator(pm.getBatteryCharging());
@@ -174,7 +176,6 @@ void NutEmuInterface::tick() {
             else
                 keyReleased(GetKeycodeContent(keycode));
         }
-        
     }
     
     xSemaphoreGive(kbdMgr.getMutex());
