@@ -5,6 +5,8 @@
 #include "PowerMgr.h"
 #include "util.h"
 
+#define TAG "PowerMgr: "
+
 PowerMgr *PowerMgr::context = nullptr;  // classic
 
 PowerMgr::PowerMgr(SettingsMgr &sm_, KeyboardMgr &kbdMgr_, DispInterface &dp_, uint8_t wakeUpInterruptPin_, uint8_t LDOEnablePin_, uint8_t displayBacklightPin_, uint8_t batLvlChk_, uint8_t batChrg_)
@@ -89,11 +91,11 @@ void PowerMgr::init() {
     pinMode(batLvlChk, ANALOG);
     esp_err_t ret = esp_adc_cal_check_efuse(ESP_ADC_CAL_VAL_EFUSE_TP_FIT);
     if (ret == ESP_OK) {
-        printf_log("PowerMgr: Enabling ADC software calibration\n");
+        printf_log(TAG "Enabling ADC software calibration\n");
         adcCalCharacteristics = new esp_adc_cal_characteristics_t;
         esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_11db, (adc_bits_width_t) ADC_WIDTH_BIT_DEFAULT, 0, adcCalCharacteristics);
     } else {
-        printf_log("PowerMgr: ADC software calibration not supported, voltage readout may be inaccurate\n");
+        printf_log(TAG "ADC software calibration not supported, voltage readout may be inaccurate\n");
     }
     adc1_config_width((adc_bits_width_t) ADC_WIDTH_BIT_DEFAULT);
     adc1_config_channel_atten(BAT_LVL_CHK_ADC_CHANNEL, ADC_ATTEN_11db);  // 0 mV ~ 3100 mV
@@ -122,18 +124,18 @@ void PowerMgr::tick() {
     static uint8_t prevBatPercent = -1;  // Force update
     uint8_t batPercentNow;
 
-    // printf_log("PowerMgr: timeNow: %lld, nextBacklightOff: %lld, nextDeepSleep: %lld\n", timeNow, nextBacklightOff, nextDeepSleep);
+    // printf_log(TAG "timeNow: %lld, nextBacklightOff: %lld, nextDeepSleep: %lld\n", timeNow, nextBacklightOff, nextDeepSleep);
 
     if (timeNow >= nextBatteryCheck) {
         batPercentNow = getBatteryPercentage();
         nextBatteryCheck = timeNow + 1000;
         if (batPercentNow != prevBatPercent) {
             prevBatPercent = batPercentNow;
-            printf_log("PowerMgr: Battery status updated\n");
+            printf_log(TAG "Battery status updated\n");
             if (batPercentChangedCallback)
                 batPercentChangedCallback();
             if (!batPercentNow) {
-                printf_log("PowerMgr: Low battery, going to deep sleep\n");
+                printf_log(TAG "Low battery, going to deep sleep\n");
                 dp.sendLowBattery();
                 vTaskDelay(pdMS_TO_TICKS(LOW_BAT_SHUTDOWN_DELAY));
                 enterDeepSleep();
@@ -147,7 +149,7 @@ void PowerMgr::tick() {
     if (deepSleepTimeout && timeNow >= nextDeepSleep)
         enterDeepSleep();
 
-    // printf_log("PowerMgr: Charging: %d, Battery: %d%, Calibrated: %d\n", getBatteryCharging(), getBatteryPercentage(), (bool) adcCalCharacteristics);
+    // printf_log(TAG "Charging: %d, Battery: %d%, Calibrated: %d\n", getBatteryCharging(), getBatteryPercentage(), (bool) adcCalCharacteristics);
 }
 
 void PowerMgr::enableLDO(bool state) {
@@ -165,7 +167,7 @@ void PowerMgr::setBacklightPower(bool state, bool force) {
     ledc_fade_func_uninstall();
     ledc_fade_func_install(0);
 
-    printf_log("PowerMgr: Freq: %d, orig. freq: %d; Fade time: 100 -> %d, 350 -> %d\n", getCpuFrequencyMhz(), frequency, convertTime(100), convertTime(350));
+    printf_log(TAG "Freq: %d, orig. freq: %d; Fade time: 100 -> %d, 350 -> %d\n", getCpuFrequencyMhz(), frequency, convertTime(100), convertTime(350));
     ledc_set_fade_with_time(ledcChannelConf.speed_mode, ledcChannelConf.channel, state ? ledDutyCycle : 0, state ? convertTime(100) : convertTime(350));
     ledc_fade_start(ledcChannelConf.speed_mode, ledcChannelConf.channel, LEDC_FADE_NO_WAIT);
 }
@@ -196,7 +198,7 @@ uint32_t PowerMgr::getDeepSleepTimeout() {
 void PowerMgr::setDeepSleepTimeout(uint32_t ms) {
     nextDeepSleep += (ms - deepSleepTimeout);
     deepSleepTimeout = ms;
-    // printf_log("PowerMgr: nextDeepSleep set to %lld, deepSleepTimeout set to %lu\n", nextDeepSleep, deepSleepTimeout);
+    // printf_log(TAG "nextDeepSleep set to %lld, deepSleepTimeout set to %lu\n", nextDeepSleep, deepSleepTimeout);
 }
 
 void PowerMgr::feedDeepSleepTimeout() {

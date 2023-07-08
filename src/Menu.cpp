@@ -10,6 +10,8 @@ static unsigned char peanut_bits[] = {
    0x00, 0x02, 0x80, 0x00, 0x02, 0x82, 0x00, 0x04, 0x80, 0x00, 0x08, 0x80,
    0x00, 0x30, 0x40, 0x00, 0xc0, 0x31, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00 };
 
+#define TAG "Menu: "
+
 Menu *Menu::context = nullptr;
 
 Menu::Menu(SettingsMgr &sm_, KeyboardMgr &kbdMgr_, DispInterface &dp_, PowerMgr &pm_, NutEmuInterface &emu_)
@@ -144,7 +146,7 @@ void Menu::tick() {
     if (showingMenu) {
         if (gem->readyForKey() && kbdMgr.keysAvailable()) {
             uint16_t keycode = GetKeycodeContent(kbdMgr.getPositiveKeycode());  // Key release is of no use here
-            printf_log("Menu: Keycode: %d\n", keycode);
+            printf_log(TAG "Keycode: %d\n", keycode);
             switch (keycode) {
                 case 116:  // 2
                     gem->registerKeyPress(GEM_KEY_UP);
@@ -172,7 +174,7 @@ void Menu::tick() {
         // -------- BEGINNING OF CRITICAL SECTION --------
         xSemaphoreTake(kbdMgr.getMutex(), portMAX_DELAY);
         if (kbdMgr.keysAvailable() == 1 && kbdMgr.peekLastKeycode() == MakeKeycodeFromCode(true, 24 /*ON*/)) {
-            printf_log("Menu: ON key detected in background\n");
+            printf_log(TAG "ON key detected in background\n");
             uint16_t tempKeycode;
             uint16_t onKeycode = MakeKeycodeFromCode(true, 24 /*ON*/);
             QueueHandle_t queue = kbdMgr.getKeyQueue();
@@ -222,7 +224,7 @@ void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
 }
 
 void Menu::enterMenu() {
-    printf_log("Menu: Executing enterMenu\n");
+    printf_log(TAG "Executing enterMenu\n");
     showingMenu = true;
     emu.pause();
     kbdMgr.clear();
