@@ -80,6 +80,7 @@ bool SettingsMgr::saveSettings() {
 
 void SettingsMgr::applySettings() {
     brightness = brightness > 100 ? 100 : brightness;
+    contrast = contrast < 4 ? 4 : contrast;
     powerOffTimeoutMin = powerOffTimeoutMin < 1 ? 1 : powerOffTimeoutMin;
     for (listIterator = applySettingsCallbackList.begin(); listIterator != applySettingsCallbackList.end(); listIterator++) {
         (*listIterator)();
