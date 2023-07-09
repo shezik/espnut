@@ -133,7 +133,7 @@ void PowerMgr::tick() {
         nextBatteryCheck = timeNow + 1000;
         if (batPercentNow != prevBatPercent) {
             prevBatPercent = batPercentNow;
-            printf_log(TAG "Battery status updated\n");
+            printf_log(TAG "Battery status updated: %d\n", batPercentNow);
             if (batPercentChangedCallback)
                 batPercentChangedCallback();
             if (!batPercentNow) {

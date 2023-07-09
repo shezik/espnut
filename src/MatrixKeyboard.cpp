@@ -44,7 +44,7 @@ static void getKeycode(matrix_keyboard_handle_t *handle) {
         if (!colDiff)
             continue;
         handle->last_col_state[col] = colData;
-        for (/*omitted*/; colDiff; colDiff &= colDiff - 1) {
+        for (/* omitted */; colDiff; colDiff &= colDiff - 1) {
             uint8_t row = __builtin_ffs(colDiff) - 1;
             uint16_t keycode = MakeKeycode(colData & (1 << row), row, col);
             if (handle->key_event)
