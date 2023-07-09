@@ -21,7 +21,7 @@
 
 //
 // changes for mac os x by Maciej Bartosiak
-// changes for esp32 by shezik
+// changes for espnut by shezik
 //
 
 #pragma once

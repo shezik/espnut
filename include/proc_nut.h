@@ -21,8 +21,8 @@
 
 //
 // changes for mac os x by Maciej Bartosiak
+// changes for espnut by shezik
 //
-
 
 #pragma once
 
