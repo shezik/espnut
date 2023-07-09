@@ -388,7 +388,13 @@ void Menu::deleteSelectedFileCallback(char *path) {
         return;
     }
 
-    LittleFS.remove(path);
+    if (strlen(path) >= 4) {
+        char *extension = path + strlen(path) - 4;
+        if (strcasecmp(extension, ".obj"))
+            LittleFS.remove(path);
+        else
+            printf_log(TAG "Blocked request to delete OBJ file: %s\n", path);
+    }
     context->dirGoUp(path);  // Should be safe
     context->enterFileManager(path);
 }
