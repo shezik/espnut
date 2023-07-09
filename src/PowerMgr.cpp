@@ -174,7 +174,7 @@ void PowerMgr::setBacklightPower(bool state, bool force) {
     ledc_fade_start(ledcChannelConf.speed_mode, ledcChannelConf.channel, LEDC_FADE_NO_WAIT);
 }
 
-uint16_t PowerMgr::getBacklightTimeout() {
+uint32_t PowerMgr::getBacklightTimeout() {
     return backlightTimeout;
 }
 

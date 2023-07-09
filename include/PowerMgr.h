@@ -68,7 +68,7 @@ class PowerMgr {
 
         void setBacklightPower(bool, bool = false);
 
-        uint16_t getBacklightTimeout();
+        uint32_t getBacklightTimeout();
         void setBacklightTimeout(uint32_t);
         void feedBacklightTimeout();
 
