@@ -42,6 +42,9 @@
 
 // Menu
 #define ITEMS_PER_PAGE 2
+#define ITEM_HEIGHT 10
+#define PAGE_TOP_OFFSET 10
+#define VALUES_LEFT_OFFSET (/* Default value */ 86 + /* distance between rightmost uint8_t editing cursor and scroll bar */ 23 - /* minimum value of that */ 5)
 #define CONFIG_FILENAME "/.CONFIG"
 #define FALLBACK_BRIGHTNESS 100
 #define FALLBACK_CONTRAST 80  // 0~255

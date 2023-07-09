@@ -88,13 +88,13 @@ void Menu::init(bool showMenuFlag_) {
     mainPage->addMenuItem(*settingsBtn);
     mainPage->addMenuItem(*powerOffBtn);
     settingsPage = new GEMPage("Settings", [](){exitSettingsPageCallback(false);});
-    brightnessItem = new GEMItem("Brightness", *sm.getBrightnessPercent(), [](){context->sm.applySettings();});
+    brightnessItem = new GEMItem("Brightness %", *sm.getBrightnessPercent(), [](){context->sm.applySettings();});
     contrastItem = new GEMItem("Contrast", *sm.getContrast(), [](){context->sm.applySettings();});
-    backlightTimeoutItem = new GEMItem("Backlight Timeout (sec)", *sm.getBacklightTimeoutSec(), [](){context->sm.applySettings();});
-    powerOffTimeoutItem = new GEMItem("Power Off Timeout (min)", *sm.getPowerOffTimeoutMin(), [](){context->sm.applySettings();});
+    backlightTimeoutItem = new GEMItem("Backlight (Sec)", *sm.getBacklightTimeoutSec(), [](){context->sm.applySettings();});
+    powerOffTimeoutItem = new GEMItem("Power Off (Min)", *sm.getPowerOffTimeoutMin(), [](){context->sm.applySettings();});
     enablePowerMgmtItem = new GEMItem("Power Mgmt", *sm.getEnablePowerMgmt(), [](){context->sm.applySettings();});
     unlockEmulationSpeedItem = new GEMItem("Unlock Speed", *sm.getUnlockSpeed(), [](){context->sm.applySettings();});
-    enableLoggingItem = new GEMItem("Enable Logging", *sm.getEnableLogging(), [](){context->sm.applySettings();});
+    enableLoggingItem = new GEMItem("Logging", *sm.getEnableLogging(), [](){context->sm.applySettings();});
     clearLogfileBtn = new GEMItem("Clear Logs", [](){});
     saveSettingsBtn = new GEMItem("Exit & Save", exitSettingsPageCallback, true);
     exitSettingsBtn = new GEMItem("Exit w/o Saving", exitSettingsPageCallback, false);
@@ -119,7 +119,7 @@ void Menu::init(bool showMenuFlag_) {
     applySettings();
     sm.registerApplySettingsCallback(applySettings);
 
-    gem = new GEMProxy(*dp.getU8g2(), GEM_POINTER_ROW, ITEMS_PER_PAGE /*!! More config here*/);
+    gem = new GEMProxy(*dp.getU8g2(), GEM_POINTER_ROW, ITEMS_PER_PAGE, ITEM_HEIGHT, PAGE_TOP_OFFSET, VALUES_LEFT_OFFSET);
     gem->registerDrawMenuCallback(drawBatteryCallback);
     pm.registerBatPercentChangedCallback([](){context->drawBatteryCallback(); context->dp.getU8g2()->sendBuffer();});
     gem->setSplash(peanut_width, peanut_height, peanut_bits);
