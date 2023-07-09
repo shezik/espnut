@@ -168,7 +168,8 @@ void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
 
 void NutEmuInterface::tick() {
     if (!nv || !emulatorRunFlag) {
-        // xSemaphoreGive(kbdMgr.getMutex());
+        if (emulatorRunFlag)
+            xSemaphoreGive(kbdMgr.getMutex());
         return;
     }
 

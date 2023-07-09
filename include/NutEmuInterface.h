@@ -31,7 +31,7 @@ class NutEmuInterface {
         int ramSize = 0;
         static NutEmuInterface *context;
         char romFilename[ROM_FILENAME_LENGTH] = {0};
-        bool emulatorRunFlag = true;
+        bool emulatorRunFlag = false;
         bool enablePowerMgmt = true;
         bool unlockSpeed = false;
 

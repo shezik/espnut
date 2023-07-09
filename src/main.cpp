@@ -42,6 +42,8 @@ void setup() {
 
     bool isRestoreFlagPresent = nutEmuInterface.checkRestoreFlag();
     printf("Restore flag presence: %d\n", isRestoreFlagPresent);
+    if (isRestoreFlagPresent)
+        nutEmuInterface.resume();
     menu.init(!isRestoreFlagPresent);  // Load user settings into classes, skip showing main menu if restore file is successfully loaded
 }
 
