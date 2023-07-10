@@ -254,7 +254,7 @@ void Menu::aboutButtonCallback() {
     const uint8_t copyrightInfo[] = "\fespnut (c) 2023 shezik, licensed under GPLv2\n"
                                     "\fNonpareil (c) 1995, 2003, 2004, 2005 Eric L. Smith, licensed under GPLv2, a MODIFIED version is used\n"
                                     "\farduino-esp32 (c) 2015-2016 Espressif Systems (Shanghai) PTE LTD, licensed under Apache License v2\n"
-                                    "\fGEM (c) 2018-2022 Alexander 'Spirik' Spiridonov, licensed under LGPLv2.1, a MODIFIED version is used\n"
+                                    "\fGEM (c) 2018-2022 Alexander 'Spirik' Spiridonov, licensed under LGPLv3, a MODIFIED version is used\n"
                                     "\fU8g2 (c) 2021 olikraus@gmail.com, licensed under the 2-clause BSD license\n"
                                     "\fu8g2_font_6x12_tr from the X11 distribution\n"
                                     "\fu8g2_font_tom_thumb_4x6_mr (c) 1999 Brian J. Swetland, licensed under CC-BY 3.0\n"
