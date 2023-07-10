@@ -21,6 +21,8 @@
 
 #include "menu.h"
 #include "Configuration.h"
+#include <string>
+#include <sstream>
 
 #define peanut_width 24
 #define peanut_height 24
@@ -60,6 +62,7 @@ Menu::~Menu() {
     delete deleteFileBtn; deleteFileBtn = nullptr;
     delete showLogfileBtn; showLogfileBtn = nullptr;
     delete settingsBtn; settingsBtn = nullptr;
+    delete aboutBtn; aboutBtn = nullptr;
     delete powerOffBtn; powerOffBtn = nullptr;
     delete settingsPage; settingsPage = nullptr;
     delete brightnessItem; brightnessItem = nullptr;
@@ -97,6 +100,7 @@ void Menu::init(bool showMenuFlag_) {
     deleteFileBtn = new GEMItem("Delete file", [](){context->fileSelectedCallback = deleteSelectedFileCallback; context->enterFileManager("/");});
     showLogfileBtn = new GEMItem("Logs", [](){});
     settingsBtn = new GEMItem("Settings", settingsButtonCallback);
+    aboutBtn = new GEMItem("About", aboutButtonCallback);
     powerOffBtn = new GEMItem("Power Off", [](){context->pm.enterDeepSleep();});
     mainPage->addMenuItem(*resumeBtn);
     mainPage->addMenuItem(*saveStateBtn);
@@ -107,6 +111,7 @@ void Menu::init(bool showMenuFlag_) {
     mainPage->addMenuItem(*deleteFileBtn);
     mainPage->addMenuItem(*showLogfileBtn);
     mainPage->addMenuItem(*settingsBtn);
+    mainPage->addMenuItem(*aboutBtn);
     mainPage->addMenuItem(*powerOffBtn);
     settingsPage = new GEMPage("Settings", [](){exitSettingsPageCallback(false);});
     brightnessItem = new GEMItem("Brightness %", *sm.getBrightnessPercent(), [](){context->sm.applySettings();});
@@ -243,6 +248,40 @@ void Menu::exitSettingsPageCallback(bool doSave) {
 
 void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
     exitSettingsPageCallback(callbackData.valBool);
+}
+
+void Menu::aboutButtonCallback() {
+    const uint8_t copyrightInfo[] = "\fespnut (c) 2023 shezik, licensed under GPLv2\n"
+                                    "\fNonpareil (c) 1995, 2003, 2004, 2005 Eric L. Smith, licensed under GPLv2, a MODIFIED version is used\n"
+                                    "\farduino-esp32 (c) 2015-2016 Espressif Systems (Shanghai) PTE LTD, licensed under Apache License v2\n"
+                                    "\fGEM (c) 2018-2022 Alexander 'Spirik' Spiridonov, licensed under LGPLv2.1, a MODIFIED version is used\n"
+                                    "\fU8g2 (c) 2021 olikraus@gmail.com, licensed under the 2-clause BSD license\n"
+                                    "\fu8g2_font_6x12_tr from the X11 distribution\n"
+                                    "\fu8g2_font_tom_thumb_4x6_mr (c) 1999 Brian J. Swetland, licensed under CC-BY 3.0\n"
+                                    "\fVisit https://github.com/shezik/espnut for further info\n";
+
+    const uint8_t fontWidth = 4, fontHeight = 6;
+    uint8_t width = context->dp.getU8g2()->getDisplayWidth() / fontWidth,  height = context->dp.getU8g2()->getDisplayHeight() / fontHeight - 1 /* !! Accommodate for the weird spacing on top of the terminal window */;
+    uint8_t *buf = new uint8_t[width * height];
+    U8G2LOG *u8g2log = new U8G2LOG;
+    context->dp.getU8g2()->setDrawColor(1);
+    context->dp.getU8g2()->setFont(u8g2_font_tom_thumb_4x6_mr);
+    u8g2log->begin(*context->dp.getU8g2(), width, height, buf);
+    u8g2log->setRedrawMode(0);
+
+    std::stringstream ss((char *) copyrightInfo);
+    std::string line;
+    while (std::getline(ss, line, '\n')) {
+        line += '\n';
+        u8g2log->print(line.c_str());
+        printf_log("%s", line.c_str());
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
+    delete u8g2log; u8g2log = nullptr;
+    delete buf; buf = nullptr;
+    context->gem->drawMenu();
 }
 
 void Menu::enterMenu() {

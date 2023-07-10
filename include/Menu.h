@@ -54,6 +54,7 @@ class Menu {
         GEMItem *deleteFileBtn = nullptr;
         GEMItem *showLogfileBtn = nullptr;  // HIDE
         GEMItem *settingsBtn = nullptr;
+        GEMItem *aboutBtn = nullptr;
         GEMItem *powerOffBtn = nullptr;
         // Settings page
         GEMPage *settingsPage = nullptr;
@@ -103,6 +104,7 @@ class Menu {
         static void resetSettingsButtonCallback();
         static void exitSettingsPageCallback(bool);
         static void exitSettingsPageCallback(GEMCallbackData);
+        static void aboutButtonCallback();
         static void loadStateFileSelectedCallback(char *);
         static void loadROMFileSelectedCallback(char *);
         static void deleteSelectedFileCallback(char *);
