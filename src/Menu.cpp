@@ -128,8 +128,8 @@ void Menu::init(bool showMenuFlag_) {
     unlockEmulationSpeedItem = new GEMItem("Unlock Speed", *sm.getUnlockSpeed(), [](){context->sm.applySettings();});
     enableLoggingItem = new GEMItem("Logging", *sm.getEnableLogging(), [](){context->sm.applySettings();});
     clearLogfileBtn = new GEMItem("Clear Logs", [](){});
-    saveSettingsBtn = new GEMItem("Exit & Save", exitSettingsPageCallback, true);
-    exitSettingsBtn = new GEMItem("Exit w/o Saving", exitSettingsPageCallback, false);
+    saveSettingsBtn = new GEMItem("Exit & Save", [](GEMCallbackData data){context->exitSettingsPageCallback(data.valBool);}, true);
+    exitSettingsBtn = new GEMItem("Exit w/o Saving", [](GEMCallbackData data){context->exitSettingsPageCallback(data.valBool);}, false);
     resetSettingsBtn = new GEMItem("Reset All", resetSettingsButtonCallback);
     settingsPage->addMenuItem(*brightnessItem);
     settingsPage->addMenuItem(*contrastItem);
@@ -143,8 +143,8 @@ void Menu::init(bool showMenuFlag_) {
     settingsPage->addMenuItem(*exitSettingsBtn);
     settingsPage->addMenuItem(*resetSettingsBtn);
     ramSizePage = new GEMPage("Pick RAM size (80 only for 15C)", [](){context->loadROMRAMSelectedCallback(0);});
-    smallRAMBtn = new GEMItem("40", loadROMRAMSelectedCallback, 40);
-    largeRAMBtn = new GEMItem("80", loadROMRAMSelectedCallback, 80);
+    smallRAMBtn = new GEMItem("40", [](GEMCallbackData data){context->loadROMRAMSelectedCallback(data.valInt);}, 40);
+    largeRAMBtn = new GEMItem("80", [](GEMCallbackData data){context->loadROMRAMSelectedCallback(data.valInt);}, 80);
     ramSizePage->addMenuItem(*smallRAMBtn);
     ramSizePage->addMenuItem(*largeRAMBtn);
     editFilenamePage = new GEMPage("Edit filename", [](){context->editFilenameConfirmedCallback(false);});
@@ -262,10 +262,6 @@ void Menu::exitSettingsPageCallback(bool doSave) {
     context->enterMenu();
 }
 
-void Menu::exitSettingsPageCallback(GEMCallbackData callbackData) {
-    exitSettingsPageCallback(callbackData.valBool);
-}
-
 void Menu::aboutButtonCallback() {
     const uint8_t copyrightInfo[] = "\fespnut (c) 2023 shezik, licensed under GPLv2\n"
                                     "\fNonpareil (c) 1995, 2003, 2004, 2005 Eric L. Smith, licensed under GPLv2, a MODIFIED version is used\n"
@@ -380,7 +376,7 @@ void Menu::enterFileManager(char *path) {
         strncpy(upDirBuf, path, sizeof(upDirBuf) - 1);
         upDirBuf[sizeof(upDirBuf)] = '\0';
         dirGoUp(upDirBuf);
-        fileList[FILE_LIST_LENGTH] = new GEMItem("..", enterFileManager, upDirBuf);  // fileList is 'FILE_LIST_LENGTH + 1' long, only this line and freeFileList() should be able to access this last index.
+        fileList[FILE_LIST_LENGTH] = new GEMItem("..", [](GEMCallbackData data){context->enterFileManager((char *) data.valPointer);}, upDirBuf);  // fileList is 'FILE_LIST_LENGTH + 1' long, only this line and freeFileList() should be able to access this last index.
         fileManagerPage->addMenuItem(*fileList[FILE_LIST_LENGTH]);
     }
 
@@ -395,7 +391,7 @@ void Menu::enterFileManager(char *path) {
         strncpy(filePathBuf[itemCount], path.c_str(), sizeof(filePathBuf[itemCount]) - 1);
         filePathBuf[itemCount][sizeof(filePathBuf[itemCount])] = '\0';
 
-        fileList[itemCount] = new GEMItem(filenameBuf[itemCount], enterFileManager, filePathBuf[itemCount]);
+        fileList[itemCount] = new GEMItem(filenameBuf[itemCount], [](GEMCallbackData data){context->enterFileManager((char *) data.valPointer);}, filePathBuf[itemCount]);
         fileManagerPage->addMenuItem(*fileList[itemCount]);
         
         itemCount++;
@@ -404,10 +400,6 @@ void Menu::enterFileManager(char *path) {
     dir.close();
     gem->setMenuPageCurrent(*fileManagerPage);
     gem->drawMenu();
-}
-
-void Menu::enterFileManager(GEMCallbackData callbackData) {
-    context->enterFileManager((char *) callbackData.valPointer);
 }
 
 void Menu::dirGoUp(char *path) {  // First character must be '/'
@@ -484,10 +476,6 @@ void Menu::loadROMRAMSelectedCallback(int romSize) {
         dirGoUp(selectedROMPath);  // This actually modifies filePathBuf in enterFileManager, but I don't think it matters.
         enterFileManager(selectedROMPath);
     }
-}
-
-void Menu::loadROMRAMSelectedCallback(GEMCallbackData callbackData) {
-    context->loadROMRAMSelectedCallback(callbackData.valInt);
 }
 
 void Menu::saveStateButtonCallback() {
