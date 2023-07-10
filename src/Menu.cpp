@@ -319,7 +319,6 @@ void Menu::enterMenu() {
     resetCPUBtn->hide(!isProcessorPresent);
     obdurateResetCPUBtn->hide(!isProcessorPresent);
     mainPage->setTitle(generateMainPageTitle());
-    context->saveStateBtn->setReadonly(false);
 
     // gem->reInit();
     // u8g2.setContrast(contrast);  // GEM_uìg2::reInit causes U8g2 to reset contrast
@@ -512,10 +511,6 @@ void Menu::stateFileRenamedCallback(bool confirmed) {
         emu.saveState(stateFilename);
     }
     enterMenu();
-    if (confirmed) {
-        saveStateBtn->setReadonly(true);
-        gem->drawMenu();
-    }
 }
 
 void Menu::deleteSelectedFileCallback(bool confirmed) {
