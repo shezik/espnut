@@ -13,9 +13,12 @@ bugs are being eliminated!
 
 ### Todo
 - Logging and accessing logfile
-- Customizing state save filename
 - Read comments marked with '!!'
 - Add ESP32 cpu frequency options to Menu
+- nutemu stores rom file path in romFilename which is not long enough (32 bytes). The ambiguity of this variable name is causing issues.
+- saving state files into a separate directory
+- deleting empty directories
+- resetting item cursor
 
 ### Coming soon
 - PCB & BOM
