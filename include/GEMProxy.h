@@ -23,7 +23,7 @@
 
 #include "GEM_u8g2.h"
 
-// Modifications on GEM_u8g2.h of spirik/GEM@^1.4.0:
+// Modifications to GEM_u8g2.h in spirik/GEM@^1.4.0:
 // Line 134: virtual void drawMenu();
 // Line 141: protected:
 class GEMProxy : public GEM_u8g2 {
@@ -49,6 +49,13 @@ class GEMProxy : public GEM_u8g2 {
                 drawMenuCallback();
 
             _u8g2.sendBuffer();
+        }
+
+        void setMenuValuesLeftOffset(uint8_t offset) {
+            _menuValuesLeftOffset = offset;
+            // Line 169 - 170, GEM_u8g2.cpp in spirik/GEM@^1.4.0
+            _menuItemTitleLength = (_menuValuesLeftOffset - 5) / _menuItemFont[_menuItemFontSize].width;
+            _menuItemValueLength = (_u8g2.getDisplayWidth() - _menuValuesLeftOffset - 6) / _menuItemFont[_menuItemFontSize].width;
         }
 
     private:
