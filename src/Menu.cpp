@@ -510,9 +510,12 @@ void Menu::stateFileRenamedCallback(bool confirmed) {
     if (confirmed) {
         snprintf(stateFilename, sizeof(stateFilename), "/%s_%s", emu.getRomFilename(), editFilenameBuffer);
         emu.saveState(stateFilename);
-        saveStateBtn->setReadonly(true);
     }
     enterMenu();
+    if (confirmed) {
+        saveStateBtn->setReadonly(true);
+        gem->drawMenu();
+    }
 }
 
 void Menu::deleteSelectedFileCallback(bool confirmed) {
