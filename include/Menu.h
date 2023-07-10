@@ -76,12 +76,19 @@ class Menu {
         GEMPage *ramSizePage = nullptr;
         GEMItem *smallRAMBtn = nullptr;
         GEMItem *largeRAMBtn = nullptr;
+        // Filename editor
+        GEMPage *editFilenamePage = nullptr;
+        GEMItem *nameFieldItem = nullptr;
+        GEMItem *acceptNameBtn = nullptr;
         
         bool showingMenu = false;
         bool showMenuFlag;
 
         void (*fileSelectedCallback)(char *) = nullptr;
         char *selectedROMPath;  // Used after selecting ROM file and before selecting RAM size.
+
+        void (*editFilenameConfirmedCallback)(bool) = nullptr;
+        char editFilenameBuffer[GEM_STR_LEN] = {0};
 
         static Menu *context;
 
@@ -110,7 +117,9 @@ class Menu {
         static void deleteSelectedFileCallback(char *);
         void loadROMRAMSelectedCallback(int);
         static void loadROMRAMSelectedCallback(GEMCallbackData);
-        static void saveStateButtonCallback();
         // static void fileSelectedCallback();
+        void saveStateButtonCallback();
+        void editFilenameCallback();
+        void stateFileRenamedCallback(bool);
         static void drawBatteryCallback();
 };

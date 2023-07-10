@@ -81,6 +81,9 @@ Menu::~Menu() {
     delete ramSizePage; ramSizePage = nullptr;
     delete smallRAMBtn; smallRAMBtn = nullptr;
     delete largeRAMBtn; largeRAMBtn = nullptr;
+    delete editFilenamePage; editFilenamePage = nullptr;
+    delete nameFieldItem; nameFieldItem = nullptr;
+    delete acceptNameBtn; acceptNameBtn = nullptr;
     pm.registerBatPercentChangedCallback(nullptr);
 }
 
@@ -92,7 +95,7 @@ void Menu::init(bool showMenuFlag_) {
     // It's quite interesting that static class methods can access protected members via the (class member) pointer 'context'.
     mainPage = new GEMPage(generateMainPageTitle(), [](){if (context->emu.isProcessorPresent()) context->exitMenu();});
     resumeBtn = new GEMItem("Resume", exitMenu);
-    saveStateBtn = new GEMItem("Save State", saveStateButtonCallback);  // These are placeholders.
+    saveStateBtn = new GEMItem("Save State", [](){context->saveStateButtonCallback();});
     loadStateBtn = new GEMItem("Load State", [](){context->fileSelectedCallback = loadStateFileSelectedCallback; context->enterFileManager("/");});
     resetCPUBtn = new GEMItem("Reset CPU", [](){context->emu.resetProcessor();});
     obdurateResetCPUBtn = new GEMItem("Reset CPU & Memory", [](){context->emu.resetProcessor(true);});
@@ -141,6 +144,16 @@ void Menu::init(bool showMenuFlag_) {
     largeRAMBtn = new GEMItem("80", loadROMRAMSelectedCallback, 80);
     ramSizePage->addMenuItem(*smallRAMBtn);
     ramSizePage->addMenuItem(*largeRAMBtn);
+    editFilenamePage = new GEMPage("Edit filename", [](){context->editFilenameConfirmedCallback(false);});
+    nameFieldItem = new GEMItem("", editFilenameBuffer);  // !! Can there be nothing?
+    acceptNameBtn = new GEMItem("Accept", [](){context->editFilenameConfirmedCallback(true);});
+    editFilenamePage->addMenuItem(*nameFieldItem);
+    editFilenamePage->addMenuItem(*acceptNameBtn);
+    confirmDeletePage = new GEMPage("", [](){;});  // !! setTitle later
+    cancelDeletionBtn = new GEMItem("Cancel", [](){;});
+    acceptDeletionBtn = new GEMItem("Accept", [](){;});
+    confirmDeletePage->addMenuItem(*cancelDeletionBtn);
+    confirmDeletePage->addMenuItem(*acceptDeletionBtn);
 
     applySettings();
     sm.registerApplySettingsCallback(applySettings);
@@ -301,6 +314,7 @@ void Menu::enterMenu() {
 
     // gem->reInit();
     // u8g2.setContrast(contrast);  // GEM_uìg2::reInit causes U8g2 to reset contrast
+    gem->setMenuValuesLeftOffset(VALUES_LEFT_OFFSET);
     gem->setMenuPageCurrent(*mainPage);
     gem->drawMenu();
 }
@@ -474,15 +488,30 @@ void Menu::loadROMRAMSelectedCallback(GEMCallbackData callbackData) {
 }
 
 void Menu::saveStateButtonCallback() {
-    char stateFilename[32];
     char randHex[9];  // uint32_t in hex, maximum FFFF FFFF
     char uptime[17];  // int64_t converted to uint64_t in hex, maximum 16 Fs
-    snprintf(randHex, sizeof(randHex), "%08x", esp_random());  // Unfortunately RF subsystem is disabled, this generates pseudo-random numbers
+    snprintf(randHex, sizeof(randHex), "%08x", esp_random());  // Unfortunately the RF subsystem is disabled, this generates pseudo-random numbers
     snprintf(uptime, sizeof(uptime), "%016lx", get_timer_ms());
-    snprintf(stateFilename, sizeof(stateFilename), "/%s_%4.4s%s", context->emu.getRomFilename(), randHex, uptime + 12);
-    context->emu.saveState(stateFilename);
-    context->saveStateBtn->setReadonly(true);
-    // !! Redraw?
+    snprintf(editFilenameBuffer, sizeof(editFilenameBuffer), "%4.4s%s", randHex, uptime + 12);  // 8 chars and a terminator
+
+    editFilenameConfirmedCallback = [](bool confirmed){context->stateFileRenamedCallback(confirmed);};
+    editFilenameCallback();
+}
+
+void Menu::editFilenameCallback() {
+    gem->setMenuValuesLeftOffset(5);
+    gem->setMenuPageCurrent(*editFilenamePage);
+    gem->drawMenu();
+}
+
+void Menu::stateFileRenamedCallback(bool confirmed) {
+    char stateFilename[32 + 2 + GEM_STR_LEN - 1];  // ROM filename buffer length + (/ + _) + Max editable string length in GEM - One excess terminator
+    if (confirmed) {
+        snprintf(stateFilename, sizeof(stateFilename), "/%s_%s", emu.getRomFilename(), editFilenameBuffer);
+        emu.saveState(stateFilename);
+        saveStateBtn->setReadonly(true);
+    }
+    enterMenu();
 }
 
 void Menu::drawBatteryCallback() {
@@ -490,5 +519,5 @@ void Menu::drawBatteryCallback() {
     if (!context->showingMenu || !menuPageCurrent || memcmp(menuPageCurrent->getTitle(), "espnut", 6))
         return;  // Not in main menu, don't draw
     context->dp.drawBattery(context->dp.getU8g2()->getDisplayWidth() - context->dp.batteryIconWidth - 1, 1, context->pm.getBatteryPercentage(), context->pm.getBatteryCharging());
-    context->dp.getU8g2()->setDrawColor(1);  // Reset color!
+    context->dp.getU8g2()->setDrawColor(1);  // Must reset color for GEM!
 }
