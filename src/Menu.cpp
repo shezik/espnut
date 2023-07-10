@@ -84,6 +84,9 @@ Menu::~Menu() {
     delete editFilenamePage; editFilenamePage = nullptr;
     delete nameFieldItem; nameFieldItem = nullptr;
     delete acceptNameBtn; acceptNameBtn = nullptr;
+    delete confirmDeletePage; confirmDeletePage = nullptr;
+    delete cancelDeletionBtn; cancelDeletionBtn = nullptr;
+    delete acceptDeletionBtn; acceptDeletionBtn = nullptr;
     pm.registerBatPercentChangedCallback(nullptr);
 }
 
@@ -512,6 +515,10 @@ void Menu::stateFileRenamedCallback(bool confirmed) {
         saveStateBtn->setReadonly(true);
     }
     enterMenu();
+}
+
+void Menu::deleteSelectedFileCallback(bool confirmed) {
+
 }
 
 void Menu::drawBatteryCallback() {

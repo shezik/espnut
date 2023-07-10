@@ -80,6 +80,10 @@ class Menu {
         GEMPage *editFilenamePage = nullptr;
         GEMItem *nameFieldItem = nullptr;
         GEMItem *acceptNameBtn = nullptr;
+        // File delete confirmation page
+        GEMPage *confirmDeletePage = nullptr;
+        GEMItem *cancelDeletionBtn = nullptr;
+        GEMItem *acceptDeletionBtn = nullptr;
         
         bool showingMenu = false;
         bool showMenuFlag;
@@ -121,5 +125,6 @@ class Menu {
         void saveStateButtonCallback();
         void editFilenameCallback();
         void stateFileRenamedCallback(bool);
+        void deleteSelectedFileCallback(bool);
         static void drawBatteryCallback();
 };
