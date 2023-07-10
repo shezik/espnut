@@ -2,8 +2,8 @@
 Eric Smith's Nonpareil emulator ported to ESP32. Supports HP Voyager calculators.  
 The successor of shezik/esp15c (now archived).
 
-## Now in code auditing phase!
-bugs are being eliminated!
+## ~Now in code auditing phase!~
+actually we're still under development.
 
 ### Features
 - Matrix keyboard driver for ESP32-S3 that doesn't support dedicated GPIO interrupt :)
@@ -11,14 +11,14 @@ bugs are being eliminated!
 - State saving & loading
 - Graphical menu and file manager
 
-### Todo
+### Todo (Sorted by importance)
+- nutemu stores rom file path in romFilename which is not long enough (32 bytes). The ambiguity of this variable name is causing issues.
+- deleting empty directories
+- resetting item cursor
+- saving state files into a separate directory
 - Logging and accessing logfile
 - Read comments marked with '!!'
 - Add ESP32 cpu frequency options to Menu
-- nutemu stores rom file path in romFilename which is not long enough (32 bytes). The ambiguity of this variable name is causing issues.
-- saving state files into a separate directory
-- deleting empty directories
-- resetting item cursor
 
 ### Coming soon
 - PCB & BOM
