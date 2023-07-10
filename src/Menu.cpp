@@ -100,9 +100,9 @@ void Menu::init(bool showMenuFlag_) {
     resumeBtn = new GEMItem("Resume", exitMenu);
     saveStateBtn = new GEMItem("Save State", [](){context->saveStateButtonCallback();});
     loadStateBtn = new GEMItem("Load State", [](){context->fileSelectedCallback = loadStateFileSelectedCallback; context->enterFileManager("/");});
+    loadROMBtn = new GEMItem("Load ROM", [](){context->fileSelectedCallback = loadROMFileSelectedCallback; context->enterFileManager("/");});
     resetCPUBtn = new GEMItem("Reset CPU", [](){context->emu.resetProcessor();});
     obdurateResetCPUBtn = new GEMItem("Reset CPU & Memory", [](){context->emu.resetProcessor(true);});
-    loadROMBtn = new GEMItem("Load ROM", [](){context->fileSelectedCallback = loadROMFileSelectedCallback; context->enterFileManager("/");});
     deleteFileBtn = new GEMItem("Delete file", [](){context->fileSelectedCallback = [](char *path){context->deleteFileCallback(path);}; context->enterFileManager("/");});
     showLogfileBtn = new GEMItem("Logs", [](){});
     settingsBtn = new GEMItem("Settings", settingsButtonCallback);
@@ -111,9 +111,9 @@ void Menu::init(bool showMenuFlag_) {
     mainPage->addMenuItem(*resumeBtn);
     mainPage->addMenuItem(*saveStateBtn);
     mainPage->addMenuItem(*loadStateBtn);
+    mainPage->addMenuItem(*loadROMBtn);
     mainPage->addMenuItem(*resetCPUBtn);
     mainPage->addMenuItem(*obdurateResetCPUBtn);
-    mainPage->addMenuItem(*loadROMBtn);
     mainPage->addMenuItem(*deleteFileBtn);
     mainPage->addMenuItem(*showLogfileBtn);
     mainPage->addMenuItem(*settingsBtn);
@@ -148,7 +148,7 @@ void Menu::init(bool showMenuFlag_) {
     ramSizePage->addMenuItem(*smallRAMBtn);
     ramSizePage->addMenuItem(*largeRAMBtn);
     editFilenamePage = new GEMPage("Edit filename", [](){context->editFilenameConfirmedCallback(false);});
-    nameFieldItem = new GEMItem("", editFilenameBuffer);  // !! Can there be nothing?
+    nameFieldItem = new GEMItem("", editFilenameBuffer);
     acceptNameBtn = new GEMItem("Accept", [](){context->editFilenameConfirmedCallback(true);});
     editFilenamePage->addMenuItem(*nameFieldItem);
     editFilenamePage->addMenuItem(*acceptNameBtn);
