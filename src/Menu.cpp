@@ -283,13 +283,23 @@ void Menu::aboutButtonCallback() {
 
     std::stringstream ss((char *) copyrightInfo);
     std::string line;
-    while (std::getline(ss, line, '\n')) {
+    context->kbdMgr.clear();
+    for (;;) {
+        bool success = std::getline(ss, line, '\n').operator bool();
+        if (!success) {
+            vTaskDelay(pdMS_TO_TICKS(1000));  // 1500 ms in total for the last entry
+            break;
+        }
+
+        if (context->kbdMgr.keysAvailable())
+            break;
+
         line += '\n';
         u8g2log->print(line.c_str());
         printf_log("%s", line.c_str());
         vTaskDelay(pdMS_TO_TICKS(500));
     }
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    context->kbdMgr.clear();
 
     delete u8g2log; u8g2log = nullptr;
     delete buf; buf = nullptr;
