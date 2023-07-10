@@ -94,6 +94,8 @@ class Menu {
         void (*editFilenameConfirmedCallback)(bool) = nullptr;
         char editFilenameBuffer[GEM_STR_LEN] = {0};
 
+        char *pendingDeleteFilePath = nullptr;
+
         static Menu *context;
 
         void dirGoUp(char *);
@@ -116,11 +118,11 @@ class Menu {
         static void aboutButtonCallback();
         static void loadStateFileSelectedCallback(char *);
         static void loadROMFileSelectedCallback(char *);
-        static void deleteSelectedFileCallback(char *);
+        void deleteFileCallback(char *);
         void loadROMRAMSelectedCallback(int);
         void saveStateButtonCallback();
         void editFilenameCallback();
         void stateFileRenamedCallback(bool);
-        void deleteSelectedFileCallback(bool);
+        void deleteFileConfirmedCallback(bool);
         static void drawBatteryCallback();
 };

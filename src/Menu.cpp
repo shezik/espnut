@@ -103,7 +103,7 @@ void Menu::init(bool showMenuFlag_) {
     resetCPUBtn = new GEMItem("Reset CPU", [](){context->emu.resetProcessor();});
     obdurateResetCPUBtn = new GEMItem("Reset CPU & Memory", [](){context->emu.resetProcessor(true);});
     loadROMBtn = new GEMItem("Load ROM", [](){context->fileSelectedCallback = loadROMFileSelectedCallback; context->enterFileManager("/");});
-    deleteFileBtn = new GEMItem("Delete file", [](){context->fileSelectedCallback = deleteSelectedFileCallback; context->enterFileManager("/");});
+    deleteFileBtn = new GEMItem("Delete file", [](){context->fileSelectedCallback = [](char *path){context->deleteFileCallback(path);}; context->enterFileManager("/");});
     showLogfileBtn = new GEMItem("Logs", [](){});
     settingsBtn = new GEMItem("Settings", settingsButtonCallback);
     aboutBtn = new GEMItem("About", aboutButtonCallback);
@@ -152,9 +152,9 @@ void Menu::init(bool showMenuFlag_) {
     acceptNameBtn = new GEMItem("Accept", [](){context->editFilenameConfirmedCallback(true);});
     editFilenamePage->addMenuItem(*nameFieldItem);
     editFilenamePage->addMenuItem(*acceptNameBtn);
-    confirmDeletePage = new GEMPage("", [](){;});  // !! setTitle later
-    cancelDeletionBtn = new GEMItem("Cancel", [](){;});
-    acceptDeletionBtn = new GEMItem("Accept", [](){;});
+    confirmDeletePage = new GEMPage("", [](){context->deleteFileConfirmedCallback(false);});
+    cancelDeletionBtn = new GEMItem("Cancel", [](){context->deleteFileConfirmedCallback(false);});
+    acceptDeletionBtn = new GEMItem("Accept", [](){context->deleteFileConfirmedCallback(true);});
     confirmDeletePage->addMenuItem(*cancelDeletionBtn);
     confirmDeletePage->addMenuItem(*acceptDeletionBtn);
 
@@ -460,21 +460,27 @@ void Menu::loadROMFileSelectedCallback(char *path) {
     context->gem->drawMenu();
 }
 
-void Menu::deleteSelectedFileCallback(char *path) {
+void Menu::deleteFileCallback(char *path) {
     if (!path) {  // Cancelled
-        context->enterMenu();
+        enterMenu();
         return;
     }
-
     if (strlen(path) >= 4) {
         char *extension = path + strlen(path) - 4;
-        if (strcasecmp(extension, ".obj"))
-            LittleFS.remove(path);
-        else
+        if (!strcasecmp(extension, ".obj")) {
             printf_log(TAG "Blocked request to delete OBJ file: %s\n", path);
+            dirGoUp(path);
+            enterFileManager(path);
+            return;
+        }
     }
-    context->dirGoUp(path);  // Should be safe
-    context->enterFileManager(path);
+    pendingDeleteFilePath = path;
+
+    static char title[ROM_FILENAME_LENGTH + 8];  // ROM_FILENAME_LENGTH + strlen("Delete ?")
+    snprintf(title, sizeof(title), "Delete %s?", pathToFileName(path));
+    confirmDeletePage->setTitle(title);
+    gem->setMenuPageCurrent(*confirmDeletePage);
+    gem->drawMenu();
 }
 
 void Menu::loadROMRAMSelectedCallback(int romSize) {
@@ -494,7 +500,7 @@ void Menu::saveStateButtonCallback() {
     snprintf(uptime, sizeof(uptime), "%016llx", get_timer_ms());
     snprintf(editFilenameBuffer, sizeof(editFilenameBuffer), "%4.4s%s", randHex, uptime + 12);  // 8 chars and a terminator
 
-    editFilenameConfirmedCallback = [](bool confirmed){context->stateFileRenamedCallback(confirmed);};
+    editFilenameConfirmedCallback = [](bool accepted){context->stateFileRenamedCallback(accepted);};
     editFilenameCallback();
 }
 
@@ -504,17 +510,20 @@ void Menu::editFilenameCallback() {
     gem->drawMenu();
 }
 
-void Menu::stateFileRenamedCallback(bool confirmed) {
-    char stateFilename[32 + 2 + GEM_STR_LEN - 1];  // ROM filename buffer length + (/ + _) + Max editable string length in GEM - One excess terminator
-    if (confirmed) {
+void Menu::stateFileRenamedCallback(bool accepted) {
+    char stateFilename[ROM_FILENAME_LENGTH + 2 + GEM_STR_LEN - 1];  // ROM filename buffer length + strlen("/_") + Max editable string length in GEM - One excess terminator
+    if (accepted) {
         snprintf(stateFilename, sizeof(stateFilename), "/%s_%s", emu.getRomFilename(), editFilenameBuffer);
         emu.saveState(stateFilename);
     }
     enterMenu();
 }
 
-void Menu::deleteSelectedFileCallback(bool confirmed) {
-
+void Menu::deleteFileConfirmedCallback(bool accepted) {
+    if (accepted)
+        LittleFS.remove(pendingDeleteFilePath);
+    dirGoUp(pendingDeleteFilePath);  // Should be safe
+    enterFileManager(pendingDeleteFilePath);
 }
 
 void Menu::drawBatteryCallback() {
