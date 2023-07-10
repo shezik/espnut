@@ -491,8 +491,8 @@ void Menu::loadROMRAMSelectedCallback(int romSize) {
 void Menu::saveStateButtonCallback() {
     char randHex[9];  // uint32_t in hex, maximum FFFF FFFF
     char uptime[17];  // int64_t converted to uint64_t in hex, maximum 16 Fs
-    snprintf(randHex, sizeof(randHex), "%08x", esp_random());  // Unfortunately the RF subsystem is disabled, this generates pseudo-random numbers
-    snprintf(uptime, sizeof(uptime), "%016lx", get_timer_ms());
+    snprintf(randHex, sizeof(randHex), "%08lx", esp_random());  // Unfortunately the RF subsystem is disabled, this generates pseudo-random numbers
+    snprintf(uptime, sizeof(uptime), "%016llx", get_timer_ms());
     snprintf(editFilenameBuffer, sizeof(editFilenameBuffer), "%4.4s%s", randHex, uptime + 12);  // 8 chars and a terminator
 
     editFilenameConfirmedCallback = [](bool confirmed){context->stateFileRenamedCallback(confirmed);};
