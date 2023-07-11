@@ -96,7 +96,7 @@ void Menu::init(bool showMenuFlag_) {
     // Allocate GEM objects here
     // Any one-line function is written as lambda expression
     // It's quite interesting that static class methods can access protected members via the (class member) pointer 'context'.
-    mainPage = new GEMPage(generateMainPageTitle(), [](){if (context->emu.isProcessorPresent()) context->exitMenu();});
+    mainPage = new GEMPageProxy(generateMainPageTitle(), [](){if (context->emu.isProcessorPresent()) context->exitMenu();});
     resumeBtn = new GEMItem("Resume", exitMenu);
     saveStateBtn = new GEMItem("Save State", [](){context->saveStateButtonCallback();});
     loadStateBtn = new GEMItem("Load State", [](){context->fileSelectedCallback = loadStateFileSelectedCallback; context->enterFileManager("/");});
@@ -119,7 +119,7 @@ void Menu::init(bool showMenuFlag_) {
     mainPage->addMenuItem(*settingsBtn);
     mainPage->addMenuItem(*aboutBtn);
     mainPage->addMenuItem(*powerOffBtn);
-    settingsPage = new GEMPage("Settings", [](){exitSettingsPageCallback(false);});
+    settingsPage = new GEMPageProxy("Settings", [](){exitSettingsPageCallback(false);});
     brightnessItem = new GEMItem("Brightness %", *sm.getBrightnessPercent(), [](){context->sm.applySettings();});
     contrastItem = new GEMItem("Contrast", *sm.getContrast(), [](){context->sm.applySettings();});
     backlightTimeoutItem = new GEMItem("Backlight (Sec)", *sm.getBacklightTimeoutSec(), [](){context->sm.applySettings();});
@@ -142,17 +142,17 @@ void Menu::init(bool showMenuFlag_) {
     settingsPage->addMenuItem(*saveSettingsBtn);
     settingsPage->addMenuItem(*exitSettingsBtn);
     settingsPage->addMenuItem(*resetSettingsBtn);
-    ramSizePage = new GEMPage("Pick RAM size (80 only for 15C)", [](){context->loadROMRAMSelectedCallback(0);});
+    ramSizePage = new GEMPageProxy("Pick RAM size (80 only for 15C)", [](){context->loadROMRAMSelectedCallback(0);});
     smallRAMBtn = new GEMItem("40", [](GEMCallbackData data){context->loadROMRAMSelectedCallback(data.valInt);}, 40);
     largeRAMBtn = new GEMItem("80", [](GEMCallbackData data){context->loadROMRAMSelectedCallback(data.valInt);}, 80);
     ramSizePage->addMenuItem(*smallRAMBtn);
     ramSizePage->addMenuItem(*largeRAMBtn);
-    editFilenamePage = new GEMPage("Edit filename", [](){context->editFilenameConfirmedCallback(false);});
+    editFilenamePage = new GEMPageProxy("Edit filename", [](){context->editFilenameConfirmedCallback(false);});
     nameFieldItem = new GEMItem("", editFilenameBuffer);
     acceptNameBtn = new GEMItem("Accept", [](){context->editFilenameConfirmedCallback(true);});
     editFilenamePage->addMenuItem(*nameFieldItem);
     editFilenamePage->addMenuItem(*acceptNameBtn);
-    confirmDeletePage = new GEMPage("", [](){context->deleteFileConfirmedCallback(false);});
+    confirmDeletePage = new GEMPageProxy("", [](){context->deleteFileConfirmedCallback(false);});
     cancelDeletionBtn = new GEMItem("Cancel", [](){context->deleteFileConfirmedCallback(false);});
     acceptDeletionBtn = new GEMItem("Accept", [](){context->deleteFileConfirmedCallback(true);});
     confirmDeletePage->addMenuItem(*cancelDeletionBtn);
@@ -379,7 +379,7 @@ void Menu::enterFileManager(char *path) {
         return;
     }
 
-    fileManagerPage = new GEMPage("Pick a file...", [](){context->enterFileManager(nullptr);});
+    fileManagerPage = new GEMPageProxy("Pick a file...", [](){context->enterFileManager(nullptr);});
 
     if (strcmp("/", path)) {  // If path and "/" are not equal
         strncpy(upDirBuf, path, sizeof(upDirBuf) - 1);
@@ -479,6 +479,7 @@ void Menu::deleteFileCallback(char *path) {
     static char title[FILENAME_LENGTH + 8];  // FILENAME_LENGTH + strlen("Delete ?")  // !! Use MAIN_PAGE_TITLE_LENGTH instead?
     snprintf(title, sizeof(title), "Delete %s?", pathToFileName(path));
     confirmDeletePage->setTitle(title);
+    confirmDeletePage->setCurrentItemNum(0);
     gem->setMenuPageCurrent(*confirmDeletePage);
     gem->drawMenu();
 }
@@ -527,7 +528,7 @@ void Menu::deleteFileConfirmedCallback(bool accepted) {
 }
 
 void Menu::drawBatteryCallback() {
-    GEMPage *menuPageCurrent = context->gem->getMenuPageCurrent();
+    GEMPageProxy *menuPageCurrent = static_cast<GEMPageProxy *>(context->gem->getMenuPageCurrent());
     if (!context->showingMenu || !menuPageCurrent || memcmp(menuPageCurrent->getTitle(), "espnut", 6))
         return;  // Not in main menu, don't draw
     context->dp.drawBattery(context->dp.getU8g2()->getDisplayWidth() - context->dp.batteryIconWidth - 1, 1, context->pm.getBatteryPercentage(), context->pm.getBatteryCharging());

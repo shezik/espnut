@@ -27,6 +27,9 @@
 // Line 134: virtual void drawMenu();
 // Line 141: protected:
 class GEMProxy : public GEM_u8g2 {
+    protected:
+        void (*drawMenuCallback)() = nullptr;
+
     public:
         using GEM_u8g2::GEM_u8g2;
 
@@ -57,7 +60,26 @@ class GEMProxy : public GEM_u8g2 {
             _menuItemTitleLength = (_menuValuesLeftOffset - 5) / _menuItemFont[_menuItemFontSize].width;
             _menuItemValueLength = (_u8g2.getDisplayWidth() - _menuValuesLeftOffset - 6) / _menuItemFont[_menuItemFontSize].width;
         }
+};
 
-    private:
-        void (*drawMenuCallback)() = nullptr;
+// Modifications to GEMPage.h in spirik/GEM@^1.4.0:
+// Line 59: protected:
+class GEMPageProxy : public GEMPage {
+    public:
+        using GEMPage::GEMPage;
+
+        void setCurrentItemNum(uint8_t num) {
+            currentItemNum = num;
+        }
+        uint8_t getCurrentItemNum() {
+            return currentItemNum;
+        }
+        // Excluding hidden ones
+        uint8_t getItemsCount() {
+            return itemsCount;
+        }
+        // Including hidden ones
+        uint8_t getItemsCountTotal() {
+            return itemsCountTotal;
+        }
 };

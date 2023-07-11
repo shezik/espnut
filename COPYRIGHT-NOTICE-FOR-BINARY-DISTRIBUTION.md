@@ -76,6 +76,9 @@ Modifications on GEM_u8g2.h of spirik/GEM@^1.4.0:
 Line 134: `virtual void drawMenu();`  
 Line 141: `protected:`
 
+Modifications to GEMPage.h in spirik/GEM@^1.4.0:
+Line 59: `protected:`
+
 ----------------------------------------------------------------
 
 GEM (a.k.a. Good Enough Menu) - Arduino library for creation of graphic multi-level menu with  

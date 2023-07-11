@@ -39,7 +39,7 @@ class Menu {
 
         GEMProxy *gem = nullptr;
         // Main page
-        GEMPage *mainPage = nullptr;
+        GEMPageProxy *mainPage = nullptr;
         GEMItem *resumeBtn = nullptr;  // HIDE
         GEMItem *saveStateBtn = nullptr;  // HIDE
         GEMItem *loadStateBtn = nullptr;
@@ -52,7 +52,7 @@ class Menu {
         GEMItem *aboutBtn = nullptr;
         GEMItem *powerOffBtn = nullptr;
         // Settings page
-        GEMPage *settingsPage = nullptr;
+        GEMPageProxy *settingsPage = nullptr;
         GEMItem *brightnessItem = nullptr;
         GEMItem *contrastItem = nullptr;
         GEMItem *backlightTimeoutItem = nullptr;
@@ -65,18 +65,18 @@ class Menu {
         GEMItem *resetSettingsBtn = nullptr;
         GEMItem *exitSettingsBtn = nullptr;
         // File manager page
-        GEMPage *fileManagerPage = nullptr;
+        GEMPageProxy *fileManagerPage = nullptr;
         GEMItem *fileList[FILE_LIST_LENGTH + 1] = {0};  // The '+1' is reserved for the 'go up' button
         // RAM size picker
-        GEMPage *ramSizePage = nullptr;
+        GEMPageProxy *ramSizePage = nullptr;
         GEMItem *smallRAMBtn = nullptr;
         GEMItem *largeRAMBtn = nullptr;
         // Filename editor
-        GEMPage *editFilenamePage = nullptr;
+        GEMPageProxy *editFilenamePage = nullptr;
         GEMItem *nameFieldItem = nullptr;
         GEMItem *acceptNameBtn = nullptr;
         // File delete confirmation page
-        GEMPage *confirmDeletePage = nullptr;
+        GEMPageProxy *confirmDeletePage = nullptr;
         GEMItem *cancelDeletionBtn = nullptr;
         GEMItem *acceptDeletionBtn = nullptr;
         
