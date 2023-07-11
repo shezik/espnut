@@ -13,7 +13,6 @@ actually we're still under development.
 
 ### Todo (Sorted by importance)
 - deleting empty directories
-- resetting item cursor
 - Logging and accessing logfile
 - Read comments marked with '!!'
 - Add ESP32 cpu frequency options to Menu
