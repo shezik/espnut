@@ -67,6 +67,7 @@ class Menu {
         // File manager page
         GEMPageProxy *fileManagerPage = nullptr;
         GEMItem *fileList[FILE_LIST_LENGTH + 1] = {0};  // The '+1' is reserved for the 'go up' button
+        uint8_t upDirBtnCursorPos = 0;
         // RAM size picker
         GEMPageProxy *ramSizePage = nullptr;
         GEMItem *smallRAMBtn = nullptr;
@@ -104,7 +105,7 @@ class Menu {
         static void applySettings();
         void tick();
         void enterMenu();
-        void enterFileManager(char *);
+        void enterFileManager(char *, bool = false, uint8_t = 0, uint8_t = 0);
         static void exitMenu();
         // static void clearLogfileCallback();
         static void settingsButtonCallback();

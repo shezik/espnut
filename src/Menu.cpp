@@ -352,16 +352,12 @@ char *Menu::generateMainPageTitle() {
     return title;
 }
 
-void Menu::enterFileManager(char *path) {
+void Menu::enterFileManager(char *path, bool useLastCursorPos, uint8_t cursorPos, uint8_t upDirBtnCursorPos_) {
     // Two static char buffers to store data for callback functions
     static char filenameBuf[FILE_LIST_LENGTH][FILENAME_LENGTH] = {0};
     static char filePathBuf[FILE_LIST_LENGTH][FILE_PATH_LENGTH] = {0};
     static char upDirBuf[FILE_PATH_LENGTH] = {0};
     uint8_t itemCount = 0;
-
-    // Clean up previous items
-    delete fileManagerPage; fileManagerPage = nullptr;  // Must set to nullptr since cancelling will cause the new page not to be allocated.
-    freeFileList();
 
     if (!path) {  // Cancelled
         if (fileSelectedCallback)
@@ -379,13 +375,23 @@ void Menu::enterFileManager(char *path) {
         return;
     }
 
+    if (useLastCursorPos) {
+        if (fileManagerPage)
+            cursorPos = fileManagerPage->getCurrentItemNum();
+    } else
+        upDirBtnCursorPos = upDirBtnCursorPos_;
+
+    // Clean up previous items (They will also be free'd on ~Menu::Menu)
+    delete fileManagerPage; fileManagerPage = nullptr;
+    freeFileList();
+
     fileManagerPage = new GEMPageProxy("Pick a file...", [](){context->enterFileManager(nullptr);});
 
     if (strcmp("/", path)) {  // If path and "/" are not equal
         strncpy(upDirBuf, path, sizeof(upDirBuf) - 1);
         upDirBuf[sizeof(upDirBuf)] = '\0';
         dirGoUp(upDirBuf);
-        fileList[FILE_LIST_LENGTH] = new GEMItem("..", [](GEMCallbackData data){context->enterFileManager((char *) data.valPointer);}, upDirBuf);  // fileList is 'FILE_LIST_LENGTH + 1' long, only this line and freeFileList() should be able to access this last index.
+        fileList[FILE_LIST_LENGTH] = new GEMItem("..", [](GEMCallbackData data){context->enterFileManager((char *) data.valPointer, false, context->upDirBtnCursorPos);}, upDirBuf);  // fileList is 'FILE_LIST_LENGTH + 1' long, only this line and freeFileList() should be able to access this last index.
         fileManagerPage->addMenuItem(*fileList[FILE_LIST_LENGTH]);
     }
 
@@ -400,13 +406,14 @@ void Menu::enterFileManager(char *path) {
         strncpy(filePathBuf[itemCount], path.c_str(), sizeof(filePathBuf[itemCount]) - 1);
         filePathBuf[itemCount][sizeof(filePathBuf[itemCount])] = '\0';
 
-        fileList[itemCount] = new GEMItem(filenameBuf[itemCount], [](GEMCallbackData data){context->enterFileManager((char *) data.valPointer);}, filePathBuf[itemCount]);
+        fileList[itemCount] = new GEMItem(filenameBuf[itemCount], [](GEMCallbackData data){context->enterFileManager((char *) data.valPointer, false, 0, context->fileManagerPage->getCurrentItemNum());}, filePathBuf[itemCount]);
         fileManagerPage->addMenuItem(*fileList[itemCount]);
         
         itemCount++;
     }
 
     dir.close();
+    fileManagerPage->setCurrentItemNum(cursorPos < fileManagerPage->getItemsCount() ? cursorPos : fileManagerPage->getItemsCount() - 1);
     gem->setMenuPageCurrent(*fileManagerPage);
     gem->drawMenu();
 }
@@ -470,7 +477,7 @@ void Menu::deleteFileCallback(char *path) {
         if (!strcasecmp(extension, ".obj")) {
             printf_log(TAG "Blocked request to delete OBJ file: %s\n", path);
             dirGoUp(path);
-            enterFileManager(path);
+            enterFileManager(path, true);
             return;
         }
     }
@@ -490,7 +497,7 @@ void Menu::loadROMRAMSelectedCallback(int romSize) {
         exitMenu();
     } else {
         dirGoUp(selectedROMPath);  // This actually modifies filePathBuf in enterFileManager, but I don't think it matters.
-        enterFileManager(selectedROMPath);
+        enterFileManager(selectedROMPath, true);
     }
 }
 
@@ -524,7 +531,7 @@ void Menu::deleteFileConfirmedCallback(bool accepted) {
     if (accepted)
         LittleFS.remove(pendingDeleteFilePath);
     dirGoUp(pendingDeleteFilePath);  // Should be safe
-    enterFileManager(pendingDeleteFilePath);
+    enterFileManager(pendingDeleteFilePath, true);
 }
 
 void Menu::drawBatteryCallback() {
