@@ -457,11 +457,9 @@ bool NutEmuInterface::isProcessorPresent() {
     return nv;
 }
 
+// Create your own copy!
 char *NutEmuInterface::getRomFilePath() {
-    static char romFilePath_[FILE_PATH_LENGTH];
-
-    strcpy(romFilePath_, romFilePath);
-    return romFilePath_;
+    return romFilePath;
 }
 
 void NutEmuInterface::updateDisplayCallback() {
