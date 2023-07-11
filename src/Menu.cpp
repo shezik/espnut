@@ -239,6 +239,7 @@ void Menu::tick() {
 }
 
 void Menu::settingsButtonCallback() {
+    context->settingsPage->setCurrentItemNum(0);
     context->gem->setMenuPageCurrent(*context->settingsPage);
     context->gem->drawMenu();
 }
@@ -323,6 +324,7 @@ void Menu::enterMenu() {
     // gem->reInit();
     // u8g2.setContrast(contrast);  // GEM_uìg2::reInit causes U8g2 to reset contrast
     gem->setMenuValuesLeftOffset(VALUES_LEFT_OFFSET);
+    // mainPage->setCurrentItemNum(0);  // I prefer not to.
     gem->setMenuPageCurrent(*mainPage);
     gem->drawMenu();
 }
@@ -463,6 +465,7 @@ void Menu::loadROMFileSelectedCallback(char *path) {
     }
 
     context->selectedROMPath = path;
+    // context->ramSizePage->setCurrentItemNum(0);  // I also prefer not to.
     context->gem->setMenuPageCurrent(*context->ramSizePage);
     context->gem->drawMenu();
 }
@@ -514,6 +517,7 @@ void Menu::saveStateButtonCallback() {
 
 void Menu::editFilenameCallback() {
     gem->setMenuValuesLeftOffset(5);
+    editFilenamePage->setCurrentItemNum(0);
     gem->setMenuPageCurrent(*editFilenamePage);
     gem->drawMenu();
 }
