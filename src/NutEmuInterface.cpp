@@ -118,7 +118,7 @@ void NutEmuInterface::applySettings() {
     context->setUnlockSpeed(*context->sm.getUnlockSpeed());
 }
 
-bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filename) {
+bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filepath) {
     lastRunTime = get_timer_ms() - JIFFY_MSEC;  // In ms. Could be negative but that does not matter.
     wordsPerMs = clockFrequency / (1.0E3 * ARCH_NUT_WORD_LENGTH);
 
@@ -126,18 +126,18 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filen
     if (ramSize_)
         ramSize = ramSize_;
 
-    if (filename) {
-        strncpy(romFilename, filename, sizeof(romFilename) - 1);
-        romFilename[sizeof(romFilename)] = '\0';
+    if (filepath) {
+        strncpy(romFilePath, filepath, sizeof(romFilePath) - 1);
+        romFilePath[sizeof(romFilePath)] = '\0';
     }
     nv = nut_new_processor(ramSize, (void *) this);  // (void *)nut_reg->display is reused for storing (NutEmuInterface *)
     pm.registerDeepSleepCallback(deepSleepCallback);
     wakeUpOnTick();
-    return nut_read_object_file(nv, romFilename);
+    return nut_read_object_file(nv, romFilePath);
 }
 
-bool NutEmuInterface::newProcessorFromStatefile(int clockFrequency, char *filename) {
-    if (loadMetadataFromStatefile(filename)) {
+bool NutEmuInterface::newProcessorFromStatefile(int clockFrequency, char *filepath) {
+    if (loadMetadataFromStatefile(filepath)) {
         return newProcessor(clockFrequency, 0, nullptr);
     }
     return false;
@@ -305,18 +305,18 @@ void NutEmuInterface::wakeUpOnTick() {
     };
 }
 
-bool NutEmuInterface::saveState(char *filename) {
+bool NutEmuInterface::saveState(char *filepath) {
     if (!nv)
         return false;
 
-    File file = LittleFS.open(filename, "w");
+    File file = LittleFS.open(filepath, "w");
     if (!file) {
-        printf_log(EMU_TAG "Failed to open file %s for writing\n", filename);
+        printf_log(EMU_TAG "Failed to open file %s for writing\n", filepath);
         return false;
     }
 
     file.write((uint8_t *) "STATE", 5);  // Magic
-    file.write((uint8_t *) romFilename, strlen(romFilename));
+    file.write((uint8_t *) romFilePath, strlen(romFilePath));
     file.write('\0');
     file.write((uint8_t *) &ramSize, sizeof(int));
     file.write((uint8_t *)  nv->a,   sizeof(reg_t));
@@ -358,14 +358,14 @@ bool NutEmuInterface::saveState(char *filename) {
     return true;
 }
 
-bool NutEmuInterface::loadState(char *filename, bool doUpdateMetadata, bool doLoadState) {
+bool NutEmuInterface::loadState(char *filepath, bool doUpdateMetadata, bool doLoadState) {
     char magic[6];
-    char romFilename_[ROM_FILENAME_LENGTH];
+    char romFilePath_[ROM_FILENAME_LENGTH];
     uint8_t size;
 
-    File file = LittleFS.open(filename, "r");
+    File file = LittleFS.open(filepath, "r");
     if (!file) {
-        printf_log(EMU_TAG "loadState: Failed to open file %s for reading\n", filename);
+        printf_log(EMU_TAG "loadState: Failed to open file %s for reading\n", filepath);
         return false;
     }
 
@@ -377,20 +377,20 @@ bool NutEmuInterface::loadState(char *filename, bool doUpdateMetadata, bool doLo
         return false;
     }
 
-    size = file.readBytesUntil('\0', romFilename_, sizeof(romFilename_) - 1);
-    romFilename_[size] = '\0';
-    if (size == sizeof(romFilename_) - 1  // Need to skip one '\0' in stream
+    size = file.readBytesUntil('\0', romFilePath_, sizeof(romFilePath_) - 1);
+    romFilePath_[size] = '\0';
+    if (size == sizeof(romFilePath_) - 1  // Need to skip one '\0' in stream
         && (!file.available() || file.read() != '\0')) {
             
         file.close();
-        printf_log(EMU_TAG "loadState: Filename buffer depleted!\n");
-        return false;  // you've got a very, very long filename...
+        printf_log(EMU_TAG "loadState: File path buffer depleted!\n");
+        return false;  // you've got a very, very long path...
     }
     
     if (doUpdateMetadata) {
-        strcpy(romFilename, romFilename_);
+        strcpy(romFilePath, romFilePath_);
         file.read((uint8_t *) &ramSize, sizeof(int));
-        printf_log(EMU_TAG "loadState: Metadata: RAM size: %d, ROM filename: %s\n", ramSize, romFilename);
+        printf_log(EMU_TAG "loadState: Metadata: RAM size: %d, ROM path: %s\n", ramSize, romFilePath);
     } else
         file.seek(sizeof(int), SeekCur);
 
@@ -445,23 +445,23 @@ bool NutEmuInterface::loadState(char *filename, bool doUpdateMetadata, bool doLo
     return true;
 }
 
-bool NutEmuInterface::loadMetadataFromStatefile(char *filename) {
-    return loadState(filename, true, false);
+bool NutEmuInterface::loadMetadataFromStatefile(char *filepath) {
+    return loadState(filepath, true, false);
 }
 
-bool NutEmuInterface::loadStateFromStatefile(char *filename) {
-    return loadState(filename, false, true);
+bool NutEmuInterface::loadStateFromStatefile(char *filepath) {
+    return loadState(filepath, false, true);
 }
 
 bool NutEmuInterface::isProcessorPresent() {
     return nv;
 }
 
-char *NutEmuInterface::getRomFilename() {
-    static char romFilename_[ROM_FILENAME_LENGTH];
+char *NutEmuInterface::getRomFilePath() {
+    static char romFilePath_[ROM_FILENAME_LENGTH];
 
-    strcpy(romFilename_, romFilename);
-    return romFilename_;
+    strcpy(romFilePath_, romFilePath);
+    return romFilePath_;
 }
 
 void NutEmuInterface::updateDisplayCallback() {

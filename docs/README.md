@@ -12,7 +12,7 @@ actually we're still under development.
 - Graphical menu and file manager
 
 ### Todo (Sorted by importance)
-- nutemu stores rom file path in romFilename which is not long enough (32 bytes). The ambiguity of this variable name is causing issues.
+- nutemu stores rom file path in romFilePath (former romFilename) which is not long enough (32 bytes). The ambiguity of this variable name is causing issues.
 - deleting empty directories
 - resetting item cursor
 - saving state files into a separate directory

@@ -345,7 +345,7 @@ char *Menu::generateMainPageTitle() {
     static char title[MAIN_PAGE_TITLE_LENGTH];
 
     if (emu.isProcessorPresent())
-        snprintf(title, sizeof(title), "espnut v" VERSION " - %s", emu.getRomFilename());
+        snprintf(title, sizeof(title), "espnut v" VERSION " - %s", pathToFileName(emu.getRomFilePath()));
     else
         snprintf(title, sizeof(title), "espnut v" VERSION);
 

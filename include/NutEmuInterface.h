@@ -51,7 +51,7 @@ class NutEmuInterface {
         bool displayEnabled = false;
         int ramSize = 0;
         static NutEmuInterface *context;
-        char romFilename[ROM_FILENAME_LENGTH] = {0};
+        char romFilePath[ROM_FILENAME_LENGTH] = {0};
         bool emulatorRunFlag = false;
         bool enablePowerMgmt = true;
         bool unlockSpeed = false;
@@ -81,7 +81,7 @@ class NutEmuInterface {
         bool saveState(char *);
         bool loadStateFromStatefile(char *);
         bool isProcessorPresent();
-        char *getRomFilename();
+        char *getRomFilePath();
 
         void updateDisplayCallback();
         void setEnablePowerMgmt(bool);
