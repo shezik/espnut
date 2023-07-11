@@ -513,7 +513,7 @@ void Menu::editFilenameCallback() {
 void Menu::stateFileRenamedCallback(bool accepted) {
     char stateFilename[ROM_FILENAME_LENGTH + 2 + GEM_STR_LEN - 1];  // ROM filename buffer length + strlen("/_") + Max editable string length in GEM - One excess terminator
     if (accepted) {
-        snprintf(stateFilename, sizeof(stateFilename), "/%s_%s", emu.getRomFilename(), editFilenameBuffer);
+        snprintf(stateFilename, sizeof(stateFilename), "%s_%s", emu.getRomFilePath(), editFilenameBuffer);  // Save the state file into the ROM's directory
         emu.saveState(stateFilename);
     }
     enterMenu();
