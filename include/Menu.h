@@ -29,11 +29,6 @@
 #include "DispInterface.h"
 #include "GEMProxy.h"
 
-#define FILE_LIST_LENGTH 64
-#define MAIN_PAGE_TITLE_LENGTH 64
-
-#define FILE_PATH_LENGTH 128
-
 class Menu {
     protected:
         SettingsMgr &sm;

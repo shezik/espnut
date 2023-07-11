@@ -37,7 +37,6 @@
 #define MAX_INST_BURST 5000
 
 #define NEXT_RUN_TIME (lastRunTime + JIFFY_MSEC)
-#define ROM_FILENAME_LENGTH 32
 
 class NutEmuInterface {
     protected:
@@ -51,7 +50,7 @@ class NutEmuInterface {
         bool displayEnabled = false;
         int ramSize = 0;
         static NutEmuInterface *context;
-        char romFilePath[ROM_FILENAME_LENGTH] = {0};
+        char romFilePath[FILE_PATH_LENGTH] = {0};
         bool emulatorRunFlag = false;
         bool enablePowerMgmt = true;
         bool unlockSpeed = false;

@@ -12,10 +12,8 @@ actually we're still under development.
 - Graphical menu and file manager
 
 ### Todo (Sorted by importance)
-- nutemu stores rom file path in romFilePath (former romFilename) which is not long enough (32 bytes). The ambiguity of this variable name is causing issues.
 - deleting empty directories
 - resetting item cursor
-- saving state files into a separate directory
 - Logging and accessing logfile
 - Read comments marked with '!!'
 - Add ESP32 cpu frequency options to Menu

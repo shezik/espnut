@@ -27,6 +27,12 @@
     #undef USE_ESP_DEEP_SLEEP
 #endif
 
+// Definitions used by both Menu and NutEmu
+#define FILENAME_LENGTH 32
+#define FILE_PATH_LENGTH 128
+#define FILE_LIST_LENGTH 64
+#define MAIN_PAGE_TITLE_LENGTH 64
+
 // LittleFS
 #define FORMAT_LITTLEFS_IF_FAILED true
 

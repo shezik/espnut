@@ -354,7 +354,7 @@ char *Menu::generateMainPageTitle() {
 
 void Menu::enterFileManager(char *path) {
     // Two static char buffers to store data for callback functions
-    static char filenameBuf[FILE_LIST_LENGTH][ROM_FILENAME_LENGTH] = {0};
+    static char filenameBuf[FILE_LIST_LENGTH][FILENAME_LENGTH] = {0};
     static char filePathBuf[FILE_LIST_LENGTH][FILE_PATH_LENGTH] = {0};
     static char upDirBuf[FILE_PATH_LENGTH] = {0};
     uint8_t itemCount = 0;
@@ -476,7 +476,7 @@ void Menu::deleteFileCallback(char *path) {
     }
     pendingDeleteFilePath = path;
 
-    static char title[ROM_FILENAME_LENGTH + 8];  // ROM_FILENAME_LENGTH + strlen("Delete ?")
+    static char title[FILENAME_LENGTH + 8];  // FILENAME_LENGTH + strlen("Delete ?")  // !! Use MAIN_PAGE_TITLE_LENGTH instead?
     snprintf(title, sizeof(title), "Delete %s?", pathToFileName(path));
     confirmDeletePage->setTitle(title);
     gem->setMenuPageCurrent(*confirmDeletePage);
@@ -511,7 +511,7 @@ void Menu::editFilenameCallback() {
 }
 
 void Menu::stateFileRenamedCallback(bool accepted) {
-    char stateFilename[ROM_FILENAME_LENGTH + 2 + GEM_STR_LEN - 1];  // ROM filename buffer length + strlen("/_") + Max editable string length in GEM - One excess terminator
+    char stateFilename[FILENAME_LENGTH + 2 + GEM_STR_LEN - 1];  // ROM filename buffer length + strlen("/_") + Max editable string length in GEM - One excess terminator
     if (accepted) {
         snprintf(stateFilename, sizeof(stateFilename), "%s_%s", emu.getRomFilePath(), editFilenameBuffer);  // Save the state file into the ROM's directory
         emu.saveState(stateFilename);
