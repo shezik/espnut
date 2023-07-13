@@ -38,17 +38,18 @@ static uint32_t readCol(matrix_keyboard_handle_t *handle) {
 
 static void getKeycode(matrix_keyboard_handle_t *handle) {
     for (uint8_t col = 0; col < handle->row_gpios_n; col++) {
-        // IO RW section
+        // IO W section
         writeRow(handle, col);
-        uint32_t colData = readCol(handle);
+        uint32_t colData;
 
         // Debounce section
-        uint32_t prevColData = colData;
+        uint32_t prevColData = handle->last_col_state[col];
         uint8_t debounceResetCount = 0;
         for (uint8_t i = 0; i < handle->debounce_stable_count; i++) {
             colData = readCol(handle);
             if (colData == prevColData)
                 continue;
+            vTaskDelay(pdMS_TO_TICKS(KEY_DEBOUNCE_DELAY));
             // Otherwise reset counter
             if (debounceResetCount == handle->debounce_reset_max_count) {
                 printf_log(MatrixKeyboardTag "Maximum debounce reset count (%d) exceeded!\n", handle->debounce_reset_max_count);

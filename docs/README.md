@@ -12,7 +12,6 @@ actually we're still under development.
 - Graphical menu and file manager
 
 ### Todo (Sorted by priority)
-- Longer debouncing delay
 - Fix ON key rollover behavior in power off and emulator off states
 - y^x + ON synthetic programming support
 - Remove excess variables saved in state file

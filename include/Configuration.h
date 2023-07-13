@@ -85,6 +85,7 @@
 
 // KeyboardMgr
 #define KEY_SCAN_INTERVAL 10  // ms
+#define KEY_DEBOUNCE_DELAY 5  // ms
 #define KEY_QUEUE_LENGTH 32
 #define ROW_GPIOS 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 #define COL_GPIOS 14, 15, 16, 17
