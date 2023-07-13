@@ -152,17 +152,104 @@ void NutEmuInterface::deinit() {
     tickActionOverride = nullptr;
 }
 
+#pragma region
+
+extern bool nut_read_ram (nut_reg_t *, int, uint64_t *);
+extern bool nut_write_ram (nut_reg_t *, int, uint64_t *);
+
+static void nut_read_reg(reg_t reg, uint64_t *val) {
+	uint64_t data = 0;
+
+	// pack reg into data
+	for (int8_t i = WSIZE - 1; i >= 0; i--) {
+		data <<= 4;
+		data += reg[i];
+    }
+
+	*val = data;
+}
+
+static void nut_write_reg(reg_t reg, uint64_t *val) {
+	uint64_t data;
+	data = *val;
+
+	// now unpack data into reg
+	for (uint8_t i = 0; i <= WSIZE; i++) {
+		reg[i] = data & 0x0f;
+		data >>= 4;
+    }
+}
+
+#pragma endregion
+
 void NutEmuInterface::keyPressed(uint16_t keycodeContent) {
     keysPressedSet.insert(keycodeContent);
-    if (keysPressedSet.size() == 1) {
+    
+    if (keysPressedSet.size() == 1) {  // First key pressed
         keyPressedFirst = keycodeContent;
         nut_press_key(nv, keycodeContent);
-    } else
+    } else {
         printf_log(EMU_TAG "additional key press, keycode %d\n", keycodeContent);
+        if (nv->awake || displayEnabled)
+            return;  // Emulator is not powered off
+
+        if (keycodeContent == 24) {
+            printf_log(EMU_TAG "ON key power on sequence detected, pressing ON then %d\n", keyPressedFirst);
+            keysPressedSet.erase(keycodeContent);  // Don't interfere with 2-key rollover
+            if (keyPressedFirst != 195 /*y^x on 15C*/) {
+                // nut_release_key(nv);             // It is okay to leave the first key pressed.
+                nut_press_key(nv, keycodeContent);  // Press ON
+                // Wait a jiffy between registrations
+                tickActionOverride = [](){
+                    static uint8_t stage = 0;
+                    switch (stage) {
+                        case 0:
+                            nut_release_key(context->nv);
+                            break;
+                        case 1:
+                            nut_press_key(context->nv, context->keyPressedFirst);  // This key will be released later (it is actually pressed)
+                            context->tickActionOverride = nullptr;
+                            stage = 0;
+                            return;
+                    }
+                    stage++;
+                };
+            } else {
+                uint64_t x_register;
+                uint64_t rotated_x_register = 0;
+                printf_log(EMU_TAG "y^x + ON detected, performing magic\n");
+
+                // nut_read_ram(nv, 0x04, &x_register);
+                // rotated_x_register = (x_register >> 22 | x_register << (WSIZE * 4 - 22)) & ((uint64_t) -1 >> 8);
+                // nut_write_ram(nv, 0x04, &rotated_x_register);
+                // printf_log(EMU_TAG "RAM addr 0x04: %llx, rotated right by 22 bits: %llx\n", x_register, rotated_x_register);
+
+                // nut_read_reg(nv->a, &x_register);
+                // rotated_x_register = (x_register >> 22 | x_register << (WSIZE * 4 - 22)) & ((uint64_t) -1 >> 8);
+                // nut_write_reg(nv->a, &rotated_x_register);
+                // printf_log(EMU_TAG "Register a: %llx, rotated right by 22 bits: %llx\n", x_register, rotated_x_register);
+
+                // nut_read_reg(nv->b, &x_register);
+                // rotated_x_register = (x_register >> 22 | x_register << (WSIZE * 4 - 22)) & ((uint64_t) -1 >> 8);
+                // nut_write_reg(nv->b, &rotated_x_register);
+                // printf_log(EMU_TAG "Register a: %llx, rotated right by 22 bits: %llx\n", x_register, rotated_x_register);
+
+                nut_read_reg(nv->n, &x_register);
+                rotated_x_register = (x_register >> 22 | x_register << (WSIZE * 4 - 22)) & ((uint64_t) -1 >> 8);
+                nut_write_reg(nv->n, &rotated_x_register);
+                printf_log(EMU_TAG "Register n: %llx, rotated right by 22 bits: %llx\n", x_register, rotated_x_register);
+
+                tickActionOverride = [](){
+                    nut_release_key(context->nv);  // Release keyPressedFirst (will be removed from set later)
+                    context->wakeUpOnTick();       // Do ON key's job
+                };
+            }
+        }
+    }
 }
 
 void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
-    uint16_t keycode;
+    uint16_t remainingKeycode;
 
     keysPressedSet.erase(keycodeContent);
     switch (keysPressedSet.size()) {
@@ -172,12 +259,12 @@ void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
             break;
         case 1:
             printf_log(EMU_TAG "next-to-last key release, keycode %d\n", keycodeContent);
-            keycode = *keysPressedSet.begin();
-            if (keycode != keyPressedFirst) {
-                printf_log(EMU_TAG "rollover pressing keycode %d\n", keycode);
-                nut_release_key(nv);
-                keyPressedFirst = keycode;
-                // The following function will be called once on the next tick.
+            remainingKeycode = *keysPressedSet.begin();
+            if (remainingKeycode != keyPressedFirst) {
+                printf_log(EMU_TAG "rollover pressing keycode %d\n", remainingKeycode);
+                nut_release_key(nv);  // Register keyPressedFirst
+                keyPressedFirst = remainingKeycode;
+                // The remaining key will be registered on the next tick.
                 tickActionOverride = [](){nut_press_key(context->nv, context->keyPressedFirst);
                                           context->tickActionOverride = nullptr;};
             }

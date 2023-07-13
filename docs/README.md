@@ -12,9 +12,8 @@ actually we're still under development.
 - Graphical menu and file manager
 
 ### Todo (Sorted by priority)
-- Fix ON key rollover behavior in power off and emulator off states
-- y^x + ON synthetic programming support
-- Remove excess variables saved in state file
+- Fix ON key rollover behavior in power off state
+- Remove excess variables saved in state file (Save blink state!!)
 - deleting empty directories
 - Logging and accessing logfile
 - Read comments marked with '!!'
