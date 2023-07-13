@@ -11,10 +11,15 @@ actually we're still under development.
 - State saving & loading
 - Graphical menu and file manager
 
-### Todo (Sorted by importance)
+### Todo (Sorted by priority)
+- Longer debouncing delay
+- Fix ON key rollover behavior in power off and emulator off states
+- y^x + ON synthetic programming support
+- Remove excess variables saved in state file
 - deleting empty directories
 - Logging and accessing logfile
 - Read comments marked with '!!'
+- Apply ROM patches dynamically
 - Add ESP32 cpu frequency options to Menu
 
 ### Coming soon
