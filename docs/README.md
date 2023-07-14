@@ -10,6 +10,7 @@ actually we're still under development.
 - Power management
 - State saving & loading
 - Graphical menu and file manager
+- Synthetic programming support for HP-15C (y<sup>x</sup> + ON)
 
 ### Todo (Sorted by priority)
 - Fix ON key rollover behavior in power off state

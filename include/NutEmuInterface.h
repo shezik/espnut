@@ -59,6 +59,8 @@ class NutEmuInterface {
         bool loadState(char *, bool, bool);
         bool loadMetadataFromStatefile(char *);
 
+        uint16_t wakeUpOnTickExtraKeycode;
+
         // 2-key rollover
         uint16_t keyPressedFirst;
         void keyPressed(uint16_t);
@@ -76,7 +78,7 @@ class NutEmuInterface {
         void tick();
         void pause();
         void resume();
-        void wakeUpOnTick();
+        void wakeUpOnTick(uint16_t = INVALID_KEYCODE);
         bool saveState(char *);
         bool loadStateFromStatefile(char *);
         bool isProcessorPresent();
