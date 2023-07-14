@@ -77,7 +77,8 @@ void NutEmuInterface::sim_run() {
     int instructionCount;
 
     currentTime = get_timer_ms();
-    if (currentTime < NEXT_RUN_TIME)
+    // Don't wait when we have a tickActionOverride going on. This messes things up.
+    if (!tickActionOverride && currentTime < NEXT_RUN_TIME)
         return;
 
     deltaMs = currentTime - lastRunTime;
@@ -88,6 +89,8 @@ void NutEmuInterface::sim_run() {
     if (instructionCount > MAX_INST_BURST || unlockSpeed)
         instructionCount = MAX_INST_BURST;
 
+    int successCount = 0;
+    int instructionCount_ = instructionCount;
     while (instructionCount--) {
         if (!nut_execute_instruction(nv)) {
             // printf_log(EMU_TAG "Failed to execute instruction at instructionCount %d\n", instructionCount);
@@ -102,7 +105,9 @@ void NutEmuInterface::sim_run() {
             prevDisplayEnabled = displayEnabled;
             rawDisplayEnabled = nv->display_chip->enable;
         }
+        successCount++;
     }
+    printf_log(EMU_TAG "%d of %d instructions executed\n", successCount, instructionCount_);
 
 
     lastRunTime = get_timer_ms();
