@@ -450,6 +450,8 @@ bool NutEmuInterface::saveState(char *filepath) {
     file.write(             nv->selprf);
     file.write((uint8_t *)  nv->display_segments, sizeof(uint32_t) * MAX_DIGIT_POSITION);
     file.write((uint8_t *) &nv->cycle_count,      sizeof(uint64_t));
+    file.write((uint8_t)    nv->display_chip->enable);
+    file.write((uint8_t)    nv->display_chip->blink);
 
     file.close();
     return true;
@@ -535,6 +537,8 @@ bool NutEmuInterface::loadState(char *filepath, bool doUpdateMetadata, bool doLo
     nv->selprf  = file.read();
     file.read((uint8_t *)  nv->display_segments, sizeof(uint32_t) * MAX_DIGIT_POSITION);
     file.read((uint8_t *) &nv->cycle_count,      sizeof(uint64_t));
+    nv->display_chip->enable = (bool) file.read();
+    nv->display_chip->blink  = (bool) file.read();
 
     file.close();
 
