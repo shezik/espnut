@@ -63,8 +63,22 @@ void setup() {
 
     bool isRestoreFlagPresent = nutEmuInterface.checkRestoreFlag();
     printf("Restore flag presence: %d\n", isRestoreFlagPresent);
-    if (isRestoreFlagPresent)
+    if (isRestoreFlagPresent) {
         nutEmuInterface.resume();
+        
+        uint16_t keycode;
+        xSemaphoreTake(keyboardMgr.getMutex(), 0);
+        for (;;) {
+            keycode = GetKeycodeContent(keyboardMgr.getPositiveKeycode());
+            if (keycode == 24 /*ON*/)
+                continue;
+            break;
+        }
+        xSemaphoreGive(keyboardMgr.getMutex());
+        if (keycode != INVALID_KEYCODE) {
+            nutEmuInterface.handleONKeySequence(keycode);
+        }
+    }
     menu.init(!isRestoreFlagPresent);  // Load user settings into classes, skip showing main menu if restore file is successfully loaded
 }
 

@@ -13,8 +13,7 @@ actually we're still under development.
 - Synthetic programming support for HP-15C (y<sup>x</sup> + ON)
 
 ### Todo (Sorted by priority)
-- Fix ON key rollover behavior in power off state
-- Remove excess variables saved in state file (Save blink state!!)
+- Remove excess variables saved in state file
 - deleting empty directories
 - Logging and accessing logfile
 - Read comments marked with '!!'

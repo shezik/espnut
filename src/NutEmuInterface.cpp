@@ -137,7 +137,8 @@ bool NutEmuInterface::newProcessor(int clockFrequency, int ramSize_, char *filep
     }
     nv = nut_new_processor(ramSize, (void *) this);  // (void *)nut_reg->display is reused for storing (NutEmuInterface *)
     pm.registerDeepSleepCallback(deepSleepCallback);
-    wakeUpOnTick();
+    if (enablePowerMgmt)
+        switchStateOnTick(true);
     return nut_read_object_file(nv, romFilePath);
 }
 
@@ -202,38 +203,23 @@ void NutEmuInterface::keyPressed(uint16_t keycodeContent) {
             printf_log(EMU_TAG "ON key power on sequence detected, pressing ON then %d\n", keyPressedFirst);
             nut_release_key(nv);
             keysPressedSet.erase(keycodeContent);  // Don't interfere with 2-key rollover
-            
-            if (keyPressedFirst != 195 /*y^x on 15C*/) {
-                wakeUpOnTick(keyPressedFirst);
-            } else {
-                uint64_t x_register;
-                uint64_t rotated_x_register = 0;
-                printf_log(EMU_TAG "y^x + ON detected, performing magic\n");
 
-                // nut_read_ram(nv, 0x04, &x_register);
-                // rotated_x_register = (x_register >> 22 | x_register << (WSIZE * 4 - 22)) & ((uint64_t) -1 >> 8);
-                // nut_write_ram(nv, 0x04, &rotated_x_register);
-                // printf_log(EMU_TAG "RAM addr 0x04: %llx, rotated right by 22 bits: %llx\n", x_register, rotated_x_register);
-
-                // nut_read_reg(nv->a, &x_register);
-                // rotated_x_register = (x_register >> 22 | x_register << (WSIZE * 4 - 22)) & ((uint64_t) -1 >> 8);
-                // nut_write_reg(nv->a, &rotated_x_register);
-                // printf_log(EMU_TAG "Register a: %llx, rotated right by 22 bits: %llx\n", x_register, rotated_x_register);
-
-                // nut_read_reg(nv->b, &x_register);
-                // rotated_x_register = (x_register >> 22 | x_register << (WSIZE * 4 - 22)) & ((uint64_t) -1 >> 8);
-                // nut_write_reg(nv->b, &rotated_x_register);
-                // printf_log(EMU_TAG "Register a: %llx, rotated right by 22 bits: %llx\n", x_register, rotated_x_register);
-
-                nut_read_reg(nv->n, &x_register);
-                rotated_x_register = (x_register >> 22 | x_register << (WSIZE * 4 - 22)) & ((uint64_t) -1 >> 8);
-                nut_write_reg(nv->n, &rotated_x_register);
-                printf_log(EMU_TAG "Register n: %llx, rotated right by 22 bits: %llx\n", x_register, rotated_x_register);
-
-                wakeUpOnTick();  // Do ON key's job
-            };
+            handleONKeySequence(keyPressedFirst);
         }
     }
+}
+
+void NutEmuInterface::handleONKeySequence(uint16_t extraKeycode) {
+    handleONKeySequenceExtraKeycode = extraKeycode;
+
+    switchStateOnTick(false, INVALID_KEYCODE, [](bool){  /* Turn off first */
+        if (context->handleONKeySequenceExtraKeycode == 195 /*y^x on 15C*/) {
+            context->rotateXReg();
+            context->switchStateOnTick(true);
+        } else {            
+            context->switchStateOnTick(true, context->handleONKeySequenceExtraKeycode);
+        }
+    });
 }
 
 void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
@@ -308,45 +294,54 @@ void NutEmuInterface::resume() {
     if (nv)
         nut_release_key(nv);
 
-    wakeUpOnTick();  // Overwrite tickActionOverride in case it is the rollover pressing one
+    tickActionOverride = nullptr;  // Going to menu then resume is a possible way to cancel tickActionOverride
+    if (enablePowerMgmt)
+        switchStateOnTick(true);
 }
 
-void NutEmuInterface::wakeUpOnTick(uint16_t extraKeycode) {
-    wakeUpOnTickExtraKeycode = extraKeycode;
+void NutEmuInterface::switchStateOnTick(bool targetState, uint16_t extraKeycode, void (*callback)(bool)) {
+    switchStateOnTickTargetState = targetState;
+    switchStateOnTickExtraKeycode = extraKeycode;
+    switchStateOnTickDoneCallback = callback;
 
-    // Repeatedly press the power button until displayEnabled becomes true, one action per tick()
+    // Repeatedly press the power button until displayEnabled becomes target state, one action per tick()
     tickActionOverride = [](){
-        static uint8_t count = 0;
         static uint8_t stage = 0;
+        static uint8_t count = 0;
+        static bool result = false;
         static void (*deinit)() = [](){
             stage = 0;
             count = 0;
             context->tickActionOverride = nullptr;
+            if (context->switchStateOnTickDoneCallback)
+                context->switchStateOnTickDoneCallback(result);
+            result = false;
         };
         switch (stage++) {
             case SIM_RUNS_BEFORE_CHECK:
                 check:
-                printf_log(EMU_TAG "wakeUpOnTick: Stage %d\n", stage - 1);
-                if (context->displayEnabled) {
-                    printf_log(EMU_TAG "wakeUpOnTick: Emulator awake, forcing display update\n");
-                    deinit();
+                printf_log(EMU_TAG "switchStateOnTick: Stage %d\n", stage - 1);
+                if (context->displayEnabled == context->switchStateOnTickTargetState) {
+                    printf_log(EMU_TAG "switchStateOnTick: displayEnabled equals to target state (%d), forcing display update\n", context->displayEnabled);
                     context->disp.updateDisplay(context->nv, true);
+                    result = true;
+                    deinit();
                     break;
                 }
-                printf_log(EMU_TAG "wakeUpOnTick: Pressing ON\n");
+                printf_log(EMU_TAG "switchStateOnTick: Pressing ON\n");
                 nut_press_key(context->nv, 24 /*ON*/);
                 break;
 
             case SIM_RUNS_BEFORE_CHECK + 1:
-                printf_log(EMU_TAG "wakeUpOnTick: Stage %d\n", stage - 1);
+                printf_log(EMU_TAG "switchStateOnTick: Stage %d\n", stage - 1);
                 if (context->nv->awake) {
                     count = 0;
-                    if (context->wakeUpOnTickExtraKeycode != INVALID_KEYCODE) {
+                    if (context->switchStateOnTickExtraKeycode != INVALID_KEYCODE) {
                         // It seems that releasing ON key is not required.
-                        printf_log(EMU_TAG "wakeUpOnTick: ON press registered, pressing additional key\n");
-                        nut_press_key(context->nv, context->wakeUpOnTickExtraKeycode);
+                        printf_log(EMU_TAG "switchStateOnTick: ON press registered, pressing additional key\n");
+                        nut_press_key(context->nv, context->switchStateOnTickExtraKeycode);
                     } else {
-                        printf_log(EMU_TAG "wakeUpOnTick: ON press registered, releasing\n");
+                        printf_log(EMU_TAG "switchStateOnTick: ON press registered, releasing\n");
                         stage = (SIM_RUNS_BEFORE_CHECK + 2) + 1;
                         goto release;  // im so sorry
                     }
@@ -354,33 +349,33 @@ void NutEmuInterface::wakeUpOnTick(uint16_t extraKeycode) {
                     stage--;  // Stay in this stage
                     count++;
                     if (count == MAX_WAKEUP_ATTEMPTS) {
-                        printf_log(EMU_TAG "wakeUpOnTick: Reached max wakeup attempts waiting for ON press registration\n");
+                        printf_log(EMU_TAG "switchStateOnTick: Reached max wakeup attempts waiting for ON press registration\n");
                         deinit();
                     }
                 }
                 break;
 
             case SIM_RUNS_BEFORE_CHECK + 2:
-                printf_log(EMU_TAG "wakeUpOnTick: Stage %d\n", stage - 1);
+                printf_log(EMU_TAG "switchStateOnTick: Stage %d\n", stage - 1);
                 if (context->nv->awake) {
                     count = 0;
                     release:
-                    printf_log(EMU_TAG "Releasing ON key (or including the additional key)\n");
+                    printf_log(EMU_TAG "switchStateOnTick: Releasing ON key (or including the additional key)\n");
                     nut_release_key(context->nv);
                 } else {
                     stage--;  // Stay in this stage
                     count++;
                     if (count == MAX_WAKEUP_ATTEMPTS) {
-                        printf_log(EMU_TAG "wakeUpOnTick: Reached max wakeup attempts waiting for additional key press registration\n");
+                        printf_log(EMU_TAG "switchStateOnTick: Reached max wakeup attempts waiting for ON release registration\n");
                         deinit();
                     }
                 }
                 break;
 
             case SIM_RUNS_BEFORE_CHECK + 3:
-                printf_log(EMU_TAG "wakeUpOnTick: Stage %d\n", stage - 1);
+                printf_log(EMU_TAG "switchStateOnTick: Stage %d\n", stage - 1);
                 if (!context->nv->awake) {
-                    printf_log(EMU_TAG "wakeUpOnTick: ON release registered, jumping to stage %d\n", SIM_RUNS_BEFORE_CHECK);
+                    printf_log(EMU_TAG "switchStateOnTick: ON release registered, jumping to stage %d\n", SIM_RUNS_BEFORE_CHECK);
                     stage = (SIM_RUNS_BEFORE_CHECK) + 1;
                     count = 0;
                     goto check;  // im sorry
@@ -388,18 +383,29 @@ void NutEmuInterface::wakeUpOnTick(uint16_t extraKeycode) {
                     stage--;
                     count++;
                     if (count == MAX_WAKEUP_ATTEMPTS) {
-                        printf_log(EMU_TAG "wakeUpOnTick: Reached max wakeup attempts waiting for ON release registration\n");
+                        printf_log(EMU_TAG "switchStateOnTick: Reached max wakeup attempts waiting for ON release registration\n");
                         deinit();
                     }
                 }
                 break;
 
             default:
-                printf_log(EMU_TAG "wakeUpOnTick: Stage %d\n", stage - 1);
+                printf_log(EMU_TAG "switchStateOnTick: Stage %d\n", stage - 1);
                 break;
         }
         // !! Clear key queue here?
     };
+}
+
+void NutEmuInterface::rotateXReg() {
+    uint64_t x_register;
+    uint64_t rotated_x_register = 0;
+    printf_log(EMU_TAG "y^x + ON detected, performing magic\n");
+
+    nut_read_reg(nv->n, &x_register);
+    rotated_x_register = (x_register >> 22 | x_register << (WSIZE * 4 - 22)) & ((uint64_t) -1 >> 8);
+    nut_write_reg(nv->n, &rotated_x_register);
+    printf_log(EMU_TAG "Register n: %llx, rotated right by 22 bits: %llx\n", x_register, rotated_x_register);
 }
 
 bool NutEmuInterface::saveState(char *filepath) {
@@ -542,7 +548,8 @@ bool NutEmuInterface::loadState(char *filepath, bool doUpdateMetadata, bool doLo
 
     file.close();
 
-    wakeUpOnTick();
+    if (enablePowerMgmt)
+        switchStateOnTick(true);
     return true;
 }
 
