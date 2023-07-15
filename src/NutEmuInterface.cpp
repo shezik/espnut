@@ -454,8 +454,8 @@ bool NutEmuInterface::saveState(char *filepath) {
     file.write((uint8_t *)  nv->ram,         sizeof(reg_t) * nv->max_ram);
     file.write(             nv->pf_addr);
     file.write(             nv->selprf);
-    file.write((uint8_t *)  nv->display_segments, sizeof(uint32_t) * MAX_DIGIT_POSITION);
     file.write((uint8_t *) &nv->cycle_count,      sizeof(uint64_t));
+    // file.write((uint8_t *)  nv->display_segments, sizeof(uint32_t) * MAX_DIGIT_POSITION);  // Generated using RAM contents (if you call event_restore_completed tho)
     file.write((uint8_t)    nv->display_chip->enable);
     file.write((uint8_t)    nv->display_chip->blink);
 
@@ -541,13 +541,14 @@ bool NutEmuInterface::loadState(char *filepath, bool doUpdateMetadata, bool doLo
     file.read((uint8_t *)  nv->ram,         sizeof(reg_t) * nv->max_ram);
     nv->pf_addr = file.read();
     nv->selprf  = file.read();
-    file.read((uint8_t *)  nv->display_segments, sizeof(uint32_t) * MAX_DIGIT_POSITION);
+    // file.read((uint8_t *)  nv->display_segments, sizeof(uint32_t) * MAX_DIGIT_POSITION);
     file.read((uint8_t *) &nv->cycle_count,      sizeof(uint64_t));
     nv->display_chip->enable = (bool) file.read();
     nv->display_chip->blink  = (bool) file.read();
 
     file.close();
 
+    do_event(nv, event_restore_completed);  // Refresh LCD
     if (enablePowerMgmt)
         switchStateOnTick(true);
     return true;
