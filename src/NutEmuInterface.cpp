@@ -214,6 +214,7 @@ void NutEmuInterface::handleONKeySequence(uint16_t extraKeycode) {
 
     switchStateOnTick(false, INVALID_KEYCODE, [](bool){  /* Turn off first */
         if (context->handleONKeySequenceExtraKeycode == 195 /*y^x on 15C*/) {
+            printf_log(EMU_TAG "y^x + ON detected, performing magic\n");
             context->rotateXReg();
             context->switchStateOnTick(true);
         } else {            
@@ -400,7 +401,6 @@ void NutEmuInterface::switchStateOnTick(bool targetState, uint16_t extraKeycode,
 void NutEmuInterface::rotateXReg() {
     uint64_t x_register;
     uint64_t rotated_x_register = 0;
-    printf_log(EMU_TAG "y^x + ON detected, performing magic\n");
 
     nut_read_reg(nv->n, &x_register);
     rotated_x_register = (x_register >> 22 | x_register << (WSIZE * 4 - 22)) & ((uint64_t) -1 >> 8);
@@ -454,8 +454,8 @@ bool NutEmuInterface::saveState(char *filepath) {
     file.write((uint8_t *)  nv->ram,         sizeof(reg_t) * nv->max_ram);
     file.write(             nv->pf_addr);
     file.write(             nv->selprf);
-    file.write((uint8_t *) &nv->cycle_count,      sizeof(uint64_t));
     // file.write((uint8_t *)  nv->display_segments, sizeof(uint32_t) * MAX_DIGIT_POSITION);  // Generated using RAM contents (if you call event_restore_completed tho)
+    file.write((uint8_t *) &nv->cycle_count,      sizeof(uint64_t));  // ?
     file.write((uint8_t)    nv->display_chip->enable);
     file.write((uint8_t)    nv->display_chip->blink);
 
@@ -591,7 +591,7 @@ void NutEmuInterface::setUnlockSpeed(bool unlockSpeed_) {
     unlockSpeed = unlockSpeed_;
 }
 
-bool NutEmuInterface::checkRestoreFlag() {
+bool NutEmuInterface::readRestoreFlag() {
     if (!LittleFS.exists(RESTORE_FLAG_FILENAME))
         return false;
     

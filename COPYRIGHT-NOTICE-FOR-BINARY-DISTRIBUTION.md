@@ -72,12 +72,15 @@ limitations under the License.
 ## GEM
 **Note that the relevant code used in this project is a MODIFIED version.**
 
-Modifications on GEM_u8g2.h of spirik/GEM@^1.4.0:  
+Modifications to GEM_u8g2.h in spirik/GEM@^1.4.0:  
 Line 134: `virtual void drawMenu();`  
 Line 141: `protected:`
 
 Modifications to GEMPage.h in spirik/GEM@^1.4.0:
 Line 59: `protected:`
+
+Modifications to GEM_u8g2.cpp in spirik/GEM@^1.4.0:
+Line 165: `// _u8g2.clear();`
 
 ----------------------------------------------------------------
 

@@ -61,7 +61,7 @@ void setup() {
     keyboardMgr.init();  // Init and start matrix keyboard scanner task
     nutEmuInterface.init();
 
-    bool isRestoreFlagPresent = nutEmuInterface.checkRestoreFlag();
+    bool isRestoreFlagPresent = nutEmuInterface.readRestoreFlag();
     printf("Restore flag presence: %d\n", isRestoreFlagPresent);
     if (isRestoreFlagPresent) {
         nutEmuInterface.resume();

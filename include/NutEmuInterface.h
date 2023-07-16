@@ -95,7 +95,7 @@ class NutEmuInterface {
         void setUnlockSpeed(bool);
 
         // Attempt to load deep sleep restore file
-        bool checkRestoreFlag();
+        bool readRestoreFlag();
         void resetProcessor(bool = false);
         void deepSleepPrepare();
 
