@@ -67,16 +67,17 @@ void setup() {
         nutEmuInterface.resume();
         
         uint16_t keycode;
-        xSemaphoreTake(keyboardMgr.getMutex(), 0);
+        xSemaphoreTake(keyboardMgr.getMutex(), portMAX_DELAY);
         for (;;) {
-            keycode = GetKeycodeContent(keyboardMgr.getPositiveKeycode());
-            if (keycode == 24 /*ON*/)
+            keycode = keyboardMgr.getPositiveKeycode();
+            if (GetKeycodeContent(keycode) == 24 /*ON*/)
                 continue;
             break;
         }
         xSemaphoreGive(keyboardMgr.getMutex());
+        printf_log("Keycode on startup: %d\n", keycode);
         if (keycode != INVALID_KEYCODE) {
-            nutEmuInterface.handleONKeySequence(keycode);
+            nutEmuInterface.handleONKeySequence(GetKeycodeContent(keycode));
         }
     }
     menu.init(!isRestoreFlagPresent);  // Load user settings into classes, skip showing main menu if restore file is successfully loaded
