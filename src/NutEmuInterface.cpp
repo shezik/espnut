@@ -296,6 +296,7 @@ void NutEmuInterface::resume() {
         nut_release_key(nv);
 
     tickActionOverride = nullptr;  // Going to menu then resume is a possible way to cancel tickActionOverride
+    disp.updateDisplay(nv, true);  // Redraw display
     if (enablePowerMgmt)
         switchStateOnTick(true);
 }
