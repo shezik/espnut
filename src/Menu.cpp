@@ -165,7 +165,9 @@ void Menu::init(bool showMenuFlag_) {
     gem->registerDrawMenuCallback(drawBatteryCallback);
     pm.registerBatPercentChangedCallback([](){context->drawBatteryCallback(); context->dp.getU8g2()->sendBuffer();});
     gem->setSplash(peanut_width, peanut_height, peanut_bits);
-    if (!showMenuFlag)
+    if (showMenuFlag)
+        dp.getU8g2()->clear();
+    else
         gem->setSplashDelay(0);
     gem->init();
 }

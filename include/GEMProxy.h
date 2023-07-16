@@ -23,6 +23,9 @@
 
 #include "GEM_u8g2.h"
 
+// Modifications to GEM_u8g2.cpp in spirik/GEM@^1.4.0:
+// Line 165: `// _u8g2.clear();`
+
 // Modifications to GEM_u8g2.h in spirik/GEM@^1.4.0:
 // Line 134: virtual void drawMenu();
 // Line 141: protected:
