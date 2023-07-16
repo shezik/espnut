@@ -109,16 +109,18 @@ void DispInterface::drawSegments(segment_bitmap_t *ds, bool lowBat) {
         u8g2.drawXBM(0, 0, asterisk_width, asterisk_height, asterisk_bits);
 }
 
-// Also kicks display out of power save mode
 void DispInterface::updateDisplay(nut_reg_t *nv, bool force) {
     static segment_bitmap_t lastSegments[VOYAGER_DISPLAY_DIGITS] = {0};
     bool lowBat = lowBatAnnOverride || blinkTick();
-    static bool lastLowBat = false;
-    bool doUpdate = (lastLowBat != lowBat) ? true : memcmp(lastSegments, nv->display_segments, sizeof(lastSegments));
+    static bool lastLowBat = !lowBat;
+    bool displayEnabled = nv->display_chip->enable;
+    static bool lastDisplayEnabled = !displayEnabled;
+    bool doUpdate = (lastLowBat != lowBat) || (lastDisplayEnabled != displayEnabled) || memcmp(lastSegments, nv->display_segments, sizeof(lastSegments));
     memcpy(lastSegments, nv->display_segments, sizeof(lastSegments));
     
     if (doUpdate || force) {
         lastLowBat = lowBat;
+        lastDisplayEnabled = displayEnabled;
         drawSegments(nv->display_segments, lowBat);
         u8g2.sendBuffer();
     }
