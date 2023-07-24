@@ -21,7 +21,7 @@
 
 #pragma once
 
-#define VERSION "1.0"
+#define VERSION "1.1"
 
 #ifdef USE_ESP_DEEP_SLEEP
     #undef USE_ESP_DEEP_SLEEP
