@@ -1,9 +1,7 @@
 [![](markdownAssets/banner.png)](https://github.com/shezik/espnut)  
 Eric Smith's Nonpareil emulator ported to ESP32. Supports HP Voyager calculators.  
-The successor of shezik/esp15c (now archived).
-
-## ~Now in code auditing phase!~
-actually we're still under development.
+The successor of shezik/esp15c (now archived).  
+**To update device firmware, check out [espnut-updater](https://github.com/shezik/espnut-updater).**
 
 ### Features
 - Matrix keyboard driver for ESP32-S3 that doesn't support dedicated GPIO interrupt :)
@@ -23,7 +21,7 @@ actually we're still under development.
 ### Coming soon
 - PCB & BOM
 
-You just have to wait, like, soon? ツ  
+You just have to wait, like, not very soon? ツ  
 
 ----------------
 
