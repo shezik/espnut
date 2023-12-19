@@ -19,9 +19,10 @@ The successor of shezik/esp15c (now archived).
 - Add ESP32 cpu frequency options to Menu
 
 ### Coming soon
-- PCB & BOM
+- ~~PCB & BOM~~
 
-You just have to wait, like, not very soon? ツ  
+~~You just have to wait, like, not very soon? ツ~~  
+The thing is that I've decided to only upload [schematics](https://github.com/shezik/espnut/tree/main/docs/Schematics) but not PCB-related files nor the source files of the documents shipped along with units.
 
 ----------------
 
