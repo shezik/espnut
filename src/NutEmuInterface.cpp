@@ -435,26 +435,26 @@ bool NutEmuInterface::saveState(char *filepath) {
     file.write(             nv->fo);
     file.write((uint8_t)    nv->decimal);
     file.write((uint8_t)    nv->carry);
-    file.write((uint8_t)    nv->prev_carry);
-    file.write((uint8_t *) &nv->prev_tef_last, sizeof(int));
+    file.write((uint8_t)    nv->prev_carry);  // ? Appeared in go00c
+    file.write((uint8_t *) &nv->prev_tef_last, sizeof(int));  // ?
     file.write((uint8_t *)  nv->s,             sizeof(bool) * SSIZE);
     file.write((uint8_t *) &nv->pc,            sizeof(rom_addr_t));
-    file.write((uint8_t *) &nv->prev_pc,       sizeof(rom_addr_t));
+    file.write((uint8_t *) &nv->prev_pc,       sizeof(rom_addr_t));  // ?
     file.write((uint8_t *)  nv->stack,         sizeof(rom_addr_t) * STACK_DEPTH);
-    file.write((uint8_t *) &nv->cxisa_addr,    sizeof(rom_addr_t));
-    file.write((uint8_t *) &nv->inst_state,    sizeof(inst_state_t));
-    file.write((uint8_t *) &nv->first_word,    sizeof(rom_word_t));
-    file.write((uint8_t)    nv->long_branch_carry);
-    file.write((uint8_t)    nv->key_down);
-    file.write((uint8_t *) &nv->kb_state,                  sizeof(keyboard_state_t));
-    file.write((uint8_t *) &nv->kb_debounce_cycle_counter, sizeof(int));
-    file.write((uint8_t *) &nv->key_buf,                   sizeof(int));
+    file.write((uint8_t *) &nv->cxisa_addr,    sizeof(rom_addr_t));  // ?
+    file.write((uint8_t *) &nv->inst_state,    sizeof(inst_state_t));  // ?
+    file.write((uint8_t *) &nv->first_word,    sizeof(rom_word_t));  // ?
+    file.write((uint8_t)    nv->long_branch_carry);  // ?
+    file.write((uint8_t)    nv->key_down);  // ?
+    file.write((uint8_t *) &nv->kb_state,                  sizeof(keyboard_state_t));  // ?
+    file.write((uint8_t *) &nv->kb_debounce_cycle_counter, sizeof(int));  // ?
+    file.write((uint8_t *) &nv->key_buf,                   sizeof(int));  // ?
     file.write((uint8_t)    nv->awake);
     file.write(             nv->active_bank, MAX_PAGE);
     file.write((uint8_t *) &nv->ram_addr,    sizeof(uint16_t));
     file.write((uint8_t *)  nv->ram,         sizeof(reg_t) * nv->max_ram);
     file.write(             nv->pf_addr);
-    file.write(             nv->selprf);
+    file.write(             nv->selprf);  // ?
     // file.write((uint8_t *)  nv->display_segments, sizeof(uint32_t) * MAX_DIGIT_POSITION);  // Generated using RAM contents (if you call event_restore_completed tho)
     file.write((uint8_t *) &nv->cycle_count,      sizeof(uint64_t));  // ?
     file.write((uint8_t)    nv->display_chip->enable);
