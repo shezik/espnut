@@ -1,0 +1,3430 @@
+From: <Saved by Blink>
+Snapshot-Content-Location: https://www.hpmuseum.org/forum/printthread.php?tid=5321
+Subject: HP-15C: Fixing the CHS and Stack Lift Bug - Printable Version
+Date: Wed, 12 Jul 2023 12:39:43 -0000
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----"
+
+
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----
+Content-Type: text/html
+Content-ID: <frame-04844198E1DF1AA5994218D806C20044@mhtml.blink>
+Content-Transfer-Encoding: quoted-printable
+Content-Location: https://www.hpmuseum.org/forum/printthread.php?tid=5321
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.=
+w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><!-- start: printthread --><h=
+tml xml:lang=3D"en" lang=3D"en" xmlns=3D"http://www.w3.org/1999/xhtml"><hea=
+d><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF-8">=
+<link rel=3D"stylesheet" type=3D"text/css" href=3D"cid:css-6b7e6b64-4e7a-4b=
+f3-b118-ae4ccfc6a8a6@mhtml.blink" /><link rel=3D"stylesheet" type=3D"text/c=
+ss" href=3D"cid:css-a8a89dea-c2bf-4271-b533-7284b6498da0@mhtml.blink" /><li=
+nk rel=3D"stylesheet" type=3D"text/css" href=3D"cid:css-683c3fea-f929-403a-=
+be5d-f3e76789dc23@mhtml.blink" /><link rel=3D"stylesheet" type=3D"text/css"=
+ href=3D"cid:css-24a9c6f3-ddb6-4384-bdf2-72bb6cb38743@mhtml.blink" /><link =
+rel=3D"stylesheet" type=3D"text/css" href=3D"cid:css-43d9083a-1df2-4d57-93c=
+4-0e0c0667f09a@mhtml.blink" /><link rel=3D"stylesheet" type=3D"text/css" hr=
+ef=3D"cid:css-a871b05f-ce80-4aec-b657-4b583f9bd250@mhtml.blink" />
+<title> HP-15C: Fixing the CHS and Stack Lift Bug - Printable Version</titl=
+e>
+
+
+</head>
+<body>
+<table width=3D"98%" align=3D"center">
+<tbody><tr>
+<td valign=3D"top"><a href=3D"https://www.hpmuseum.org/forum/index.php"><im=
+g src=3D"https://www.hpmuseum.org/mohpcf.png" alt=3D"HP Forums" title=3D"HP=
+ Forums" border=3D"0"></a></td>
+</tr>
+<tr>
+<td>
+<span class=3D"largetext"> <a href=3D"https://www.hpmuseum.org/forum/thread=
+-5321.html">HP-15C: Fixing the CHS and Stack Lift Bug</a> - Printable Versi=
+on</span><br>
+<br>
++- HP Forums (<em>https://www.hpmuseum.org/forum</em>)<br>
++-- Forum: HP Calculators (and very old HP Computers) (<i>/forum-3.html</i>=
+)<br>
++--- Forum: General Forum (<i>/forum-4.html</i>)<br>
+
++--- Thread:  HP-15C: Fixing the CHS and Stack Lift Bug (<em>/thread-5321.h=
+tml</em>)<br>
+<br>
+<div class=3D"multipage">Pages: <strong></strong> <strong>1</strong> <a hre=
+f=3D"https://www.hpmuseum.org/forum/printthread.php?tid=3D5321&amp;page=3D2=
+">2</a> </div></td>
+</tr>
+<tr>
+<td><br><hr size=3D"1"><!-- start: printthread_post -->
+<strong>HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D"htt=
+ps://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klemm</a=
+> -  <strong>12-13-2015</strong> <strong>06:44 AM</strong>
+<br>
+<br>
+For a description of the bug see: <a href=3D"http://www.hpmuseum.org/cgi-sy=
+s/cgiwrap/hpmuseum/archv016.cgi?read=3D107829" target=3D"_blank" rel=3D"nof=
+ollow">CHS and Stack Lift</a><br>
+<br>
+<span style=3D"font-weight: bold;">TL;DR</span>: <span style=3D"font-style:=
+ italic;">CHS</span> doesn't enable the stack lift when the <span style=3D"=
+font-style: italic;">X</span>-register is 0.<br>
+<br>
+The line 07117 is responsible for the <span style=3D"font-style: italic;">C=
+HS</span>-bug. When the mantissa of the <span style=3D"font-style: italic;"=
+>X</span>-register is all 0 then the program jumps to line 00250.<br>
+But then the flag 9 which disables the stack-lift is not cleared in line 07=
+127. Thus the stack-lift keeps disabled.<br>
+<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>07116:&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;1372&nbsp;?&nbsp;c&lt;&gt;0&nbsp;&nbsp;m<br>
+07117:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1241&nbsp;?nc&nbsp;go=
+to&nbsp;00250<br>
+07120:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0002<br>
+07121:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0611&nbsp;?nc&nbsp;ca=
+ll&nbsp;05142<br>
+07122:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0050<br>
+07123:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1314&nbsp;?&nbsp;s=3D=
+0&nbsp;13<br>
+07124:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0321&nbsp;?c&nbsp;&nb=
+sp;goto&nbsp;31064<br>
+07125:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0313<br>
+07126:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1276&nbsp;c=3D-c-1&nb=
+sp;&nbsp;s<br>
+07127:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1104&nbsp;s=3D0&nbsp;=
+9<br>
+07130:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0360&nbsp;c&lt;&gt;n<=
+br>
+07131:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1663&nbsp;?nc&nbsp;go=
+to&nbsp;07117</code></div></div>
+<br>
+But line 07117 is also used with short branches, probably to save some prec=
+ious bytes. Thus we have to adjust these as well.<br>
+And then there are two short branches to line 07127 which we have to consid=
+er.<br>
+<br>
+This is the patch I came up with:<br>
+<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>07116:&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;1372&nbsp;?&nbsp;c&lt;&gt;0&nbsp;&nbsp;m<br>
+07117:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0103&nbsp;?nc&nbsp;go=
+to&nbsp;07127<br>
+07120:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0611&nbsp;?nc&nbsp;ca=
+ll&nbsp;05142<br>
+07121:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0050<br>
+07122:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1314&nbsp;?&nbsp;s=3D=
+0&nbsp;13<br>
+07123:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0321&nbsp;?c&nbsp;&nb=
+sp;goto&nbsp;31064<br>
+07124:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0313<br>
+07125:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1276&nbsp;c=3D-c-1&nb=
+sp;&nbsp;s<br>
+07126:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0360&nbsp;c&lt;&gt;n<=
+br>
+07127:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1104&nbsp;s=3D0&nbsp;=
+9<br>
+07130:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1241&nbsp;?nc&nbsp;go=
+to&nbsp;00250<br>
+07131:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0002</code></div></di=
+v>
+<br>
+Thus the long jump to line 00250 was moved down.<br>
+The commands <span style=3D"font-family: Courier;">s=3D0 9</span> and <span=
+ style=3D"font-family: Courier;">c&lt;&gt;n</span> got swapped so we can on=
+ly enable the stack-lift.<br>
+Unfortunately the distance from line 07027 is now too long for a short bran=
+ch.<br>
+Instead of using a long jump I decided to do it in two steps:<br>
+<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>07026:&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;0414&nbsp;?&nbsp;s=3D0&nbsp;8<br>
+07027:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0027&nbsp;?c&nbsp;&nb=
+sp;goto&nbsp;07031<br>
+07030:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0510&nbsp;s=3D1&nbsp;=
+6<br>
+07031:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0773&nbsp;?nc&nbsp;go=
+to&nbsp;07130</code></div></div>
+<br>
+So far the fix works fine. I just hope that I haven't introduced other bugs=
+. <br>
+<span style=3D"text-decoration: underline;">Keep a copy of the original ROM=
+!</span><br>
+<br>
+<span style=3D"font-weight: bold;">Instructions to apply the patch:</span><=
+br>
+<ol type=3D"1">
+<li>unzip the attached file hp-15c-chs-bug.zip:<br>
+<span style=3D"font-family: Courier;">unzip hp-15c-chs-bug.zip<br>
+</span></li>
+<li>apply the patch:<br>
+<span style=3D"font-family: Courier;">patch 15c.obj hp-15c-chs-bug.patch<br=
+>
+</span><br>
+</li></ol>
+<br>
+Kind regards<br>
+Thomas
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-38.html" target=3D"_blank">Marcus von =
+Cube</a> -  <strong>12-13-2015</strong> <strong>04:59 PM</strong>
+<br>
+<br>
+You should send the information to Michael Steinmann so he can update the D=
+M15 firmware.
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-7.html" target=3D"_blank">Katie Wasser=
+man</a> -  <strong>12-14-2015</strong> <strong>12:39 AM</strong>
+<br>
+<br>
+Nice work, Thomas!<br>
+<br>
+<blockquote><cite><span> (12-13-2015 04:59 PM)</span>Marcus von Cube Wrote:=
+ <a href=3D"https://www.hpmuseum.org/forum/post-47227.html#pid47227" class=
+=3D"quick_jump" target=3D"_blank">&nbsp;</a></cite>You should send the info=
+rmation to Michael Steinmann so he can update the DM15 firmware.</blockquot=
+e>
+<br>
+Since the original can't be fixed, then fixing any emulator will mean that =
+it's no longer a true emulation.  Given how long this bug has existed, I th=
+ink that should be left as is.
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-2142.html" target=3D"_blank">matthiasp=
+aul</a> -  <strong>12-14-2015</strong> <strong>01:48 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-14-2015 12:39 AM)</span>Katie Wasserman Wrote:=
+ <a href=3D"https://www.hpmuseum.org/forum/post-47244.html#pid47244" class=
+=3D"quick_jump" target=3D"_blank">&nbsp;</a></cite><blockquote><cite><span>=
+ (12-13-2015 04:59 PM)</span>Marcus von Cube Wrote: <a href=3D"https://www.=
+hpmuseum.org/forum/post-47227.html#pid47227" class=3D"quick_jump" target=3D=
+"_blank">&nbsp;</a></cite>You should send the information to Michael Steinm=
+ann so he can update the DM15 firmware.</blockquote>
+<br>
+Since the original can't be fixed, then fixing any emulator will mean that =
+it's no longer a true emulation.  Given how long this bug has existed, I th=
+ink that should be left as is.</blockquote>
+Well, at least the alternative ROM images could be made available alongside=
+ the original images. There are also patched images with support for 192 or=
+ 224 registers (instead of 64)...<br>
+<br>
+Ideally, but it makes sense only for rather local and short patches and req=
+uires some special-casing in the emulator, patches could be dynamically ins=
+erted and removed by a flag user-configurable in the emulator.<br>
+<br>
+Greetings,<br>
+<br>
+ Matthias
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-2142.html" target=3D"_blank">matthiasp=
+aul</a> -  <strong>12-14-2015</strong> <strong>04:08 AM</strong>
+<br>
+<br>
+Thomas, thank you for the patch! Given that the HP-11C and HP-16C share som=
+e amount of code with the HP-15C, do you plan to port your patch to these c=
+alculators as well?<br>
+<br>
+Greetings,<br>
+<br>
+ Matthias
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>12-14-2015</strong> <strong>06:29 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-14-2015 04:08 AM)</span>matthiaspaul Wrote: <a=
+ href=3D"https://www.hpmuseum.org/forum/post-47259.html#pid47259" class=3D"=
+quick_jump" target=3D"_blank">&nbsp;</a></cite>Given that the HP-11C and HP=
+-16C share some amount of code with the HP-15C, do you plan to port your pa=
+tch to these calculators as well?</blockquote>
+<br>
+To be honest: no. I'm driven by curiousity and interest, not by plans. <br>
+But yeah, I'll probably have a look at these two models as well.<br>
+<br>
+Cheers<br>
+Thomas
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>HP-11C and HP-16C: Fixing the CHS and Stack Lift Bug</strong> - <a =
+href=3D"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thom=
+as Klemm</a> -  <strong>12-15-2015</strong> <strong>05:35 AM</strong>
+<br>
+<br>
+The fix for these two models was similar or maybe even a little simpler.<br=
+>
+I'm just posting the change I made to the HP-11C since the code for the HP-=
+16C is similar:<br>
+<br>
+<span style=3D"font-weight: bold;">original:</span><br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>07107:&nbsp;1372&nbsp;?&nbsp;c&=
+lt;&gt;0&nbsp;&nbsp;m<br>
+07110:&nbsp;1145&nbsp;?nc&nbsp;goto&nbsp;00231<br>
+07111:&nbsp;0002<br>
+07112:&nbsp;1276&nbsp;c=3D-c-1&nbsp;&nbsp;s<br>
+07113:&nbsp;1104&nbsp;s=3D0&nbsp;9<br>
+07114:&nbsp;0360&nbsp;c&lt;&gt;n<br>
+07115:&nbsp;1733&nbsp;?nc&nbsp;goto&nbsp;07110</code></div></div>
+<br>
+<span style=3D"font-weight: bold;">patched:</span><br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>07107:&nbsp;1372&nbsp;?&nbsp;c&=
+lt;&gt;0&nbsp;&nbsp;m<br>
+07110:&nbsp;0033&nbsp;?nc&nbsp;goto&nbsp;07113<br>
+07111:&nbsp;1276&nbsp;c=3D-c-1&nbsp;&nbsp;s<br>
+07112:&nbsp;0360&nbsp;c&lt;&gt;n<br>
+07113:&nbsp;1104&nbsp;s=3D0&nbsp;9<br>
+07114:&nbsp;1145&nbsp;?nc&nbsp;goto&nbsp;00231<br>
+07115:&nbsp;0002</code></div></div>
+<br>
+A few short branches had to be adjusted but this time they stayed within th=
+e reach. Both patch files are attached in the file <span style=3D"font-fami=
+ly: Courier;">hp-11c-16c-chs-bug.zip</span>.<br>
+<br>
+Kind regards<br>
+Thomas
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-56.html" target=3D"_blank">Massimo Gne=
+rucci</a> -  <strong>12-15-2015</strong> <strong>05:49 AM</strong>
+<br>
+<br>
+...nothing for the 10C and 12C??? :D :D
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-136.html" target=3D"_blank">rprosperi<=
+/a> -  <strong>12-15-2015</strong> <strong>06:23 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-15-2015 05:49 AM)</span>Massimo Gnerucci Wrote=
+: <a href=3D"https://www.hpmuseum.org/forum/post-47332.html#pid47332" class=
+=3D"quick_jump" target=3D"_blank">&nbsp;</a></cite>...nothing for the 10C a=
+nd 12C??? <img src=3D"https://www.hpmuseum.org/forum/images/smilies/biggrin=
+.gif" style=3D"vertical-align: middle;" border=3D"0" alt=3D"Big Grin" title=
+=3D"Big Grin"> <img src=3D"https://www.hpmuseum.org/forum/images/smilies/bi=
+ggrin.gif" style=3D"vertical-align: middle;" border=3D"0" alt=3D"Big Grin" =
+title=3D"Big Grin"></blockquote>
+<br>
+Earlier research revealed the 10C and 12C do not have this problem. Likely =
+because they actually wrote the code for the 10C and 12C, rather than porti=
+ng the 34C code to the 11C/15C/16C, where it appears the bug originated.<br=
+>
+<br>
+Whoda thought?
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>12-15-2015</strong> <strong>06:39 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-14-2015 12:39 AM)</span>Katie Wasserman Wrote:=
+ <a href=3D"https://www.hpmuseum.org/forum/post-47244.html#pid47244" class=
+=3D"quick_jump" target=3D"_blank">&nbsp;</a></cite>fixing any emulator will=
+ mean that it's no longer a true emulation.</blockquote>
+<br>
+This reminds me a little of the <a href=3D"https://en.wikipedia.org/wiki/Sh=
+ip_of_Theseus" target=3D"_blank" rel=3D"nofollow">Ship of Theseus</a>. On t=
+he one hand we complain that bugs in the HP-35S or HP-15C LE aren't fixed. =
+But then we value an HP-35 containing the exp-bug more than a fixed one. Is=
+n't hat strange?<br>
+<br>
+Can we improve the HP-15C by fixing its bugs? Or is changing the ROM heresy=
+? I have the utmost respect for the programmers of these ROMs. You can not =
+simply rewrite the code to fix a bug because the ROM is full. Moving lines =
+means recalculating branches. Thus I'm happy I could find a solution by onl=
+y moving a few of them. I feel it's done in the spirit of the original prog=
+rammers.<br>
+<br>
+Using an emulator we can use both: the original and the fixed ROM. Thus why=
+ not provide it as an option as Matthias suggested?<br>
+But then we can probably agree that it's not a serious bug. So you might ju=
+st as well think: who cares?<br>
+<br>
+Kind regards<br>
+Thomas
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>12-15-2015</strong> <strong>07:39 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-15-2015 06:23 AM)</span>rprosperi Wrote: <a hr=
+ef=3D"https://www.hpmuseum.org/forum/post-47334.html#pid47334" class=3D"qui=
+ck_jump" target=3D"_blank">&nbsp;</a></cite>Earlier research revealed the 1=
+0C and 12C do not have this problem. Likely because they actually wrote the=
+ code for the 10C and 12C, rather than porting the 34C code to the 11C/15C/=
+16C, where it appears the bug originated.</blockquote>
+<br>
+This is the relevant code of the HP-12C:<br>
+<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>01155:&nbsp;1276&nbsp;c=3D-c-1&=
+nbsp;&nbsp;s<br>
+01156:&nbsp;0707&nbsp;?c&nbsp;&nbsp;goto&nbsp;01246<br>
+...<br>
+01246:&nbsp;0371&nbsp;?nc&nbsp;goto&nbsp;00076<br>
+...<br>
+00076:&nbsp;1104&nbsp;s=3D0&nbsp;9<br>
+00077:&nbsp;1404&nbsp;s=3D0&nbsp;1<br>
+00100:&nbsp;0240&nbsp;sel&nbsp;p<br>
+00101:&nbsp;1625&nbsp;?nc&nbsp;call&nbsp;03745<br>
+00102:&nbsp;0034<br>
+00103:&nbsp;0055&nbsp;?nc&nbsp;call&nbsp;10413<br>
+00104:&nbsp;0104<br>
+...<br>
+10413:&nbsp;1372&nbsp;?&nbsp;c&lt;&gt;0&nbsp;&nbsp;m<br>
+10414:&nbsp;0027&nbsp;?c&nbsp;&nbsp;goto&nbsp;10416<br>
+10415:&nbsp;0116&nbsp;c=3D0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w<br>
+10416:&nbsp;1240&nbsp;set&nbsp;dec</code></div></div>
+<br>
+Compared to the other calculators the sign is negated unconditionally (line=
+ 01155) and only much later it's checked whether the mantissa is 0 (line 10=
+413).<br>
+If so the whole register c is set to 0 (line 10415).<br>
+<br>
+It could be interesting to compare this code to even earlier implementation=
+s of CHS.<br>
+<br>
+Cheers<br>
+Thomas
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>12-17-2015</strong> <strong>06:24 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-17-2015 01:24 AM)</span>Mike (Stgt) Wrote: <a =
+href=3D"https://www.hpmuseum.org/forum/post-47450.html#pid47450" class=3D"q=
+uick_jump" target=3D"_blank">&nbsp;</a></cite>How do you disasemble the who=
+le ROMs?</blockquote>
+<br>
+Based on the source of Nonpareil I wrote a <span style=3D"font-style: itali=
+c;">romdump</span> program that reads a ROM and writes the corresponding as=
+sembler code. But it currently works only for the nut-processor familly.<br=
+>
+<br>
+<blockquote><cite>Quote:</cite>Another question: may you show the HP10C cod=
+e too?</blockquote>
+<br>
+Unfortunately I don't have the corresponding ROM. If someone is willing to =
+send it to me I can do that as well.<br>
+<br>
+Best regards<br>
+Thomas
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-48.html" target=3D"_blank">Didier Lach=
+ieze</a> -  <strong>12-17-2015</strong> <strong>06:37 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-17-2015 06:24 AM)</span>Thomas Klemm Wrote: <a=
+ href=3D"https://www.hpmuseum.org/forum/post-47473.html#pid47473" class=3D"=
+quick_jump" target=3D"_blank">&nbsp;</a></cite>Based on the source of Nonpa=
+reil I wrote a <span style=3D"font-style: italic;">romdump</span> program t=
+hat reads a ROM and writes the corresponding assembler code. But it current=
+ly works only for the nut-processor familly.</blockquote>
+<br>
+Any reason for not using D41 from the SDK41?
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>12-17-2015</strong> <strong>09:45 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-17-2015 06:37 AM)</span>Didier Lachieze Wrote:=
+ <a href=3D"https://www.hpmuseum.org/forum/post-47474.html#pid47474" class=
+=3D"quick_jump" target=3D"_blank">&nbsp;</a></cite>Any reason for not using=
+ D41 from the SDK41?</blockquote>
+<br>
+Umh, probably not. I wasn't aware that this would work. Are the ROMs for th=
+e HP-41C and HP-15C in the same format?<br>
+The output could be slightly different. My program uses the same methods th=
+at are used in Trace mode. This makes it easy to find the corresponding lin=
+es in the ROM.<br>
+And then I'm using Nonpareil with Linux. I can still use SDK41 in a VMware =
+image. But it's a little laborious.<br>
+<br>
+Cheers<br>
+Thomas
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>12-18-2015</strong> <strong>05:09 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-18-2015 01:32 AM)</span>Mike (Stgt) Wrote: <a =
+href=3D"https://www.hpmuseum.org/forum/post-47537.html#pid47537" class=3D"q=
+uick_jump" target=3D"_blank">&nbsp;</a></cite>Nice, and how do you find out=
+ what is code and what could be data structures?</blockquote>
+<br>
+Not sure if I understand you correctly. What do you mean by data structures=
+? Commands that consist of two words?<br>
+<br>
+<blockquote><cite>Quote:</cite>BTW, in your patch for the 11C you preplace =
+at 0E29 0FF with 127 JC +24. I doubt a bit, as it would jump to 0E4D what i=
+s the second word of NCGO 0099. So I set at 0E29 a 11F JC +23. Please check=
+.</blockquote>
+<br>
+I can't check at the moment but it could very well be that I made an error =
+calculating the new adresses for the jumps. Thus thanks for pointing that o=
+ut. I'll check tomorrow but I assume you're correct. I can confirm that it =
+should of course jump to the first word of NCGO 0099.<br>
+<br>
+Kind regards<br>
+Thomas
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-265.html" target=3D"_blank">Tugdual</a=
+> -  <strong>12-18-2015</strong> <strong>05:54 AM</strong>
+<br>
+<br>
+Hi Thomas, my question is a bit off topic: how did you disassemble the Rom?
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>12-18-2015</strong> <strong>06:08 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-18-2015 05:54 AM)</span>Tugdual Wrote: <a href=
+=3D"https://www.hpmuseum.org/forum/post-47557.html#pid47557" class=3D"quick=
+_jump" target=3D"_blank">&nbsp;</a></cite>Hi Thomas, my question is a bit o=
+ff topic: how did you disassemble the Rom?</blockquote>
+<br>
+Mike already asked the same question in post: <a href=3D"http://www.hpmuseu=
+m.org/forum/thread-5321-post-47473.html#pid47473" target=3D"_blank" rel=3D"=
+nofollow">#13</a>.<br>
+<br>
+The code to disassemble the ROM is already there in Nonpareil. All I had to=
+ do is read the ROM line by line and pass the data to the correct function.=
+<br>
+<br>
+Cheers<br>
+Thomas
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-265.html" target=3D"_blank">Tugdual</a=
+> -  <strong>12-18-2015</strong> <strong>07:51 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-18-2015 06:08 AM)</span>Thomas Klemm Wrote: <a=
+ href=3D"https://www.hpmuseum.org/forum/post-47559.html#pid47559" class=3D"=
+quick_jump" target=3D"_blank">&nbsp;</a></cite><blockquote><cite><span> (12=
+-18-2015 05:54 AM)</span>Tugdual Wrote: <a href=3D"https://www.hpmuseum.org=
+/forum/post-47557.html#pid47557" class=3D"quick_jump" target=3D"_blank">&nb=
+sp;</a></cite>Hi Thomas, my question is a bit off topic: how did you disass=
+emble the Rom?</blockquote>
+<br>
+Mike already asked the same question in post: <a href=3D"http://www.hpmuseu=
+m.org/forum/thread-5321-post-47473.html#pid47473" target=3D"_blank" rel=3D"=
+nofollow">#13</a>.<br>
+<br>
+The code to disassemble the ROM is already there in Nonpareil. All I had to=
+ do is read the ROM line by line and pass the data to the correct function.=
+<br>
+<br>
+Cheers<br>
+Thomas</blockquote>
+Thanks Thomas, I had not seen the former question, sorry for double post.<b=
+r>
+Nonpareil is a fantastic, tool, I'd like to rewrite a version using qml, bu=
+t I digress.
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-288.html" target=3D"_blank">toml_12953=
+</a> -  <strong>12-18-2015</strong> <strong>09:07 PM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-15-2015 06:39 AM)</span>Thomas Klemm Wrote: <a=
+ href=3D"https://www.hpmuseum.org/forum/post-47337.html#pid47337" class=3D"=
+quick_jump" target=3D"_blank">&nbsp;</a></cite><blockquote><cite><span> (12=
+-14-2015 12:39 AM)</span>Katie Wasserman Wrote: <a href=3D"https://www.hpmu=
+seum.org/forum/post-47244.html#pid47244" class=3D"quick_jump" target=3D"_bl=
+ank">&nbsp;</a></cite>fixing any emulator will mean that it's no longer a t=
+rue emulation.</blockquote>
+<br>
+This reminds me a little of the <a href=3D"https://en.wikipedia.org/wiki/Sh=
+ip_of_Theseus" target=3D"_blank" rel=3D"nofollow">Ship of Theseus</a>. On t=
+he one hand we complain that bugs in the HP-35S or HP-15C LE aren't fixed. =
+But then we value an HP-35 containing the exp-bug more than a fixed one. Is=
+n't hat strange?<br>
+<br>
+But then we can probably agree that it's not a serious bug. So you might ju=
+st as well think: who cares?<br>
+<br>
+Kind regards<br>
+Thomas</blockquote>
+<br>
+Some programmers write code that takes advantage of some bugs. If you fix t=
+he bugs, you break their code. They might care.<br>
+<br>
+Tom L
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>12-23-2015</strong> <strong>06:40 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-18-2015 01:32 AM)</span>Mike (Stgt) Wrote: <a =
+href=3D"https://www.hpmuseum.org/forum/post-47537.html#pid47537" class=3D"q=
+uick_jump" target=3D"_blank">&nbsp;</a></cite>BTW, in your patch for the 11=
+C you preplace at 0E29 0FF with 127 JC +24. I doubt a bit, as it would jump=
+ to 0E4D what is the second word of NCGO 0099. So I set at 0E29 a 11F JC +2=
+3. Please check.</blockquote>
+<br>
+You were of course right. I was off one line. But the same error happened a=
+t 3 jumps.<br>
+Here's the difference of the <span style=3D"font-family: Courier;">hp-11c-c=
+hs-bug.patch</span> file:<br>
+<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>3607c3607<br>
+&lt;&nbsp;0e0f:1f7<br>
+---<br>
+&gt;&nbsp;0e0f:1ef<br>
+3609c3609<br>
+&lt;&nbsp;0e11:1e3<br>
+---<br>
+&gt;&nbsp;0e11:1db<br>
+3633c3633<br>
+&lt;&nbsp;0e29:127<br>
+---<br>
+&gt;&nbsp;0e29:11f</code></div></div>
+<br>
+Meanwhile I've updated the attachment <span style=3D"font-family: Courier;"=
+>hp-11c-16c-chs-bug.zip</span> in my previous post <a href=3D"http://www.hp=
+museum.org/forum/thread-5321-post-47329.html#pid47329" target=3D"_blank" re=
+l=3D"nofollow">HP-11C and HP-16C: Fixing the CHS and Stack Lift Bug</a>.<br=
+>
+<br>
+Thanks for taking the time to verify the bug-fix.<br>
+<br>
+Cheers<br>
+Thomas
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --></td>
+</tr><tr class=3D"pagetual_pageBar" id=3D"pagetual_pageBar2" translate=3D"n=
+o" title=3D"=E6=9A=82=E6=97=B6=E7=A6=81=E7=94=A8" style=3D"text-indent: ini=
+tial; vertical-align: super; line-height: 20px; opacity: 0.3; display: tabl=
+e-row; padding: 0px; border-radius: 20px; background-color: unset; font-siz=
+e: 30px; visibility: visible; position: initial; width: 1736px; height: 35p=
+x; float: none; clear: both; margin: 10px 5px; justify-content: center; tex=
+t-align: center !important;"><td colspan=3D"1"><div style=3D"background-col=
+or: rgba(240, 240, 240, 0.8); border-radius: 20px; padding: 0px; margin: 0p=
+x; line-height: 20px; text-align: center; box-shadow: rgba(0, 0, 0, 0.67) 0=
+px 0px 10px 0px;"><span title=3D"=E5=9B=9E=E5=88=B0=E9=A1=B6=E9=83=A8" styl=
+e=3D"display: contents; inset: unset; clear: both; cy: initial; d: initial;=
+ dominant-baseline: initial; empty-cells: initial; fill: initial; fill-opac=
+ity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow=
+: initial; float: initial; flood-color: initial; flood-opacity: initial; gr=
+id: initial; grid-area: initial; height: initial; hyphens: initial; image-o=
+rientation: initial; image-rendering: initial; inline-size: initial; inset-=
+block: initial; inset-inline: initial; isolation: initial; letter-spacing: =
+initial; lighting-color: initial; line-break: initial; list-style: initial;=
+ margin-block: initial; margin: 0px 5px; margin-inline: initial; marker: in=
+itial; mask: initial; mask-type: initial; max-block-size: initial; max-heig=
+ht: initial; max-inline-size: initial; max-width: initial; min-block-size: =
+initial; min-height: initial; min-inline-size: initial; min-width: initial;=
+ mix-blend-mode: initial; object-fit: initial; object-position: initial; of=
+fset: initial; opacity: initial; order: initial; orphans: initial; outline:=
+ initial; outline-offset: initial; overflow-anchor: initial; overflow-clip-=
+margin: initial; overflow-wrap: initial; overflow: initial; overscroll-beha=
+vior-block: initial; overscroll-behavior-inline: initial; overscroll-behavi=
+or: initial; padding-block: initial; padding: initial; padding-inline: init=
+ial; page: initial; page-orientation: initial; paint-order: initial; perspe=
+ctive: initial; perspective-origin: initial; pointer-events: initial; posit=
+ion: relative; quotes: initial; r: initial; resize: initial; ruby-position:=
+ initial; rx: initial; ry: initial; scroll-behavior: initial; scroll-margin=
+-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scr=
+oll-padding-block: initial; scroll-padding: initial; scroll-padding-inline:=
+ initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-sna=
+p-type: initial; scrollbar-gutter: initial; shape-image-threshold: initial;=
+ shape-margin: initial; shape-outside: initial; shape-rendering: initial; s=
+ize: initial; speak: initial; stop-color: initial; stop-opacity: initial; s=
+troke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stro=
+ke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; =
+stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-la=
+yout: initial; text-align: initial; text-align-last: initial; text-anchor: =
+initial; text-combine-upright: initial; text-decoration: initial; text-deco=
+ration-skip-ink: initial; text-indent: initial; text-overflow: initial; tex=
+t-shadow: initial; text-size-adjust: initial; text-transform: initial; text=
+-underline-offset: initial; text-underline-position: initial; touch-action:=
+ initial; transform: initial; transform-box: initial; transform-origin: ini=
+tial; transform-style: initial; transition: initial; user-select: initial; =
+vector-effect: initial; vertical-align: initial; visibility: initial; borde=
+r-spacing: initial; -webkit-border-image: initial; -webkit-box-align: initi=
+al; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; =
+-webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-=
+orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -=
+webkit-highlight: initial; hyphenate-character: initial; -webkit-line-break=
+: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -w=
+ebkit-mask: initial; -webkit-mask-composite: initial; -webkit-perspective-o=
+rigin-x: initial; -webkit-perspective-origin-y: initial; -webkit-print-colo=
+r-adjust: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: in=
+itial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial;=
+ -webkit-text-decorations-in-effect: initial; text-emphasis: initial; text-=
+emphasis-position: initial; -webkit-text-fill-color: initial; -webkit-text-=
+security: initial; -webkit-text-stroke: initial; -webkit-transform-origin-x=
+: initial; -webkit-transform-origin-y: initial; -webkit-transform-origin-z:=
+ initial; -webkit-user-drag: initial; -webkit-user-modify: initial; white-s=
+pace: initial; widows: initial; width: initial; will-change: initial; word-=
+break: initial; word-spacing: initial; x: initial; y: initial;"><svg width=
+=3D"30" height=3D"30" class=3D"upSvg pagetual" style=3D"display: initial; p=
+osition: relative; cursor: pointer; margin: 0px 8px; width: 30px; height: 3=
+0px; vertical-align: middle; fill: currentcolor; overflow: hidden;" viewBox=
+=3D"0 0 1024 1024" version=3D"1.1" xmlns=3D"http://www.w3.org/2000/svg"><pa=
+th d=3D"M296 440c-44.1 0-80 35.9-80 80s35.9 80 80 80 80-35.9 80-80-35.9-80-=
+80-80z" fill=3D"#604b4a"></path><path d=3D"M960 512c0-247-201-448-448-448S6=
+4 265 64 512c0 1.8 0.1 3.5 0.1 5.3 0 0.9-0.1 1.8-0.1 2.7h0.2C68.5 763.3 267=
+.7 960 512 960c236.2 0 430.1-183.7 446.7-415.7 0.1-0.8 0.1-1.6 0.2-2.3 0.4-=
+4.6 0.5-9.3 0.7-13.9 0.1-2.7 0.4-5.3 0.4-8h-0.2c0-2.8 0.2-5.4 0.2-8.1z m-15=
+2 8c0 44.1-35.9 80-80 80s-80-35.9-80-80 35.9-80 80-80 80 35.9 80 80zM512 92=
+8C284.4 928 99 744.3 96.1 517.3 97.6 408.3 186.6 320 296 320c110.3 0 200 89=
+.7 200 200 0 127.9 104.1 232 232 232 62.9 0 119.9-25.2 161.7-66-66 142.7-21=
+0.4 242-377.7 242z" fill=3D"#604b4a"></path></svg></span><a href=3D"https:/=
+/www.hpmuseum.org/forum/printthread.php?tid=3D5321&amp;page=3D2" title=3D"=
+=E5=BD=93=E5=89=8D=E9=A1=B5" target=3D"_blank" style=3D"text-indent: initia=
+l; padding: unset; border: none; line-height: 30px; text-decoration: none; =
+user-select: none; visibility: visible; position: initial; width: auto; max=
+-width: 80%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden=
+; height: auto; float: none; clear: both; margin: 0px; text-align: center; =
+display: inline-block; font-weight: bold; font-style: normal; font-size: 16=
+px; letter-spacing: initial; vertical-align: top; background: unset !import=
+ant; color: rgb(85, 85, 95) !important;"><span title=3D"Next page" class=3D=
+"nextScreen" style=3D"display: none; text-align: center; right: unset; floa=
+t: left; margin-top: 30px; width: 40px; background: rgba(240, 240, 240, 0.8=
+); position: absolute; border-radius: 0px 0px 20px 20px; box-shadow: rgba(0=
+, 0, 0, 0.5) 0px 5px 5px; z-index: 9999999;">=E2=88=A8</span><span title=3D=
+"Prev page" class=3D"prevScreen" style=3D"display: none; text-align: center=
+; right: unset; float: left; margin-top: -30px; width: 40px; background: rg=
+ba(240, 240, 240, 0.8); position: absolute; border-radius: 20px 20px 0px 0p=
+x; box-shadow: rgba(0, 0, 0, 0.5) 0px -5px 5px; z-index: 9999999;">=E2=88=
+=A7</span>Page </a><span class=3D"pagetual_pageNum" title=3D"=E8=BE=93=E5=
+=85=A5=E9=A1=B5=E7=A0=81=E8=B7=B3=E8=BD=AC" style=3D"text-indent: initial; =
+padding: unset; border: none; line-height: 30px; text-decoration: none; use=
+r-select: none; visibility: visible; position: initial; width: auto; max-wi=
+dth: 80%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; h=
+eight: auto; float: none; clear: both; margin: 0px 0px 0px 5px; text-align:=
+ center; display: inline-block; font-weight: bold; font-style: normal; font=
+-size: 16px; letter-spacing: initial; vertical-align: top; background: unse=
+t !important; cursor: pointer;">2</span><span title=3D"=E5=89=8D=E5=BE=80=
+=E9=A1=B5=E5=B0=BE" style=3D"display: contents; inset: unset; clear: both; =
+cy: initial; d: initial; dominant-baseline: initial; empty-cells: initial; =
+fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; =
+flex: initial; flex-flow: initial; float: initial; flood-color: initial; fl=
+ood-opacity: initial; grid: initial; grid-area: initial; height: initial; h=
+yphens: initial; image-orientation: initial; image-rendering: initial; inli=
+ne-size: initial; inset-block: initial; inset-inline: initial; isolation: i=
+nitial; letter-spacing: initial; lighting-color: initial; line-break: initi=
+al; list-style: initial; margin-block: initial; margin: 0px 5px; margin-inl=
+ine: initial; marker: initial; mask: initial; mask-type: initial; max-block=
+-size: initial; max-height: initial; max-inline-size: initial; max-width: i=
+nitial; min-block-size: initial; min-height: initial; min-inline-size: init=
+ial; min-width: initial; mix-blend-mode: initial; object-fit: initial; obje=
+ct-position: initial; offset: initial; opacity: initial; order: initial; or=
+phans: initial; outline: initial; outline-offset: initial; overflow-anchor:=
+ initial; overflow-clip-margin: initial; overflow-wrap: initial; overflow: =
+initial; overscroll-behavior-block: initial; overscroll-behavior-inline: in=
+itial; overscroll-behavior: initial; padding-block: initial; padding: initi=
+al; padding-inline: initial; page: initial; page-orientation: initial; pain=
+t-order: initial; perspective: initial; perspective-origin: initial; pointe=
+r-events: initial; position: relative; quotes: initial; r: initial; resize:=
+ initial; ruby-position: initial; rx: initial; ry: initial; scroll-behavior=
+: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-mar=
+gin-inline: initial; scroll-padding-block: initial; scroll-padding: initial=
+; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-s=
+top: initial; scroll-snap-type: initial; scrollbar-gutter: initial; shape-i=
+mage-threshold: initial; shape-margin: initial; shape-outside: initial; sha=
+pe-rendering: initial; size: initial; speak: initial; stop-color: initial; =
+stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-d=
+ashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stro=
+ke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab=
+-size: initial; table-layout: initial; text-align: initial; text-align-last=
+: initial; text-anchor: initial; text-combine-upright: initial; text-decora=
+tion: initial; text-decoration-skip-ink: initial; text-indent: initial; tex=
+t-overflow: initial; text-shadow: initial; text-size-adjust: initial; text-=
+transform: initial; text-underline-offset: initial; text-underline-position=
+: initial; touch-action: initial; transform: initial; transform-box: initia=
+l; transform-origin: initial; transform-style: initial; transition: initial=
+; user-select: initial; vector-effect: initial; vertical-align: initial; vi=
+sibility: initial; border-spacing: initial; -webkit-border-image: initial; =
+-webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-=
+box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-grou=
+p: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit=
+-box-reflect: initial; -webkit-highlight: initial; hyphenate-character: ini=
+tial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mas=
+k-box-image: initial; -webkit-mask: initial; -webkit-mask-composite: initia=
+l; -webkit-perspective-origin-x: initial; -webkit-perspective-origin-y: ini=
+tial; -webkit-print-color-adjust: initial; -webkit-rtl-ordering: initial; -=
+webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webki=
+t-text-combine: initial; -webkit-text-decorations-in-effect: initial; text-=
+emphasis: initial; text-emphasis-position: initial; -webkit-text-fill-color=
+: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -w=
+ebkit-transform-origin-x: initial; -webkit-transform-origin-y: initial; -we=
+bkit-transform-origin-z: initial; -webkit-user-drag: initial; -webkit-user-=
+modify: initial; white-space: initial; widows: initial; width: initial; wil=
+l-change: initial; word-break: initial; word-spacing: initial; x: initial; =
+y: initial;"><svg width=3D"30" height=3D"30" class=3D"downSvg pagetual" sty=
+le=3D"display: initial; position: relative; cursor: pointer; margin: 0px 8p=
+x; width: 30px; height: 30px; vertical-align: middle; fill: currentcolor; o=
+verflow: hidden; transform: rotate(180deg);" viewBox=3D"0 0 1024 1024" vers=
+ion=3D"1.1" xmlns=3D"http://www.w3.org/2000/svg"><path d=3D"M296 440c-44.1 =
+0-80 35.9-80 80s35.9 80 80 80 80-35.9 80-80-35.9-80-80-80z" fill=3D"#604b4a=
+"></path><path d=3D"M960 512c0-247-201-448-448-448S64 265 64 512c0 1.8 0.1 =
+3.5 0.1 5.3 0 0.9-0.1 1.8-0.1 2.7h0.2C68.5 763.3 267.7 960 512 960c236.2 0 =
+430.1-183.7 446.7-415.7 0.1-0.8 0.1-1.6 0.2-2.3 0.4-4.6 0.5-9.3 0.7-13.9 0.=
+1-2.7 0.4-5.3 0.4-8h-0.2c0-2.8 0.2-5.4 0.2-8.1z m-152 8c0 44.1-35.9 80-80 8=
+0s-80-35.9-80-80 35.9-80 80-80 80 35.9 80 80zM512 928C284.4 928 99 744.3 96=
+.1 517.3 97.6 408.3 186.6 320 296 320c110.3 0 200 89.7 200 200 0 127.9 104.=
+1 232 232 232 62.9 0 119.9-25.2 161.7-66-66 142.7-210.4 242-377.7 242z" fil=
+l=3D"#604b4a"></path></svg></span></div></td></tr><tr>
+<td><br><hr size=3D"1"><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>12-29-2015</strong> <strong>07:14 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-19-2015 11:08 PM)</span>Mike (Stgt) Wrote: <a =
+href=3D"https://www.hpmuseum.org/forum/post-47690.html#pid47690" class=3D"q=
+uick_jump" target=3D"_blank">&nbsp;</a></cite>The ROM contains some tables/=
+lists, decoding them will not make too much sense, IMHO.</blockquote>
+<br>
+Maybe you can point me to the addresses?<br>
+<br>
+<blockquote><cite><span> (12-17-2015 06:37 AM)</span>Didier Lachieze Wrote:=
+ <a href=3D"https://www.hpmuseum.org/forum/post-47474.html#pid47474" class=
+=3D"quick_jump" target=3D"_blank">&nbsp;</a></cite>Any reason for not using=
+ D41 from the SDK41?</blockquote>
+<br>
+Meanwhile I could disassemble the  <span style=3D"font-style: italic;">15c.=
+obj</span> file using <span style=3D"font-style: italic;">D41.EXE</span>. H=
+owever I had to split the file into 3 parts of 8192 bytes each.<br>
+What I don't understand is the line numbering in <span style=3D"font-style:=
+ italic;">15c.obj</span>:<br>
+<span style=3D"font-family: Courier;">0000-17ff<br>
+2000-37ff<br>
+</span><br>
+Any ideas as to why there's a gap?<br>
+<br>
+Cheers<br>
+Thomas
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-501.html" target=3D"_blank">Stevetuc</=
+a> -  <strong>07-20-2022</strong> <strong>09:47 PM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-17-2015 06:24 AM)</span>Thomas Klemm Wrote: <a=
+ href=3D"https://www.hpmuseum.org/forum/post-47473.html#pid47473" class=3D"=
+quick_jump" target=3D"_blank">&nbsp;</a></cite><blockquote><cite><span> (12=
+-17-2015 01:24 AM)</span>Mike (Stgt) Wrote: <a href=3D"https://www.hpmuseum=
+.org/forum/post-47450.html#pid47450" class=3D"quick_jump" target=3D"_blank"=
+>&nbsp;</a></cite>How do you disasemble the whole ROMs?</blockquote>
+<br>
+Based on the source of Nonpareil I wrote a <span style=3D"font-style: itali=
+c;">romdump</span> program that reads a ROM and writes the corresponding as=
+sembler code. But it currently works only for the nut-processor familly.<br=
+>
+<br>
+<blockquote><cite>Quote:</cite>Another question: may you show the HP10C cod=
+e too?</blockquote>
+<br>
+Unfortunately I don't have the corresponding ROM. If someone is willing to =
+send it to me I can do that as well.<br>
+<br>
+Best regards<br>
+Thomas</blockquote>
+<br>
+Hi Thomas<br>
+<br>
+Would you be able to make that romdump program available?
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>07-21-2022</strong> <strong>12:25 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (07-20-2022 09:47 PM)</span>Stevetuc Wrote: <a hre=
+f=3D"https://www.hpmuseum.org/forum/post-162385.html#pid162385" class=3D"qu=
+ick_jump" target=3D"_blank">&nbsp;</a></cite>Would you be able to make that=
+ romdump program available?</blockquote>
+<br>
+Recently I was wondering where the source code of this program could be.<br=
+>
+But I couldn't find it right away.<br>
+So I will try finding it again.<br>
+<br>
+And if I can't find it anymore, I can probably recreate it.<br>
+As far as I remember it didn't take long.<br>
+Eventually I would be interested too.
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-501.html" target=3D"_blank">Stevetuc</=
+a> -  <strong>07-21-2022</strong> <strong>12:26 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-29-2015 07:14 AM)</span>Thomas Klemm Wrote: <a=
+ href=3D"https://www.hpmuseum.org/forum/post-48203.html#pid48203" class=3D"=
+quick_jump" target=3D"_blank">&nbsp;</a></cite><blockquote><cite><span> (12=
+-19-2015 11:08 PM)</span>Mike (Stgt) Wrote: <a href=3D"https://www.hpmuseum=
+.org/forum/post-47690.html#pid47690" class=3D"quick_jump" target=3D"_blank"=
+>&nbsp;</a></cite>The ROM contains some tables/lists, decoding them will no=
+t make too much sense, IMHO.</blockquote>
+<br>
+Maybe you can point me to the addresses?<br>
+<br>
+<blockquote><cite><span> (12-17-2015 06:37 AM)</span>Didier Lachieze Wrote:=
+ <a href=3D"https://www.hpmuseum.org/forum/post-47474.html#pid47474" class=
+=3D"quick_jump" target=3D"_blank">&nbsp;</a></cite>Any reason for not using=
+ D41 from the SDK41?</blockquote>
+<br>
+Meanwhile I could disassemble the  <span style=3D"font-style: italic;">15c.=
+obj</span> file using <span style=3D"font-style: italic;">D41.EXE</span>. H=
+owever I had to split the file into 3 parts of 8192 bytes each.<br>
+What I don't understand is the line numbering in <span style=3D"font-style:=
+ italic;">15c.obj</span>:<br>
+<span style=3D"font-family: Courier;">0000-17ff<br>
+2000-37ff<br>
+</span><br>
+Any ideas as to why there's a gap?<br>
+<br>
+Cheers<br>
+Thomas</blockquote>
+<br>
+I think that's a section of the rom filled with zeros. In the rom embedded =
+in the hp15cle firmware there is a gap filled with zeros (at a different ad=
+dress because the 12bit addresses are padded to 16bit)<br>
+<br>
+What format was 15c.obj input to D41?<br>
+Did you convert to 16bit little-endian binary or can it read the ascii 15c.=
+obj from non-pareil src?
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-501.html" target=3D"_blank">Stevetuc</=
+a> -  <strong>07-21-2022</strong> <strong>12:27 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (07-21-2022 12:25 AM)</span>Thomas Klemm Wrote: <a=
+ href=3D"https://www.hpmuseum.org/forum/post-162391.html#pid162391" class=
+=3D"quick_jump" target=3D"_blank">&nbsp;</a></cite><blockquote><cite><span>=
+ (07-20-2022 09:47 PM)</span>Stevetuc Wrote: <a href=3D"https://www.hpmuseu=
+m.org/forum/post-162385.html#pid162385" class=3D"quick_jump" target=3D"_bla=
+nk">&nbsp;</a></cite>Would you be able to make that romdump program availab=
+le?</blockquote>
+<br>
+Recently I was wondering where the source code of this program could be.<br=
+>
+But I couldn't find it right away.<br>
+So I will try finding it again.<br>
+<br>
+And if I can't find it anymore, I can probably recreate it.<br>
+As far as I remember it didn't take long.<br>
+Eventually I would be interested too.</blockquote>
+Thanks Thomas <img src=3D"https://www.hpmuseum.org/forum/images/smilies/smi=
+le.gif" style=3D"vertical-align: middle;" border=3D"0" alt=3D"Smile" title=
+=3D"Smile">
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>07-21-2022</strong> <strong>06:16 PM</strong>
+<br>
+<br>
+Please find the source code to compile the <span style=3D"font-family: Cour=
+ier;"><span style=3D"font-weight: bold;">romdump</span></span> utility in t=
+he attached zip-file.<br>
+<br>
+<span style=3D"font-size: medium;">Contents</span><br>
+<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>Archive:&nbsp;&nbsp;romdump.zip=
+<br>
+&nbsp;&nbsp;Length&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date&nbsp;&nbsp;&nbsp=
+;&nbsp;Time&nbsp;&nbsp;&nbsp;&nbsp;Name<br>
+---------&nbsp;&nbsp;----------&nbsp;-----&nbsp;&nbsp;&nbsp;----<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;96&nbsp;&nbsp;07-21-2022&nbsp;10:=
+44&nbsp;&nbsp;&nbsp;Makefile<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;962&nbsp;&nbsp;10-31-2006&nbsp;07:26&nb=
+sp;&nbsp;&nbsp;dis_nut.h<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6695&nbsp;&nbsp;10-31-2006&nbsp;07:26&nbsp;&n=
+bsp;&nbsp;dis_nut.c<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2482&nbsp;&nbsp;07-21-2022&nbsp;11:56&nbsp;&n=
+bsp;&nbsp;romdump.c<br>
+---------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-------<br>
+&nbsp;&nbsp;&nbsp;&nbsp;10235&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;4&nbsp;files</code></div></div>
+<br>
+<span style=3D"font-size: medium;">Instructions</span><br>
+<br>
+I assume that you have <span style=3D"font-family: Courier;"><span style=3D=
+"font-weight: bold;">make</span></span> installed.<br>
+Otherwise just compile and link the files manually.<br>
+<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>make<br>
+cc&nbsp;&nbsp;&nbsp;&nbsp;-c&nbsp;-o&nbsp;dis_nut.o&nbsp;dis_nut.c<br>
+cc&nbsp;&nbsp;&nbsp;&nbsp;-c&nbsp;-o&nbsp;romdump.o&nbsp;romdump.c<br>
+cc&nbsp;-o&nbsp;romdump&nbsp;dis_nut.o&nbsp;romdump.o</code></div></div>
+<br>
+<span style=3D"font-size: medium;">Usage</span><br>
+<span style=3D"font-family: Courier;"><br>
+./romdump 15c.obj<br>
+</span><br>
+<span style=3D"font-size: medium;">Output</span><br>
+<span style=3D"font-family: Courier;"><br>
+ 00000: 0000 nop<br>
+ 00000: 0717 ?c  goto 00071<br>
+ 00001: 0116 c=3D0     w<br>
+ 00002: 1160 sel ram<br>
+ 00003: 1070 rdreg 8<br>
+ 00004: 1356 ? c&lt;&gt;0  w<br>
+ 00005: 0417 ?c  goto 00046<br>
+ 00006: 0101 ?nc call 24020<br>
+ 00007: 0240 sel p<br>
+ 00010: 0441 ?nc call 01510<br>
+ 00011: 0014 ? s=3D0 3<br>
+ 00012: 0156 ab ex   w<br>
+ 00013: 1404 s=3D0 1<br>
+ 00014: 0604 s=3D0 11<br>
+ 00015: 0645 ?nc goto 00151<br>
+ 00016: 0002 a=3D0     p<br>
+ 00017: 0000 nop<br>
+=E2=80=A6<br>
+ 33760: 1534 pt=3D 12<br>
+ 33761: 1042 c=3Dc+1   p<br>
+ 33762: 1740 rtn<br>
+ 33763: 0000 nop<br>
+ 33764: 0000 nop<br>
+ 33765: 0000 nop<br>
+ 33766: 0000 nop<br>
+ 33767: 0000 nop<br>
+ 33770: 0000 nop<br>
+ 33771: 0000 nop<br>
+ 33772: 0000 nop<br>
+ 33773: 0000 nop<br>
+ 33774: 0000 nop<br>
+ 33775: 0000 nop<br>
+ 33776: 0000 nop<br>
+</span><br>
+<br>
+<span style=3D"font-size: medium;">Designation of Origin</span><br>
+<br>
+Both files <span style=3D"font-family: Courier;"><span style=3D"font-weight=
+: bold;">dis_nut.h</span></span> and <span style=3D"font-family: Courier;">=
+<span style=3D"font-weight: bold;">dis_nut.c</span></span> were copied as i=
+s from <span style=3D"font-family: Courier;"><span style=3D"font-weight: bo=
+ld;">nonpareil-0.78</span></span>.<br>
+The function <span style=3D"font-family: Courier;"><span style=3D"font-weig=
+ht: bold;">trim_trailing_whitespace</span></span> was copied from <span sty=
+le=3D"font-family: Courier;"><span style=3D"font-weight: bold;">util.c</spa=
+n></span>.<br>
+Both functions <span style=3D"font-family: Courier;"><span style=3D"font-we=
+ight: bold;">parse_hex</span></span> and <span style=3D"font-family: Courie=
+r;"><span style=3D"font-weight: bold;">nut_parse_object_line</span></span> =
+were copied from <span style=3D"font-family: Courier;"><span style=3D"font-=
+weight: bold;">proc_nut.c</span></span>.<br>
+The typedef <span style=3D"font-family: Courier;"><span style=3D"font-weigh=
+t: bold;">rom_word_t</span></span> stems from <span style=3D"font-family: C=
+ourier;"><span style=3D"font-weight: bold;">proc.h</span></span>.<br>
+<br>
+The function <span style=3D"font-family: Courier;"><span style=3D"font-weig=
+ht: bold;">read_object_file</span></span> is based on <span style=3D"font-f=
+amily: Courier;"><span style=3D"font-weight: bold;">sim_read_object_file</s=
+pan></span> from <span style=3D"font-family: Courier;"><span style=3D"font-=
+weight: bold;">proc.c</span></span>.<br>
+But instead of using <span style=3D"font-family: Courier;"><span style=3D"f=
+ont-weight: bold;">sim_write_rom</span></span> the function <span style=3D"=
+font-family: Courier;"><span style=3D"font-weight: bold;">nut_disassemble_i=
+nst</span></span> is used to print the line.<br>
+Also I removed code that seemed not necessary for the task.<br>
+<br>
+<span style=3D"font-size: medium;">Caveat</span><br>
+<br>
+I just quickly cobbled this together but hope it is still useful.<br>
+Please ignore the first line of the output.<br>
+Also the last line is missing.<br>
+But I didn't bother to fix this.
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>07-21-2022</strong> <strong>06:20 PM</strong>
+<br>
+<br>
+<blockquote><cite><span> (07-21-2022 12:26 AM)</span>Stevetuc Wrote: <a hre=
+f=3D"https://www.hpmuseum.org/forum/post-162393.html#pid162393" class=3D"qu=
+ick_jump" target=3D"_blank">&nbsp;</a></cite>What format was 15c.obj input =
+to D41?<br>
+Did you convert to 16bit little-endian binary or can it read the ascii 15c.=
+obj from non-pareil src?</blockquote>
+<br>
+Unfortunately I don't remember.
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-501.html" target=3D"_blank">Stevetuc</=
+a> -  <strong>07-22-2022</strong> <strong>04:41 PM</strong>
+<br>
+<br>
+<blockquote><cite><span> (07-21-2022 06:16 PM)</span>Thomas Klemm Wrote: <a=
+ href=3D"https://www.hpmuseum.org/forum/post-162430.html#pid162430" class=
+=3D"quick_jump" target=3D"_blank">&nbsp;</a></cite>Please find the source c=
+ode to compile the <span style=3D"font-family: Courier;"><span style=3D"fon=
+t-weight: bold;">romdump</span></span> utility in the attached zip-file.</b=
+lockquote>
+<br>
+Many thanks for posting this. : )
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-238.html" target=3D"_blank">brouhaha</=
+a> -  <strong>01-14-2023</strong> <strong>06:51 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (12-29-2015 07:14 AM)</span>Thomas Klemm Wrote: <a=
+ href=3D"https://www.hpmuseum.org/forum/post-48203.html#pid48203" class=3D"=
+quick_jump" target=3D"_blank">&nbsp;</a></cite>What I don't understand is t=
+he line numbering in <span style=3D"font-style: italic;">15c.obj</span>:<br=
+>
+<span style=3D"font-family: Courier;">0000-17ff<br>
+2000-37ff<br>
+</span><br>
+Any ideas as to why there's a gap?</blockquote>
+<br>
+Until 1988 when HP updated the Voyager electronics to use the newer SST chi=
+p ("Single-chip Series Ten", 1LQ9,  see Chuck McCord's HHC 2022, HPCC 2022,=
+ and Allschwil 2022 presentations), the Voyager calculators used a 1LF5 (la=
+ter 1LM2)  Nut CPU and a 1LE2 (later 1LH1) R2D2. The R2D2 chip provides 614=
+4 10-bit words of ROM, 40 56-bit words of RAM, and the LCD display driver. =
+That was sufficient for all models but the 15C. In fact, the 10C only used =
+4096 words of ROM and 24 words of RAM, and at onee time there was considera=
+tion to making a cost-reduced R2D2 that would only have that much memory.<b=
+r>
+<br>
+The ROM of the R2D2 is normally addressed to start at 0x0000, so it ends at=
+ 0x17ff. The RAM is split into two sections, from 0x00 through 0x07 (mostly=
+ used for the RPN stack, temporaries, housekeeping), and 0xe0 through 0xff =
+(mostly used for numbered user registers, the user program, and more housek=
+eeping). The LCD is bit-mapped at RAM addresses 0x09 and 0x0a. There is a h=
+ardware register of some kind, which might be a sleep timer, at 0x08.<br>
+<br>
+The 15C needed more memory, so it was designed to use two R2D2 chips. The L=
+CD controller of the second one is not used, so it is disabled, and the pin=
+s for it are not bonded out, allowing it to be packaged in the smaller squa=
+re QFP package like the Nut CPU. In order to have two R2D2 chips, the memor=
+ies needed to be in diffeerent address ranges. The 1LE2 wasn't designed for=
+ that, but the newer 1LH1 R2D2 was. It could have different base addresses =
+fro the RAM and ROM mask programmed. It supported at least one alternate ad=
+dress setting, which is used by the 1LH1-0302 in the 15C. The ROM is from 0=
+x2000 to 0x37ff, the small RAM block is from 0x10 through 0x17, and the lar=
+ge RAM block is from 0xc0 through 0xdf.<br>
+<br>
+The 10C was discontinued before the SST chip was used, but the 11C, 12C, 15=
+C, and 16C were redesigned to use the 1LQ9 SST chip (with four different RO=
+M masks). The SST incorporated the functionality of the Nut CPU and one R2D=
+2 chip, so in the 11C, 12C, and 16C the 1LQ9 was self-contained, forming a =
+true Single-chip Series Ten. In the 15C, the 1LQ9-0325 was configured to co=
+mmunicate with the second R2D2, the 1LH1-0302, as was used in all 15C varia=
+nts through its discontinuation. (The 15C LE hardware is entirely different=
+, based on the Atmel AT91SAM7L128 ARM microcontroller.)
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-13.html" target=3D"_blank">J-F Garnier=
+</a> -  <strong>01-14-2023</strong> <strong>05:01 PM</strong>
+<br>
+<br>
+Eric, is the fact you accessed this thread an indication that you are consi=
+dering fixing this "bug"?<br>
+If yes, you may also consider these ones:<br>
+<br>
+GSB I with I&lt;0 doesn't jump correctly<br>
+<a href=3D"https://archived.hpcalc.org/museumforum/thread-196480.html" targ=
+et=3D"_blank" rel=3D"nofollow">thread-196480.html</a><br>
+<br>
+If a program ends with a conditional test that is evaluated false, <br>
+program pointer skips to line 1 and continue from there, instead of stoppin=
+g at line 0.<br>
+<a href=3D"https://archived.hpcalc.org/museumforum/thread-210753-post-21076=
+6.html#pid210766" target=3D"_blank" rel=3D"nofollow">thread-210753.html</a>=
+<br>
+<br>
+But maybe you already spotted them...<br>
+<br>
+J-F<br>
+<br>
+Side note: each time I feel sad when see <a href=3D"https://www.hpmuseum.or=
+g/forum/thread-5321-post-48203.html#pid48203" target=3D"_blank">references =
+</a>to Mike (Stgt)'s posts that were arbitrarily and deliberately deleted. =
+What a loss, this was history.
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-912.html" target=3D"_blank">EdS2</a> -=
+  <strong>01-14-2023</strong> <strong>11:56 PM</strong>
+<br>
+<br>
+(Some fraction of missing posts can be found at the Internet Archive, for e=
+xample <a href=3D"http://web.archive.org/web/20151222143205/https://www.hpm=
+useum.org/forum/thread-5321.html" target=3D"_blank">here</a> and <a href=3D=
+"http://web.archive.org/web/20160121084300/http://www.hpmuseum.org/forum/pr=
+intthread.php?tid=3D5321" target=3D"_blank" rel=3D"nofollow">here</a>.)
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-238.html" target=3D"_blank">brouhaha</=
+a> -  <strong>01-15-2023</strong> <strong>08:19 AM</strong>
+<br>
+<br>
+<blockquote><cite><span> (01-14-2023 05:01 PM)</span>J-F Garnier Wrote: <a =
+href=3D"https://www.hpmuseum.org/forum/post-168365.html#pid168365" class=3D=
+"quick_jump" target=3D"_blank">&nbsp;</a></cite>Eric, is the fact you acces=
+sed this thread an indication that you are considering fixing this "bug"?</=
+blockquote>
+<br>
+I hadn't really intended to fix any bugs. My primary intent was to accurate=
+ly simulate the calculator as HP sold it.<br>
+<br>
+<blockquote><cite>Quote:</cite>GSB I with I&lt;0 doesn't jump correctly</bl=
+ockquote>
+<br>
+I wasn't aware of that one.<br>
+<br>
+<blockquote><cite>Quote:</cite>If a program ends with a conditional test th=
+at is evaluated false, <br>
+program pointer skips to line 1 and continue from there, instead of stoppin=
+g at line 0.</blockquote>
+<br>
+I discovered that my self just a few days ago. I was researching how certai=
+n 15C user instructions are dispatched in the code, by putting just a singl=
+e user instruction into a program then tracing from either SST or R/S. When=
+ I started looking into TEST, I discovered the bug.
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>01-15-2023</strong> <strong>07:52 PM</strong>
+<br>
+<br>
+<blockquote><cite><span> (01-14-2023 06:51 AM)</span>brouhaha Wrote: <a hre=
+f=3D"https://www.hpmuseum.org/forum/post-168358.html#pid168358" class=3D"qu=
+ick_jump" target=3D"_blank">&nbsp;</a></cite><blockquote><cite><span> (12-2=
+9-2015 07:14 AM)</span>Thomas Klemm Wrote: <a href=3D"https://www.hpmuseum.=
+org/forum/post-48203.html#pid48203" class=3D"quick_jump" target=3D"_blank">=
+&nbsp;</a></cite>Any ideas as to why there's a gap?</blockquote>
+<br>
+(=E2=80=A6)</blockquote>
+Thank you for your detailed explanation.<br>
+I appreciate that very much.
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --><!-- start: printthread_post -->
+<strong>RE: HP-15C: Fixing the CHS and Stack Lift Bug</strong> - <a href=3D=
+"https://www.hpmuseum.org/forum/user-62.html" target=3D"_blank">Thomas Klem=
+m</a> -  <strong>01-15-2023</strong> <strong>07:53 PM</strong>
+<br>
+<br>
+<blockquote><cite><span> (01-14-2023 11:56 PM)</span>EdS2 Wrote: <a href=3D=
+"https://www.hpmuseum.org/forum/post-168368.html#pid168368" class=3D"quick_=
+jump" target=3D"_blank">&nbsp;</a></cite>(Some fraction of missing posts ca=
+n be found at the Internet Archive, for example <a href=3D"http://web.archi=
+ve.org/web/20151222143205/https://www.hpmuseum.org/forum/thread-5321.html" =
+target=3D"_blank">here</a> and <a href=3D"http://web.archive.org/web/201601=
+21084300/http://www.hpmuseum.org/forum/printthread.php?tid=3D5321" target=
+=3D"_blank" rel=3D"nofollow">here</a>.)</blockquote>
+<br>
+From <a href=3D"http://web.archive.org/web/20151222143205/https://www.hpmus=
+eum.org/forum/thread-5321.html" target=3D"_blank">this link</a> I quote:<br=
+>
+<blockquote><cite>Quote:</cite><blockquote><cite><span> (12-29-2015 07:14 A=
+M)</span>Thomas Klemm Wrote: <a href=3D"https://www.hpmuseum.org/forum/post=
+-48203.html#pid48203" class=3D"quick_jump" target=3D"_blank">&nbsp;</a></ci=
+te>Maybe you can point me to the addresses?</blockquote>
+<br>
+In the ROM of HP16C there is a table starting @0400x. Here the first six li=
+nes of it:<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>0400&nbsp;3BF&nbsp;Data&nbsp;&n=
+bsp;959&nbsp;-&nbsp;DSZ&nbsp;ref.&nbsp;0FBF<br>
+0401&nbsp;2C3&nbsp;Data&nbsp;&nbsp;707&nbsp;-&nbsp;??<br>
+0402&nbsp;3BE&nbsp;Data&nbsp;&nbsp;958&nbsp;-&nbsp;ISZ&nbsp;ref.&nbsp;0FBE<=
+br>
+0403&nbsp;2C4&nbsp;Data&nbsp;&nbsp;708&nbsp;-&nbsp;??<br>
+0404&nbsp;155&nbsp;Data&nbsp;&nbsp;341&nbsp;-&nbsp;SQRT&nbsp;ref.&nbsp;0D55=
+<br>
+0405&nbsp;0C5&nbsp;Data&nbsp;&nbsp;197&nbsp;-&nbsp;??</code></div></div>
+With the first line the address is computed where to jump for the function =
+in question, the second line I quess it could be for the display in PRGM mo=
+de. There are Voyagers which use the second line only in PRGM mode. The tab=
+le is only for functions without modifiers (STO n, RCL n, FIX n etc. I am s=
+till investigating) In other Voyagers the table could be located somewhere =
+else. (The sequence of the related functions is according the program codep=
+oint.)<br>
+<br>
+An other table is at 03E0:<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>03E0&nbsp;1BC&nbsp;Data&nbsp;&n=
+bsp;444&nbsp;-&nbsp;0<br>
+03E1&nbsp;088&nbsp;Data&nbsp;&nbsp;136&nbsp;-&nbsp;1<br>
+03E2&nbsp;1E4&nbsp;Data&nbsp;&nbsp;484&nbsp;-&nbsp;2<br>
+03E3&nbsp;1E8&nbsp;Data&nbsp;&nbsp;488&nbsp;-&nbsp;3<br>
+03E4&nbsp;0D8&nbsp;Data&nbsp;&nbsp;216&nbsp;-&nbsp;4<br>
+03E5&nbsp;178&nbsp;Data&nbsp;&nbsp;376&nbsp;-&nbsp;5<br>
+03E6&nbsp;17C&nbsp;Data&nbsp;&nbsp;380&nbsp;-&nbsp;6<br>
+03E7&nbsp;0A8&nbsp;Data&nbsp;&nbsp;168&nbsp;-&nbsp;7<br>
+03E8&nbsp;1FC&nbsp;Data&nbsp;&nbsp;508&nbsp;-&nbsp;8<br>
+03E9&nbsp;1F8&nbsp;Data&nbsp;&nbsp;504&nbsp;-&nbsp;9<br>
+03EA&nbsp;044&nbsp;Data&nbsp;&nbsp;&nbsp;68&nbsp;-&nbsp;r<br>
+03EB&nbsp;040&nbsp;Data&nbsp;&nbsp;&nbsp;64&nbsp;-&nbsp;Blank?<br>
+03EC&nbsp;14C&nbsp;Data&nbsp;&nbsp;332&nbsp;-&nbsp;o<br>
+03ED&nbsp;0F4&nbsp;Data&nbsp;&nbsp;244&nbsp;-&nbsp;P<br>
+03EE&nbsp;174&nbsp;Data&nbsp;&nbsp;372&nbsp;-&nbsp;E</code></div></div>
+to build readouts like 'Pr Error', digits and younameit.<br>
+<br>
+An other table starts at 0010x, here few lines:<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>0010&nbsp;308&nbsp;Data&nbsp;&n=
+bsp;776&nbsp;&nbsp;**&nbsp;key&nbsp;21,&nbsp;reference<br>
+0011&nbsp;166&nbsp;Data&nbsp;&nbsp;358&nbsp;&nbsp;**&nbsp;key&nbsp;31,&nbsp=
+;ref.<br>
+0012&nbsp;14A&nbsp;Data&nbsp;&nbsp;330&nbsp;&nbsp;**&nbsp;key&nbsp;10,&nbsp=
+;ref.<br>
+0013&nbsp;0EE&nbsp;Data&nbsp;&nbsp;238&nbsp;&nbsp;**&nbsp;key&nbsp;11,&nbsp=
+;ref.<br>
+0014&nbsp;14C&nbsp;Data&nbsp;&nbsp;332&nbsp;&nbsp;**&nbsp;key&nbsp;30,&nbsp=
+;ref.<br>
+0015&nbsp;14D&nbsp;Data&nbsp;&nbsp;333&nbsp;&nbsp;**&nbsp;key&nbsp;40,&nbsp=
+;ref.</code></div></div>
+<br>
+It lists where every key hit goes for execution, key 31 (R/S on the HP16C -=
+ ah - on all Voyagers) will continue at 0166x, etc. Analogous to the discon=
+tinuous keycodes the list is somewhat sliced, last entry at 00C8, and inter=
+spersed with code.<br>
+In addition there is a list in which sequence you ought hit the keys to pas=
+s the keybord test.<br>
+<br>
+If you find more, pls tell me - or here at best. Smile<br>
+<br>
+Ciao.....Mike</blockquote>
+<br>
+These are the corresponding sections from the <span style=3D"font-style: it=
+alic;">romdump</span> of <span style=3D"font-family: Courier;">16c.obj</spa=
+n>:<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>&nbsp;02000:&nbsp;1677&nbsp;?c&=
+nbsp;&nbsp;goto&nbsp;01767<br>
+&nbsp;02001:&nbsp;1303&nbsp;?nc&nbsp;goto&nbsp;01731<br>
+&nbsp;02002:&nbsp;1676&nbsp;b&nbsp;sr&nbsp;&nbsp;&nbsp;&nbsp;s<br>
+&nbsp;02003:&nbsp;1304&nbsp;s=3D0&nbsp;13<br>
+&nbsp;02004:&nbsp;0525&nbsp;?c&nbsp;&nbsp;call&nbsp;30525<br>
+&nbsp;02005:&nbsp;0305&nbsp;?nc&nbsp;call&nbsp;67461</code></div></div>
+<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>&nbsp;01740:&nbsp;0674&nbsp;?&n=
+bsp;rcr&nbsp;11<br>
+&nbsp;01741:&nbsp;0210&nbsp;s=3D1&nbsp;5<br>
+&nbsp;01742:&nbsp;0744&nbsp;selprf&nbsp;7<br>
+&nbsp;01743:&nbsp;0750&nbsp;wrreg&nbsp;7<br>
+&nbsp;01744:&nbsp;0330&nbsp;c&lt;&gt;g<br>
+&nbsp;01745:&nbsp;0570&nbsp;rdreg&nbsp;5<br>
+&nbsp;01746:&nbsp;0574&nbsp;?&nbsp;rcr&nbsp;6<br>
+&nbsp;01747:&nbsp;0250&nbsp;wrreg&nbsp;2<br>
+&nbsp;01750:&nbsp;0774&nbsp;?&nbsp;rcr&nbsp;-1<br>
+&nbsp;01751:&nbsp;0770&nbsp;rdreg&nbsp;7<br>
+&nbsp;01752:&nbsp;0104&nbsp;s=3D0&nbsp;4<br>
+&nbsp;01753:&nbsp;0100&nbsp;wrrom<br>
+&nbsp;01754:&nbsp;0514&nbsp;?&nbsp;s=3D0&nbsp;6<br>
+&nbsp;01755:&nbsp;0364&nbsp;???&nbsp;3<br>
+&nbsp;01756:&nbsp;0564&nbsp;???&nbsp;5</code></div></div>
+<br>
+<div class=3D"codeblock">
+<div class=3D"title">Code:<br>
+</div><div class=3D"body" dir=3D"ltr"><code>&nbsp;00020:&nbsp;1410&nbsp;s=
+=3D1&nbsp;1<br>
+&nbsp;00021:&nbsp;0546&nbsp;a=3Da+1&nbsp;&nbsp;&nbsp;x<br>
+&nbsp;00022:&nbsp;0512&nbsp;a=3Da+c&nbsp;&nbsp;&nbsp;wp<br>
+&nbsp;00023:&nbsp;0356&nbsp;bc&nbsp;ex&nbsp;&nbsp;&nbsp;w<br>
+&nbsp;00024:&nbsp;0514&nbsp;?&nbsp;s=3D0&nbsp;6<br>
+&nbsp;00025:&nbsp;0515&nbsp;?nc&nbsp;goto&nbsp;50523</code></div></div>
+<br>
+<blockquote><cite>Quote:</cite>The ROM contains some tables/lists, decoding=
+ them will not make too much sense, IMHO.</blockquote>
+<br>
+As we can see the <span style=3D"font-style: italic;">romdump</span> decode=
+s these sections as code and not as data.
+<br>
+<br>
+<hr size=3D"1">
+<!-- end: printthread_post --></td>
+</tr>
+</tbody></table>
+
+
+<div><div class=3D"_th-container">
+    <div class=3D"_th-click-hover _item-input">
+        x1.00
+    </div>
+    <div class=3D"_th-item _item-x2">&gt;</div>
+    <div class=3D"_th-item _item-x-2">&lt;</div>
+    <div class=3D"_th-item _item-xx2">&gt;&gt;</div>
+    <div class=3D"_th-item _item-xx-2">&lt;&lt;</div>
+    <div class=3D"_th-item _item-reset">O</div>
+</div>
+<div class=3D"_th_cover-all-show-times _th_hidden">
+    <div class=3D"_th_times">x1.00</div>
+</div></div><div id=3D"pagetual-preload" style=3D"display: none !important;=
+"><img src=3D"https://www.hpmuseum.org/mohpcf.png"><img src=3D"https://www.=
+hpmuseum.org/forum/images/smilies/smile.gif"></div></body><editor-card styl=
+e=3D"position:absolute;top:0px;left:0px;z-index:auto;display: block !import=
+ant"><div dir=3D"auto" style=3D"all: initial;"><div style=3D"color: initial=
+; font: initial; font-palette: initial; font-synthesis: initial; forced-col=
+or-adjust: initial; text-orientation: initial; text-rendering: initial; -we=
+bkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orienta=
+tion: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: =
+initial; accent-color: initial; place-content: initial; place-items: initia=
+l; place-self: initial; alignment-baseline: initial; animation-composition:=
+ initial; animation: initial; app-region: initial; appearance: initial; asp=
+ect-ratio: initial; backdrop-filter: initial; backface-visibility: initial;=
+ background: initial; background-blend-mode: initial; baseline-shift: initi=
+al; baseline-source: initial; block-size: initial; border-block: initial; b=
+order: initial; border-radius: initial; border-collapse: initial; border-en=
+d-end-radius: initial; border-end-start-radius: initial; border-inline: ini=
+tial; border-start-end-radius: initial; border-start-start-radius: initial;=
+ inset: initial; box-shadow: initial; box-sizing: initial; break-after: ini=
+tial; break-before: initial; break-inside: initial; buffered-rendering: ini=
+tial; caption-side: initial; caret-color: initial; clear: initial; clip: in=
+itial; clip-path: initial; clip-rule: initial; color-interpolation: initial=
+; color-interpolation-filters: initial; color-rendering: initial; color-sch=
+eme: initial; columns: initial; column-fill: initial; gap: initial; column-=
+rule: initial; column-span: initial; contain: initial; contain-intrinsic-bl=
+ock-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inlin=
+e-size: initial; container: initial; content: initial; content-visibility: =
+initial; counter-increment: initial; counter-reset: initial; counter-set: i=
+nitial; cursor: initial; cx: initial; cy: initial; d: initial; display: ini=
+tial; dominant-baseline: initial; empty-cells: initial; fill: initial; fill=
+-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex=
+-flow: initial; float: initial; flood-color: initial; flood-opacity: initia=
+l; grid: initial; grid-area: initial; height: initial; hyphenate-character:=
+ initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientati=
+on: initial; image-rendering: initial; initial-letter: initial; inline-size=
+: initial; inset-block: initial; inset-inline: initial; isolation: initial;=
+ letter-spacing: initial; lighting-color: initial; line-break: initial; lis=
+t-style: initial; margin-block: initial; margin: initial; margin-inline: in=
+itial; marker: initial; mask: initial; mask-type: initial; math-depth: init=
+ial; math-shift: initial; math-style: initial; max-block-size: initial; max=
+-height: initial; max-inline-size: initial; max-width: initial; min-block-s=
+ize: initial; min-height: initial; min-inline-size: initial; min-width: ini=
+tial; mix-blend-mode: initial; object-fit: initial; object-position: initia=
+l; object-view-box: initial; offset: initial; opacity: initial; order: init=
+ial; orphans: initial; outline: initial; outline-offset: initial; overflow-=
+anchor: initial; overflow-clip-margin: initial; overflow-wrap: initial; ove=
+rflow: initial; overscroll-behavior-block: initial; overscroll-behavior-inl=
+ine: initial; overscroll-behavior: initial; padding-block: initial; padding=
+: initial; padding-inline: initial; page: initial; page-orientation: initia=
+l; paint-order: initial; perspective: initial; perspective-origin: initial;=
+ pointer-events: initial; position: absolute; quotes: initial; r: initial; =
+resize: initial; rotate: initial; ruby-position: initial; rx: initial; ry: =
+initial; scale: initial; scroll-behavior: initial; scroll-margin-block: ini=
+tial; scroll-margin: initial; scroll-margin-inline: initial; scroll-padding=
+-block: initial; scroll-padding: initial; scroll-padding-inline: initial; s=
+croll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: ini=
+tial; scrollbar-gutter: initial; shape-image-threshold: initial; shape-marg=
+in: initial; shape-outside: initial; shape-rendering: initial; size: initia=
+l; speak: initial; stop-color: initial; stop-opacity: initial; stroke: init=
+ial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap:=
+ initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opac=
+ity: initial; stroke-width: initial; tab-size: initial; table-layout: initi=
+al; text-align: initial; text-align-last: initial; text-anchor: initial; te=
+xt-combine-upright: initial; text-decoration: initial; text-decoration-skip=
+-ink: initial; text-emphasis: initial; text-emphasis-position: initial; tex=
+t-indent: initial; text-overflow: initial; text-shadow: initial; text-size-=
+adjust: initial; text-transform: initial; text-underline-offset: initial; t=
+ext-underline-position: initial; white-space: initial; touch-action: initia=
+l; transform: initial; transform-box: initial; transform-origin: initial; t=
+ransform-style: initial; transition: initial; translate: initial; user-sele=
+ct: initial; vector-effect: initial; vertical-align: initial; view-transiti=
+on-name: initial; visibility: initial; border-spacing: initial; -webkit-box=
+-align: initial; -webkit-box-decoration-break: initial; -webkit-box-directi=
+on: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial;=
+ -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflec=
+t: initial; -webkit-highlight: initial; -webkit-line-break: initial; -webki=
+t-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-mask: initi=
+al; -webkit-mask-composite: initial; -webkit-print-color-adjust: initial; -=
+webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-h=
+ighlight-color: initial; -webkit-text-combine: initial; -webkit-text-decora=
+tions-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-se=
+curity: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; =
+-webkit-user-modify: initial; widows: initial; width: initial; will-change:=
+ initial; word-break: initial; word-spacing: initial; x: initial; y: initia=
+l; z-index: 2147483647;"><link rel=3D"stylesheet" href=3D"chrome-extension:=
+//hokifickgkhplphjiodbggjmoafhignh/fonts/fabric-icons.css"><div style=3D"al=
+l: initial;"><template shadowmode=3D"open"></template></div></div><div styl=
+e=3D"color: initial; font: initial; font-palette: initial; font-synthesis: =
+initial; forced-color-adjust: initial; text-orientation: initial; text-rend=
+ering: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -=
+webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mo=
+de: initial; zoom: initial; accent-color: initial; place-content: initial; =
+place-items: initial; place-self: initial; alignment-baseline: initial; ani=
+mation-composition: initial; animation: initial; app-region: initial; appea=
+rance: initial; aspect-ratio: initial; backdrop-filter: initial; backface-v=
+isibility: initial; background: initial; background-blend-mode: initial; ba=
+seline-shift: initial; baseline-source: initial; block-size: initial; borde=
+r-block: initial; border: initial; border-radius: initial; border-collapse:=
+ initial; border-end-end-radius: initial; border-end-start-radius: initial;=
+ border-inline: initial; border-start-end-radius: initial; border-start-sta=
+rt-radius: initial; inset: initial; box-shadow: initial; box-sizing: initia=
+l; break-after: initial; break-before: initial; break-inside: initial; buff=
+ered-rendering: initial; caption-side: initial; caret-color: initial; clear=
+: initial; clip: initial; clip-path: initial; clip-rule: initial; color-int=
+erpolation: initial; color-interpolation-filters: initial; color-rendering:=
+ initial; color-scheme: initial; columns: initial; column-fill: initial; ga=
+p: initial; column-rule: initial; column-span: initial; contain: initial; c=
+ontain-intrinsic-block-size: initial; contain-intrinsic-size: initial; cont=
+ain-intrinsic-inline-size: initial; container: initial; content: initial; c=
+ontent-visibility: initial; counter-increment: initial; counter-reset: init=
+ial; counter-set: initial; cursor: initial; cx: initial; cy: initial; d: in=
+itial; display: initial; dominant-baseline: initial; empty-cells: initial; =
+fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; =
+flex: initial; flex-flow: initial; float: initial; flood-color: initial; fl=
+ood-opacity: initial; grid: initial; grid-area: initial; height: initial; h=
+yphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initi=
+al; image-orientation: initial; image-rendering: initial; initial-letter: i=
+nitial; inline-size: initial; inset-block: initial; inset-inline: initial; =
+isolation: initial; letter-spacing: initial; lighting-color: initial; line-=
+break: initial; list-style: initial; margin-block: initial; margin: initial=
+; margin-inline: initial; marker: initial; mask: initial; mask-type: initia=
+l; math-depth: initial; math-shift: initial; math-style: initial; max-block=
+-size: initial; max-height: initial; max-inline-size: initial; max-width: i=
+nitial; min-block-size: initial; min-height: initial; min-inline-size: init=
+ial; min-width: initial; mix-blend-mode: initial; object-fit: initial; obje=
+ct-position: initial; object-view-box: initial; offset: initial; opacity: i=
+nitial; order: initial; orphans: initial; outline: initial; outline-offset:=
+ initial; overflow-anchor: initial; overflow-clip-margin: initial; overflow=
+-wrap: initial; overflow: initial; overscroll-behavior-block: initial; over=
+scroll-behavior-inline: initial; overscroll-behavior: initial; padding-bloc=
+k: initial; padding: initial; padding-inline: initial; page: initial; page-=
+orientation: initial; paint-order: initial; perspective: initial; perspecti=
+ve-origin: initial; pointer-events: initial; position: absolute; quotes: in=
+itial; r: initial; resize: initial; rotate: initial; ruby-position: initial=
+; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scrol=
+l-margin-block: initial; scroll-margin: initial; scroll-margin-inline: init=
+ial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding=
+-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; sc=
+roll-snap-type: initial; scrollbar-gutter: initial; shape-image-threshold: =
+initial; shape-margin: initial; shape-outside: initial; shape-rendering: in=
+itial; size: initial; speak: initial; stop-color: initial; stop-opacity: in=
+itial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initi=
+al; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: i=
+nitial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; =
+table-layout: initial; text-align: initial; text-align-last: initial; text-=
+anchor: initial; text-combine-upright: initial; text-decoration: initial; t=
+ext-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-pos=
+ition: initial; text-indent: initial; text-overflow: initial; text-shadow: =
+initial; text-size-adjust: initial; text-transform: initial; text-underline=
+-offset: initial; text-underline-position: initial; white-space: initial; t=
+ouch-action: initial; transform: initial; transform-box: initial; transform=
+-origin: initial; transform-style: initial; transition: initial; translate:=
+ initial; user-select: initial; vector-effect: initial; vertical-align: ini=
+tial; view-transition-name: initial; visibility: initial; border-spacing: i=
+nitial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; =
+-webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordi=
+nal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial;=
+ -webkit-box-reflect: initial; -webkit-highlight: initial; -webkit-line-bre=
+ak: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; =
+-webkit-mask: initial; -webkit-mask-composite: initial; -webkit-print-color=
+-adjust: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: ini=
+tial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; =
+-webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initi=
+al; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-u=
+ser-drag: initial; -webkit-user-modify: initial; widows: initial; width: in=
+itial; will-change: initial; word-break: initial; word-spacing: initial; x:=
+ initial; y: initial; z-index: 2147483647;"><link rel=3D"stylesheet" href=
+=3D"chrome-extension://hokifickgkhplphjiodbggjmoafhignh/fonts/fabric-icons.=
+css"></div><div id=3D"editorNotificationContainer" style=3D"color: initial;=
+ font: initial; font-palette: initial; font-synthesis: initial; forced-colo=
+r-adjust: initial; text-orientation: initial; text-rendering: initial; -web=
+kit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientat=
+ion: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: i=
+nitial; accent-color: initial; place-content: initial; place-items: initial=
+; place-self: initial; alignment-baseline: initial; animation-composition: =
+initial; animation: initial; app-region: initial; appearance: initial; aspe=
+ct-ratio: initial; backdrop-filter: initial; backface-visibility: initial; =
+background: initial; background-blend-mode: initial; baseline-shift: initia=
+l; baseline-source: initial; block-size: initial; border-block: initial; bo=
+rder: initial; border-radius: initial; border-collapse: initial; border-end=
+-end-radius: initial; border-end-start-radius: initial; border-inline: init=
+ial; border-start-end-radius: initial; border-start-start-radius: initial; =
+bottom: 0px; box-shadow: initial; box-sizing: initial; break-after: initial=
+; break-before: initial; break-inside: initial; buffered-rendering: initial=
+; caption-side: initial; caret-color: initial; clear: initial; clip: initia=
+l; clip-path: initial; clip-rule: initial; color-interpolation: initial; co=
+lor-interpolation-filters: initial; color-rendering: initial; color-scheme:=
+ initial; columns: initial; column-fill: initial; gap: initial; column-rule=
+: initial; column-span: initial; contain: initial; contain-intrinsic-block-=
+size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-si=
+ze: initial; container: initial; content: initial; content-visibility: init=
+ial; counter-increment: initial; counter-reset: initial; counter-set: initi=
+al; cursor: initial; cx: initial; cy: initial; d: initial; display: flex; d=
+ominant-baseline: initial; empty-cells: initial; fill: initial; fill-opacit=
+y: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: =
+column-reverse; float: initial; flood-color: initial; flood-opacity: initia=
+l; grid: initial; grid-area: initial; height: initial; hyphenate-character:=
+ initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientati=
+on: initial; image-rendering: initial; initial-letter: initial; inline-size=
+: initial; inset-block: initial; inset-inline: initial; isolation: initial;=
+ left: initial; letter-spacing: initial; lighting-color: initial; line-brea=
+k: initial; list-style: initial; margin-block: initial; margin: 1em; margin=
+-inline: initial; marker: initial; mask: initial; mask-type: initial; math-=
+depth: initial; math-shift: initial; math-style: initial; max-block-size: i=
+nitial; max-height: initial; max-inline-size: initial; max-width: initial; =
+min-block-size: initial; min-height: initial; min-inline-size: initial; min=
+-width: initial; mix-blend-mode: initial; object-fit: initial; object-posit=
+ion: initial; object-view-box: initial; offset: initial; opacity: initial; =
+order: initial; orphans: initial; outline: initial; outline-offset: initial=
+; overflow-anchor: initial; overflow-clip-margin: initial; overflow-wrap: i=
+nitial; overflow: initial; overscroll-behavior-block: initial; overscroll-b=
+ehavior-inline: initial; overscroll-behavior: initial; padding-block: initi=
+al; padding: initial; padding-inline: initial; page: initial; page-orientat=
+ion: initial; paint-order: initial; perspective: initial; perspective-origi=
+n: initial; pointer-events: initial; position: fixed; quotes: initial; r: i=
+nitial; resize: initial; right: 0px; rotate: initial; ruby-position: initia=
+l; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scro=
+ll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: ini=
+tial; scroll-padding-block: initial; scroll-padding: initial; scroll-paddin=
+g-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; s=
+croll-snap-type: initial; scrollbar-gutter: initial; shape-image-threshold:=
+ initial; shape-margin: initial; shape-outside: initial; shape-rendering: i=
+nitial; size: initial; speak: initial; stop-color: initial; stop-opacity: i=
+nitial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: init=
+ial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: =
+initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial;=
+ table-layout: initial; text-align: initial; text-align-last: initial; text=
+-anchor: initial; text-combine-upright: initial; text-decoration: initial; =
+text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-po=
+sition: initial; text-indent: initial; text-overflow: initial; text-shadow:=
+ initial; text-size-adjust: initial; text-transform: initial; text-underlin=
+e-offset: initial; text-underline-position: initial; white-space: initial; =
+top: initial; touch-action: initial; transform: initial; transform-box: ini=
+tial; transform-origin: initial; transform-style: initial; transition: init=
+ial; translate: initial; user-select: initial; vector-effect: initial; vert=
+ical-align: initial; view-transition-name: initial; visibility: initial; bo=
+rder-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-b=
+reak: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -=
+webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box=
+-pack: initial; -webkit-box-reflect: initial; -webkit-highlight: initial; -=
+webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-i=
+mage: initial; -webkit-mask: initial; -webkit-mask-composite: initial; -web=
+kit-print-color-adjust: initial; -webkit-rtl-ordering: initial; -webkit-rub=
+y-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-com=
+bine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fi=
+ll-color: initial; -webkit-text-security: initial; -webkit-text-stroke: ini=
+tial; -webkit-user-drag: initial; -webkit-user-modify: initial; widows: ini=
+tial; width: initial; will-change: initial; word-break: initial; word-spaci=
+ng: initial; x: initial; y: initial; z-index: 2147483647;"></div></div></ed=
+itor-card></html><!-- end: printthread -->
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: cid:css-6b7e6b64-4e7a-4bf3-b118-ae4ccfc6a8a6@mhtml.blink
+
+@charset "utf-8";
+
+@keyframes editorbx-css-0 {=20
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes editorbx-css-1 {=20
+  0% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+@keyframes editorbx-css-2 {=20
+  0% { transform: translate3d(-10px, 0px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-3 {=20
+  0% { transform: translate3d(-20px, 0px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-4 {=20
+  0% { transform: translate3d(-40px, 0px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-5 {=20
+  0% { transform: translate3d(-400px, 0px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-6 {=20
+  0% { transform: translate3d(10px, 0px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-7 {=20
+  0% { transform: translate3d(20px, 0px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-8 {=20
+  0% { transform: translate3d(40px, 0px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-9 {=20
+  0% { transform: translate3d(400px, 0px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-10 {=20
+  0% { transform: translate3d(0px, 10px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-11 {=20
+  0% { transform: translate3d(0px, 20px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-12 {=20
+  0% { transform: translate3d(0px, -10px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-13 {=20
+  0% { transform: translate3d(0px, -20px, 0px); pointer-events: none; }
+  100% { transform: translate3d(0px, 0px, 0px); pointer-events: auto; }
+}
+
+@keyframes editorbx-css-14 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(10px, 0px, 0px); }
+}
+
+@keyframes editorbx-css-15 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(20px, 0px, 0px); }
+}
+
+@keyframes editorbx-css-16 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(40px, 0px, 0px); }
+}
+
+@keyframes editorbx-css-17 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(400px, 0px, 0px); }
+}
+
+@keyframes editorbx-css-18 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(-10px, 0px, 0px); }
+}
+
+@keyframes editorbx-css-19 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(-20px, 0px, 0px); }
+}
+
+@keyframes editorbx-css-20 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(-40px, 0px, 0px); }
+}
+
+@keyframes editorbx-css-21 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(-400px, 0px, 0px); }
+}
+
+@keyframes editorbx-css-22 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(0px, -10px, 0px); }
+}
+
+@keyframes editorbx-css-23 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(0px, -20px, 0px); }
+}
+
+@keyframes editorbx-css-24 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(0px, 10px, 0px); }
+}
+
+@keyframes editorbx-css-25 {=20
+  0% { transform: translate3d(0px, 0px, 0px); }
+  100% { transform: translate3d(0px, 20px, 0px); }
+}
+
+@keyframes editorbx-css-26 {=20
+  0% { transform: scale3d(0.98, 0.98, 1); }
+  100% { transform: scale3d(1, 1, 1); }
+}
+
+@keyframes editorbx-css-27 {=20
+  0% { transform: scale3d(1, 1, 1); }
+  100% { transform: scale3d(0.98, 0.98, 1); }
+}
+
+@keyframes editorbx-css-28 {=20
+  0% { transform: scale3d(1.03, 1.03, 1); }
+  100% { transform: scale3d(1, 1, 1); }
+}
+
+@keyframes editorbx-css-29 {=20
+  0% { transform: scale3d(1, 1, 1); }
+  100% { transform: scale3d(1.03, 1.03, 1); }
+}
+
+@keyframes editorbx-css-30 {=20
+  0% { transform: rotateZ(0deg); }
+  100% { transform: rotateZ(90deg); }
+}
+
+@keyframes editorbx-css-31 {=20
+  0% { transform: rotateZ(0deg); }
+  100% { transform: rotateZ(-90deg); }
+}
+
+@font-face { font-family: "Leelawadee UI Web"; src: url("https://res-1.cdn.=
+office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-tha=
+i/leelawadeeui-light.woff2") format("woff2"), url("https://res-1.cdn.office=
+.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-thai/leel=
+awadeeui-light.woff") format("woff"); font-weight: 100; font-style: normal;=
+ font-display: swap; }
+
+@font-face { font-family: "Leelawadee UI Web"; src: url("https://res-1.cdn.=
+office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-tha=
+i/leelawadeeui-semilight.woff2") format("woff2"), url("https://res-1.cdn.of=
+fice.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-thai/=
+leelawadeeui-semilight.woff") format("woff"); font-weight: 300; font-style:=
+ normal; font-display: swap; }
+
+@font-face { font-family: "Leelawadee UI Web"; src: url("https://res-1.cdn.=
+office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-tha=
+i/leelawadeeui-regular.woff2") format("woff2"), url("https://res-1.cdn.offi=
+ce.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-thai/le=
+elawadeeui-regular.woff") format("woff"); font-weight: 400; font-style: nor=
+mal; font-display: swap; }
+
+@font-face { font-family: "Leelawadee UI Web"; src: url("https://res-1.cdn.=
+office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-tha=
+i/leelawadeeui-semibold.woff2") format("woff2"), url("https://res-1.cdn.off=
+ice.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-thai/l=
+eelawadeeui-semibold.woff") format("woff"); font-weight: 600; font-style: n=
+ormal; font-display: swap; }
+
+@font-face { font-family: "Leelawadee UI Web"; src: url("https://res-1.cdn.=
+office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-tha=
+i/leelawadeeui-bold.woff2") format("woff2"), url("https://res-1.cdn.office.=
+net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-thai/leela=
+wadeeui-bold.woff") format("woff"); font-weight: 700; font-style: normal; f=
+ont-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Arabic)"; src: url("https://res-1.=
+cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-arab=
+ic/segoeui-light.woff2") format("woff2"), url("https://res-1.cdn.office.net=
+/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-arabic/segoeui-lig=
+ht.woff") format("woff"); font-weight: 100; font-style: normal; font-displa=
+y: swap; }
+
+@font-face { font-family: "Segoe UI Web (Arabic)"; src: url("https://res-1.=
+cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-arab=
+ic/segoeui-semilight.woff2") format("woff2"), url("https://res-1.cdn.office=
+.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-arabic/segoeui=
+-semilight.woff") format("woff"); font-weight: 300; font-style: normal; fon=
+t-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Arabic)"; src: url("https://res-1.=
+cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-arab=
+ic/segoeui-regular.woff2") format("woff2"), url("https://res-1.cdn.office.n=
+et/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-arabic/segoeui-r=
+egular.woff") format("woff"); font-weight: 400; font-style: normal; font-di=
+splay: swap; }
+
+@font-face { font-family: "Segoe UI Web (Arabic)"; src: url("https://res-1.=
+cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-arab=
+ic/segoeui-semibold.woff2") format("woff2"), url("https://res-1.cdn.office.=
+net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-arabic/segoeui-=
+semibold.woff") format("woff"); font-weight: 600; font-style: normal; font-=
+display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Arabic)"; src: url("https://res-1.=
+cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-arab=
+ic/segoeui-bold.woff2") format("woff2"), url("https://res-1.cdn.office.net/=
+files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-arabic/segoeui-bold=
+.woff") format("woff"); font-weight: 700; font-style: normal; font-display:=
+ swap; }
+
+@font-face { font-family: "Segoe UI Web (Cyrillic)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-cy=
+rillic/segoeui-light.woff2") format("woff2"), url("https://res-1.cdn.office=
+.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-cyrillic/segoe=
+ui-light.woff") format("woff"); font-weight: 100; font-style: normal; font-=
+display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Cyrillic)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-cy=
+rillic/segoeui-semilight.woff2") format("woff2"), url("https://res-1.cdn.of=
+fice.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-cyrillic/s=
+egoeui-semilight.woff") format("woff"); font-weight: 300; font-style: norma=
+l; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Cyrillic)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-cy=
+rillic/segoeui-regular.woff2") format("woff2"), url("https://res-1.cdn.offi=
+ce.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-cyrillic/seg=
+oeui-regular.woff") format("woff"); font-weight: 400; font-style: normal; f=
+ont-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Cyrillic)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-cy=
+rillic/segoeui-semibold.woff2") format("woff2"), url("https://res-1.cdn.off=
+ice.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-cyrillic/se=
+goeui-semibold.woff") format("woff"); font-weight: 600; font-style: normal;=
+ font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Cyrillic)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-cy=
+rillic/segoeui-bold.woff2") format("woff2"), url("https://res-1.cdn.office.=
+net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-cyrillic/segoeu=
+i-bold.woff") format("woff"); font-weight: 700; font-style: normal; font-di=
+splay: swap; }
+
+@font-face { font-family: "Segoe UI Web (East European)"; src: url("https:/=
+/res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoe=
+ui-easteuropean/segoeui-light.woff2") format("woff2"), url("https://res-1.c=
+dn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-easte=
+uropean/segoeui-light.woff") format("woff"); font-weight: 100; font-style: =
+normal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (East European)"; src: url("https:/=
+/res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoe=
+ui-easteuropean/segoeui-semilight.woff2") format("woff2"), url("https://res=
+-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-e=
+asteuropean/segoeui-semilight.woff") format("woff"); font-weight: 300; font=
+-style: normal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (East European)"; src: url("https:/=
+/res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoe=
+ui-easteuropean/segoeui-regular.woff2") format("woff2"), url("https://res-1=
+.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-eas=
+teuropean/segoeui-regular.woff") format("woff"); font-weight: 400; font-sty=
+le: normal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (East European)"; src: url("https:/=
+/res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoe=
+ui-easteuropean/segoeui-semibold.woff2") format("woff2"), url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-ea=
+steuropean/segoeui-semibold.woff") format("woff"); font-weight: 600; font-s=
+tyle: normal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (East European)"; src: url("https:/=
+/res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoe=
+ui-easteuropean/segoeui-bold.woff2") format("woff2"), url("https://res-1.cd=
+n.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-easteu=
+ropean/segoeui-bold.woff") format("woff"); font-weight: 700; font-style: no=
+rmal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Greek)"; src: url("https://res-1.c=
+dn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-greek=
+/segoeui-light.woff2") format("woff2"), url("https://res-1.cdn.office.net/f=
+iles/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-greek/segoeui-light.=
+woff") format("woff"); font-weight: 100; font-style: normal; font-display: =
+swap; }
+
+@font-face { font-family: "Segoe UI Web (Greek)"; src: url("https://res-1.c=
+dn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-greek=
+/segoeui-semilight.woff2") format("woff2"), url("https://res-1.cdn.office.n=
+et/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-greek/segoeui-se=
+milight.woff") format("woff"); font-weight: 300; font-style: normal; font-d=
+isplay: swap; }
+
+@font-face { font-family: "Segoe UI Web (Greek)"; src: url("https://res-1.c=
+dn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-greek=
+/segoeui-regular.woff2") format("woff2"), url("https://res-1.cdn.office.net=
+/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-greek/segoeui-regu=
+lar.woff") format("woff"); font-weight: 400; font-style: normal; font-displ=
+ay: swap; }
+
+@font-face { font-family: "Segoe UI Web (Greek)"; src: url("https://res-1.c=
+dn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-greek=
+/segoeui-semibold.woff2") format("woff2"), url("https://res-1.cdn.office.ne=
+t/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-greek/segoeui-sem=
+ibold.woff") format("woff"); font-weight: 600; font-style: normal; font-dis=
+play: swap; }
+
+@font-face { font-family: "Segoe UI Web (Greek)"; src: url("https://res-1.c=
+dn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-greek=
+/segoeui-bold.woff2") format("woff2"), url("https://res-1.cdn.office.net/fi=
+les/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-greek/segoeui-bold.wo=
+ff") format("woff"); font-weight: 700; font-style: normal; font-display: sw=
+ap; }
+
+@font-face { font-family: "Segoe UI Web (Hebrew)"; src: url("https://res-1.=
+cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-hebr=
+ew/segoeui-light.woff2") format("woff2"), url("https://res-1.cdn.office.net=
+/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-hebrew/segoeui-lig=
+ht.woff") format("woff"); font-weight: 100; font-style: normal; font-displa=
+y: swap; }
+
+@font-face { font-family: "Segoe UI Web (Hebrew)"; src: url("https://res-1.=
+cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-hebr=
+ew/segoeui-semilight.woff2") format("woff2"), url("https://res-1.cdn.office=
+.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-hebrew/segoeui=
+-semilight.woff") format("woff"); font-weight: 300; font-style: normal; fon=
+t-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Hebrew)"; src: url("https://res-1.=
+cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-hebr=
+ew/segoeui-regular.woff2") format("woff2"), url("https://res-1.cdn.office.n=
+et/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-hebrew/segoeui-r=
+egular.woff") format("woff"); font-weight: 400; font-style: normal; font-di=
+splay: swap; }
+
+@font-face { font-family: "Segoe UI Web (Hebrew)"; src: url("https://res-1.=
+cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-hebr=
+ew/segoeui-semibold.woff2") format("woff2"), url("https://res-1.cdn.office.=
+net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-hebrew/segoeui-=
+semibold.woff") format("woff"); font-weight: 600; font-style: normal; font-=
+display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Hebrew)"; src: url("https://res-1.=
+cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-hebr=
+ew/segoeui-bold.woff2") format("woff2"), url("https://res-1.cdn.office.net/=
+files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-hebrew/segoeui-bold=
+.woff") format("woff"); font-weight: 700; font-style: normal; font-display:=
+ swap; }
+
+@font-face { font-family: "Segoe UI Web (Vietnamese)"; src: url("https://re=
+s-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-=
+vietnamese/segoeui-light.woff2") format("woff2"), url("https://res-1.cdn.of=
+fice.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-vietnamese=
+/segoeui-light.woff") format("woff"); font-weight: 100; font-style: normal;=
+ font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Vietnamese)"; src: url("https://re=
+s-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-=
+vietnamese/segoeui-semilight.woff2") format("woff2"), url("https://res-1.cd=
+n.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-vietna=
+mese/segoeui-semilight.woff") format("woff"); font-weight: 300; font-style:=
+ normal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Vietnamese)"; src: url("https://re=
+s-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-=
+vietnamese/segoeui-regular.woff2") format("woff2"), url("https://res-1.cdn.=
+office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-vietname=
+se/segoeui-regular.woff") format("woff"); font-weight: 400; font-style: nor=
+mal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Vietnamese)"; src: url("https://re=
+s-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-=
+vietnamese/segoeui-semibold.woff2") format("woff2"), url("https://res-1.cdn=
+.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-vietnam=
+ese/segoeui-semibold.woff") format("woff"); font-weight: 600; font-style: n=
+ormal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Vietnamese)"; src: url("https://re=
+s-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-=
+vietnamese/segoeui-bold.woff2") format("woff2"), url("https://res-1.cdn.off=
+ice.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-vietnamese/=
+segoeui-bold.woff") format("woff"); font-weight: 700; font-style: normal; f=
+ont-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (West European)"; src: local("Segoe=
+ UI Light"), url("https://res-1.cdn.office.net/files/fabric-cdn-prod_202212=
+09.001/assets/fonts/segoeui-westeuropean/segoeui-light.woff2") format("woff=
+2"), url("https://res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/a=
+ssets/fonts/segoeui-westeuropean/segoeui-light.woff") format("woff"); font-=
+weight: 100; font-style: normal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (West European)"; src: local("Segoe=
+ UI SemiLight"), url("https://res-1.cdn.office.net/files/fabric-cdn-prod_20=
+221209.001/assets/fonts/segoeui-westeuropean/segoeui-semilight.woff2") form=
+at("woff2"), url("https://res-1.cdn.office.net/files/fabric-cdn-prod_202212=
+09.001/assets/fonts/segoeui-westeuropean/segoeui-semilight.woff") format("w=
+off"); font-weight: 300; font-style: normal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (West European)"; src: local("Segoe=
+ UI"), url("https://res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001=
+/assets/fonts/segoeui-westeuropean/segoeui-regular.woff2") format("woff2"),=
+ url("https://res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/asset=
+s/fonts/segoeui-westeuropean/segoeui-regular.woff") format("woff"); font-we=
+ight: 400; font-style: normal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (West European)"; src: local("Segoe=
+ UI SemiBold"), url("https://res-1.cdn.office.net/files/fabric-cdn-prod_202=
+21209.001/assets/fonts/segoeui-westeuropean/segoeui-semibold.woff2") format=
+("woff2"), url("https://res-1.cdn.office.net/files/fabric-cdn-prod_20221209=
+.001/assets/fonts/segoeui-westeuropean/segoeui-semibold.woff") format("woff=
+"); font-weight: 600; font-style: normal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (West European)"; src: local("Segoe=
+ UI Bold"), url("https://res-1.cdn.office.net/files/fabric-cdn-prod_2022120=
+9.001/assets/fonts/segoeui-westeuropean/segoeui-bold.woff2") format("woff2"=
+), url("https://res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/ass=
+ets/fonts/segoeui-westeuropean/segoeui-bold.woff") format("woff"); font-wei=
+ght: 700; font-style: normal; font-display: swap; }
+
+@font-face { src: url("https://res-1.cdn.office.net/files/fabric-cdn-prod_2=
+0221209.001/assets/fonts/selawik/selawik-light.woff2") format("woff2"), url=
+("https://res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fo=
+nts/selawik/selawik-light.woff") format("woff"); font-weight: 100; font-sty=
+le: normal; font-display: swap; }
+
+@font-face { src: url("https://res-1.cdn.office.net/files/fabric-cdn-prod_2=
+0221209.001/assets/fonts/selawik/selawik-semilight.woff2") format("woff2"),=
+ url("https://res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/asset=
+s/fonts/selawik/selawik-semilight.woff") format("woff"); font-weight: 300; =
+font-style: normal; font-display: swap; }
+
+@font-face { src: url("https://res-1.cdn.office.net/files/fabric-cdn-prod_2=
+0221209.001/assets/fonts/selawik/selawik-regular.woff2") format("woff2"), u=
+rl("https://res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/=
+fonts/selawik/selawik-regular.woff") format("woff"); font-weight: 400; font=
+-style: normal; font-display: swap; }
+
+@font-face { src: url("https://res-1.cdn.office.net/files/fabric-cdn-prod_2=
+0221209.001/assets/fonts/selawik/selawik-semibold.woff2") format("woff2"), =
+url("https://res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets=
+/fonts/selawik/selawik-semibold.woff") format("woff"); font-weight: 600; fo=
+nt-style: normal; font-display: swap; }
+
+@font-face { src: url("https://res-1.cdn.office.net/files/fabric-cdn-prod_2=
+0221209.001/assets/fonts/selawik/selawik-bold.woff2") format("woff2"), url(=
+"https://res-1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fon=
+ts/selawik/selawik-bold.woff") format("woff"); font-weight: 700; font-style=
+: normal; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Armenian)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-ar=
+menian/segoeui-light.woff2") format("woff2"), url("https://res-1.cdn.office=
+.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-armenian/segoe=
+ui-light.woff") format("woff"); font-weight: 100; font-style: normal; font-=
+display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Armenian)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-ar=
+menian/segoeui-semilight.woff2") format("woff2"), url("https://res-1.cdn.of=
+fice.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-armenian/s=
+egoeui-semilight.woff") format("woff"); font-weight: 300; font-style: norma=
+l; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Armenian)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-ar=
+menian/segoeui-regular.woff2") format("woff2"), url("https://res-1.cdn.offi=
+ce.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-armenian/seg=
+oeui-regular.woff") format("woff"); font-weight: 400; font-style: normal; f=
+ont-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Armenian)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-ar=
+menian/segoeui-semibold.woff2") format("woff2"), url("https://res-1.cdn.off=
+ice.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-armenian/se=
+goeui-semibold.woff") format("woff"); font-weight: 600; font-style: normal;=
+ font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Armenian)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-ar=
+menian/segoeui-bold.woff2") format("woff2"), url("https://res-1.cdn.office.=
+net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-armenian/segoeu=
+i-bold.woff") format("woff"); font-weight: 700; font-style: normal; font-di=
+splay: swap; }
+
+@font-face { font-family: "Segoe UI Web (Georgian)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-ge=
+orgian/segoeui-light.woff2") format("woff2"), url("https://res-1.cdn.office=
+.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-georgian/segoe=
+ui-light.woff") format("woff"); font-weight: 100; font-style: normal; font-=
+display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Georgian)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-ge=
+orgian/segoeui-semilight.woff2") format("woff2"), url("https://res-1.cdn.of=
+fice.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-georgian/s=
+egoeui-semilight.woff") format("woff"); font-weight: 300; font-style: norma=
+l; font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Georgian)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-ge=
+orgian/segoeui-regular.woff2") format("woff2"), url("https://res-1.cdn.offi=
+ce.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-georgian/seg=
+oeui-regular.woff") format("woff"); font-weight: 400; font-style: normal; f=
+ont-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Georgian)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-ge=
+orgian/segoeui-semibold.woff2") format("woff2"), url("https://res-1.cdn.off=
+ice.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-georgian/se=
+goeui-semibold.woff") format("woff"); font-weight: 600; font-style: normal;=
+ font-display: swap; }
+
+@font-face { font-family: "Segoe UI Web (Georgian)"; src: url("https://res-=
+1.cdn.office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-ge=
+orgian/segoeui-bold.woff2") format("woff2"), url("https://res-1.cdn.office.=
+net/files/fabric-cdn-prod_20221209.001/assets/fonts/segoeui-georgian/segoeu=
+i-bold.woff") format("woff"); font-weight: 700; font-style: normal; font-di=
+splay: swap; }
+
+@font-face { font-family: "Leelawadee UI Web"; src: url("https://res-1.cdn.=
+office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-tha=
+i/leelawadeeui-semilight.woff2") format("woff2"), url("https://res-1.cdn.of=
+fice.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-thai/=
+leelawadeeui-semilight.woff") format("woff"); font-weight: 100; font-style:=
+ normal; font-display: swap; }
+
+@font-face { font-family: "Leelawadee UI Web"; src: url("https://res-1.cdn.=
+office.net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-tha=
+i/leelawadeeui-bold.woff2") format("woff2"), url("https://res-1.cdn.office.=
+net/files/fabric-cdn-prod_20221209.001/assets/fonts/leelawadeeui-thai/leela=
+wadeeui-bold.woff") format("woff"); font-weight: 600; font-style: normal; f=
+ont-display: swap; }
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: cid:css-a8a89dea-c2bf-4271-b533-7284b6498da0@mhtml.blink
+
+@charset "utf-8";
+
+.editorbx-body-89 { color: rgb(50, 49, 48); background: rgb(255, 255, 255);=
+ font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -appl=
+e-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif; font-we=
+ight: 400; font-size: 14px; -webkit-font-smoothing: antialiased; }
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: cid:css-683c3fea-f929-403a-be5d-f3e76789dc23@mhtml.blink
+
+@charset "utf-8";
+
+.editorbx-css-0 { overflow: hidden !important; }
+
+.editorbx-css-1 { animation-name: editorbx-css-0, editorbx-css-10; animatio=
+n-duration: 0.367s; animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, =
+1); animation-fill-mode: both; }
+
+.editorbx-css-2 { animation-name: editorbx-css-0, editorbx-css-12; animatio=
+n-duration: 0.367s; animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, =
+1); animation-fill-mode: both; }
+
+.editorbx-css-3 { animation-name: editorbx-css-0, editorbx-css-6; animation=
+-duration: 0.367s; animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1=
+); animation-fill-mode: both; }
+
+.editorbx-css-4 { animation-name: editorbx-css-0, editorbx-css-2; animation=
+-duration: 0.367s; animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1=
+); animation-fill-mode: both; }
+
+.editorbx-root-5 { display: inline-block; }
+
+.editorbx-placeholder-6 { width: 1em; }
+
+.editorbx-image-7 { overflow: hidden; }
+
+.editorbx-container-8 { position: relative; forced-color-adjust: none; }
+
+.editorbx-root-9 { font-family: "Segoe UI Web (West European)", "Segoe UI",=
+ -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -=
+webkit-font-smoothing: antialiased; font-size: 14px; font-weight: 400; posi=
+tion: absolute; display: flex; z-index: 1000000; box-sizing: border-box; bo=
+rder-radius: 2px; box-shadow: rgba(0, 0, 0, 0.133) 0px 6.4px 14.4px 0px, rg=
+ba(0, 0, 0, 0.11) 0px 1.2px 3.6px 0px; outline: transparent; max-width: 450=
+px; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-root-9 { border-width: 1px; border-style: solid; border-color: =
+windowtext; }
+}
+
+.editorbx-beak-10 { position: absolute; background-color: rgb(255, 255, 255=
+); box-shadow: inherit; border: inherit; box-sizing: border-box; transform:=
+ rotate(45deg); height: 16px; width: 16px; }
+
+.editorbx-beakCurtain-11 { position: absolute; inset: 0px; background-color=
+: rgb(255, 255, 255); border-radius: 2px; }
+
+.editorbx-calloutMain-12 { background-color: rgb(255, 255, 255); overflow: =
+hidden auto; position: relative; width: 100%; border-radius: 2px; min-width=
+: 288px; forced-color-adjust: auto; padding-top: 14px; font-family: "Segoe =
+UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Rob=
+oto, "Helvetica Neue", sans-serif; }
+
+@font-face { font-family: FabricMDL2Icons-3; src: url("chrome-extension://h=
+okifickgkhplphjiodbggjmoafhignh/fonts/fabric-icons.cssfabric-icons-3-089e21=
+7a.woff") format("woff"); }
+
+.editorbx-css-14 { -webkit-font-smoothing: antialiased; font-style: normal;=
+ font-weight: normal; speak: none; font-family: FabricMDL2Icons-3; }
+
+.editorbx-root-15 { display: inline-block; -webkit-font-smoothing: antialia=
+sed; font-style: normal; font-weight: normal; speak: none; font-family: Fab=
+ricMDL2Icons; color: rgb(90, 78, 188); font-size: 7px; line-height: 18px; w=
+idth: auto; height: auto; }
+
+@font-face { font-family: FabricMDL2Icons-0; src: url("chrome-extension://h=
+okifickgkhplphjiodbggjmoafhignh/fonts/fabric-icons.cssfabric-icons-0-467ee2=
+7f.woff") format("woff"); }
+
+.editorbx-css-17 { -webkit-font-smoothing: antialiased; font-style: normal;=
+ font-weight: normal; speak: none; font-family: FabricMDL2Icons-0; }
+
+.editorbx-root-18 { display: inline-block; -webkit-font-smoothing: antialia=
+sed; font-style: normal; font-weight: 700; speak: none; font-family: Fabric=
+MDL2Icons; font-size: 10px; width: auto; height: auto; padding-right: 5px; =
+}
+
+.editorbx-root-19 { font-family: "Segoe UI", "Segoe UI Web (West European)"=
+, "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", =
+sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; font-weig=
+ht: 600; color: rgb(50, 49, 48); box-sizing: border-box; box-shadow: none; =
+margin: 0px; display: block; padding: 5px 0px; overflow-wrap: break-word; }
+
+.editorbx-root-20 { font-family: "Segoe UI Web (West European)", "Segoe UI"=
+, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif; =
+-webkit-font-smoothing: antialiased; font-size: 12px; font-weight: 400; col=
+or: rgb(59, 58, 57); box-sizing: border-box; box-shadow: none; margin: 0px =
+0px 8px; display: block; padding: 0px 12px; overflow-wrap: break-word; forc=
+ed-color-adjust: none; user-select: none; }
+
+@media screen and (forced-colors: active) {
+  .editorbx-root-20 { color: windowtext; }
+}
+
+.editorbx-root-21 { outline: transparent; position: relative; font-family: =
+"Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFo=
+nt, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialias=
+ed; font-size: 14px; font-weight: 400; box-sizing: border-box; border: none=
+; display: inline-block; text-decoration: none; text-align: center; cursor:=
+ pointer; padding: 7px 6px 9px; border-radius: 2px; max-width: 400px; min-h=
+eight: 36px; height: auto; background-color: transparent; color: rgb(50, 49=
+, 48); flex-grow: 1; user-select: none; width: 100% !important; }
+
+.ms-Fabric--isFocusVisible .editorbx-root-21:focus::after { content: ""; po=
+sition: absolute; inset: 2px; border: 1px solid transparent; outline: rgb(9=
+6, 94, 92) solid 1px; z-index: 1; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .ms-Fabric--isFocusVisible .editorbx-root-21:focus::after { inset: -2px; =
+outline-color: buttontext; }
+}
+
+.editorbx-root-21:active > span { position: relative; left: 0px; top: 0px; =
+}
+
+.editorbx-root-21.ms-editor-focus { background-color: transparent; border: =
+1px solid rgb(96, 94, 92); padding: 6px 5px 8px; }
+
+.editorbx-root-21:hover { background-color: rgb(243, 242, 241); color: rgb(=
+32, 31, 30); border: none; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-root-21:hover { border-color: highlight; color: highlight; }
+}
+
+.editorbx-root-21:hover .ms-Button-description { color: rgb(32, 31, 30); }
+
+.editorbx-root-21:focus { background-color: transparent; border: 1px solid =
+rgb(96, 94, 92); padding: 6px 5px 8px; }
+
+.editorbx-root-21:active { background-color: rgb(237, 235, 233); color: rgb=
+(32, 31, 30); }
+
+.editorbx-root-21:active .ms-Button-description { color: inherit; }
+
+.editorbx-flexContainer-22 { display: flex; height: 100%; flex-flow: row no=
+wrap; justify-content: center; align-items: flex-start; min-width: 100%; }
+
+.editorbx-textContainer-23 { flex-grow: 1; display: block; text-align: left=
+; }
+
+.editorbx-icon-24 { font-size: 2em; margin: 0px 8px 0px 0px; height: 1em; l=
+ine-height: 1em; text-align: center; flex-shrink: 0; flex-basis: 1em; }
+
+.editorbx-label-25 { margin: 0px 0px 5px; line-height: 100%; display: block=
+; font-weight: 600; }
+
+.editorbx-menuIcon-26 { font-size: 12px; margin: 0px 4px; height: 16px; lin=
+e-height: 16px; text-align: center; flex-shrink: 0; }
+
+.editorbx-description-27 { display: block; font-family: "Segoe UI", "Segoe =
+UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Rob=
+oto, "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; fon=
+t-size: 12px; font-weight: 400; line-height: 100%; color: rgb(59, 58, 57); =
+}
+
+.editorbx-screenReaderText-28 { position: absolute; width: 1px; height: 1px=
+; margin: -1px; padding: 0px; border: 0px; overflow: hidden; white-space: n=
+owrap; }
+
+.editorbx-root-29 { outline: transparent; position: relative; font-family: =
+"Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFo=
+nt, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialias=
+ed; font-size: 14px; font-weight: 400; box-sizing: border-box; border: none=
+ rgb(243, 242, 241); display: inline-block; text-decoration: none; text-ali=
+gn: center; cursor: default; padding: 7px 6px 9px; border-radius: 2px; max-=
+width: 400px; min-height: 36px; height: auto; background-color: transparent=
+; color: rgb(161, 159, 157); flex-grow: 1; user-select: none; width: 100% !=
+important; }
+
+.ms-Fabric--isFocusVisible .editorbx-root-29:focus::after { content: ""; po=
+sition: absolute; inset: 2px; border: 1px solid transparent; outline: rgb(9=
+6, 94, 92) solid 1px; z-index: 1; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .ms-Fabric--isFocusVisible .editorbx-root-29:focus::after { inset: -2px; =
+outline-color: buttontext; }
+}
+
+.editorbx-root-29:active > span { position: relative; left: 0px; top: 0px; =
+}
+
+.editorbx-root-29.ms-editor-focus { background-color: transparent; border: =
+1px solid rgb(96, 94, 92); padding: 6px 5px 8px; }
+
+.editorbx-root-29:hover { outline: 0px; }
+
+.editorbx-root-29:focus { outline: 0px; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-root-29 { color: graytext; border-color: graytext; background-c=
+olor: window; }
+}
+
+.editorbx-icon-30 { font-size: 2em; margin: 0px 8px 0px 0px; height: 1em; l=
+ine-height: 1em; text-align: center; flex-shrink: 0; flex-basis: 1em; color=
+: rgb(161, 159, 157); }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-icon-30 { color: graytext; }
+}
+
+.editorbx-menuIcon-31 { font-size: 12px; margin: 0px 4px; height: 16px; lin=
+e-height: 16px; text-align: center; flex-shrink: 0; color: rgb(161, 159, 15=
+7); }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-menuIcon-31 { color: graytext; }
+}
+
+.editorbx-description-32 { display: block; font-family: "Segoe UI", "Segoe =
+UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Rob=
+oto, "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; fon=
+t-size: 12px; font-weight: 400; line-height: 100%; color: inherit; }
+
+.editorbx-root-33 { outline: transparent; position: relative; font-family: =
+"Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFo=
+nt, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialias=
+ed; font-size: 14px; font-weight: 400; box-sizing: border-box; border: 1px =
+solid rgb(96, 94, 92); display: inline-block; text-decoration: none; text-a=
+lign: center; cursor: default; padding: 7px 6px 9px; border-radius: 2px; ma=
+x-width: 400px; min-height: 36px; height: auto; background-color: transpare=
+nt; color: rgb(161, 159, 157); flex-grow: 1; user-select: none; width: 100%=
+ !important; }
+
+.ms-Fabric--isFocusVisible .editorbx-root-33:focus::after { content: ""; po=
+sition: absolute; inset: 2px; border: 1px solid transparent; outline: rgb(9=
+6, 94, 92) solid 1px; z-index: 1; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .ms-Fabric--isFocusVisible .editorbx-root-33:focus::after { inset: -2px; =
+outline-color: buttontext; }
+}
+
+.editorbx-root-33:active > span { position: relative; left: 0px; top: 0px; =
+}
+
+.editorbx-root-33.ms-editor-focus { background-color: transparent; border: =
+1px solid rgb(96, 94, 92); padding: 6px 5px 8px; }
+
+.editorbx-root-33:hover { outline: 0px; }
+
+.editorbx-root-33:focus { outline: 0px; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-root-33 { color: graytext; border-color: graytext; background-c=
+olor: window; }
+}
+
+.editorbx-textContainer-34 { flex-grow: 1; display: block; text-align: righ=
+t; }
+
+.editorbx-root-35 { outline: transparent; position: relative; font-family: =
+"Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, Blin=
+kMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothin=
+g: antialiased; font-size: 14px; font-weight: 400; box-sizing: border-box; =
+border: none; display: inline-block; text-decoration: none; text-align: lef=
+t; cursor: pointer; padding: 0px; border-radius: 2px; min-width: auto; heig=
+ht: 24px; background-color: rgb(255, 255, 255); color: rgb(59, 58, 57); poi=
+nter-events: all; margin: 0px 8px 0px 0px; max-height: 24px; min-height: 24=
+px; flex-grow: 0; white-space: nowrap; overflow: visible; user-select: none=
+; }
+
+.ms-Fabric--isFocusVisible .editorbx-root-35:focus::after { content: ""; po=
+sition: absolute; inset: 2px; border: 1px solid transparent; outline: rgb(9=
+6, 94, 92) solid 1px; z-index: 1; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .ms-Fabric--isFocusVisible .editorbx-root-35:focus::after { inset: -2px; =
+outline-color: buttontext; }
+}
+
+.editorbx-root-35:active > span { position: relative; left: 0px; top: 0px; =
+}
+
+.editorbx-root-35.ms-editor-focus { background-color: transparent; outline:=
+ rgb(96, 94, 92) solid 1px; }
+
+.editorbx-root-35:hover { background-color: rgb(243, 242, 241); color: rgb(=
+32, 31, 30); }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-root-35:hover { border-color: highlight; color: highlight; }
+}
+
+.editorbx-root-35:focus { outline: rgb(96, 94, 92) solid 1px; }
+
+.editorbx-root-35:active { background-color: rgb(219, 219, 219); color: rgb=
+(32, 31, 30); }
+
+.editorbx-flexContainer-36 { display: flex; height: 100%; flex-wrap: nowrap=
+; justify-content: center; align-items: center; pointer-events: all; }
+
+.editorbx-textContainer-37 { flex-grow: 1; display: block; }
+
+.editorbx-icon-38 { font-size: 16px; margin: 0px 4px; height: 16px; line-he=
+ight: 16px; text-align: center; flex-shrink: 0; }
+
+.editorbx-label-39 { margin: 0px 4px; line-height: 100%; display: block; fo=
+nt-weight: 400; }
+
+.editorbx-description-40 { display: block; }
+
+.editorbx-root-41 { outline: transparent; position: relative; font-family: =
+"Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, Blin=
+kMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothin=
+g: antialiased; font-size: 14px; font-weight: 400; box-sizing: border-box; =
+border: none; display: inline-block; text-decoration: none; text-align: cen=
+ter; cursor: pointer; padding: 3px 0px 0px; border-radius: 2px; min-width: =
+auto; height: 24px; background-color: rgb(255, 255, 255); color: rgb(50, 49=
+, 48); margin: 0px 8px 0px 0px; max-height: 24px; min-height: 24px; flex-gr=
+ow: 0; white-space: nowrap; user-select: none; }
+
+.ms-Fabric--isFocusVisible .editorbx-root-41:focus::after { content: ""; po=
+sition: absolute; inset: 2px; border: 1px solid transparent; outline: rgb(9=
+6, 94, 92) solid 1px; z-index: 1; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .ms-Fabric--isFocusVisible .editorbx-root-41:focus::after { inset: -2px; =
+outline-color: buttontext; }
+}
+
+.editorbx-root-41:active > span { position: relative; left: 0px; top: 0px; =
+}
+
+.editorbx-root-41.ms-editor-focus { background-color: transparent; outline:=
+ rgb(96, 94, 92) solid 1px; }
+
+.editorbx-root-41:hover { background-color: rgb(243, 242, 241); color: rgb(=
+32, 31, 30); }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-root-41:hover { border-color: highlight; color: highlight; }
+}
+
+.editorbx-root-41:focus { outline: rgb(96, 94, 92) solid 1px; }
+
+.editorbx-root-41:active { background-color: rgb(219, 219, 219); color: rgb=
+(32, 31, 30); }
+
+.editorbx-flexContainer-42 { display: flex; height: 100%; flex-wrap: nowrap=
+; justify-content: center; align-items: center; }
+
+.editorbx-label-43 { margin: 0px 4px; line-height: 100%; display: block; fo=
+nt-weight: 600; }
+
+@font-face { font-family: FabricMDL2Icons; src: url("chrome-extension://hok=
+ifickgkhplphjiodbggjmoafhignh/fonts/fabric-icons.cssfabric-icons-a13498cf.w=
+off") format("woff"); }
+
+.editorbx-css-45 { -webkit-font-smoothing: antialiased; font-style: normal;=
+ font-weight: normal; speak: none; font-family: FabricMDL2Icons; }
+
+.editorbx-root-46 { outline: transparent; position: relative; font-family: =
+"Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, Blin=
+kMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothin=
+g: antialiased; font-size: 14px; font-weight: 400; box-sizing: border-box; =
+border: none; display: inline-block; text-decoration: none; text-align: cen=
+ter; cursor: pointer; padding: 0px; border-radius: 2px; min-width: 25px; he=
+ight: 24px; background-color: rgb(255, 255, 255); color: rgb(50, 49, 48); w=
+idth: 25px; margin: 0px; max-height: 24px; min-height: 24px; flex-grow: 0; =
+user-select: none; }
+
+.ms-Fabric--isFocusVisible .editorbx-root-46:focus::after { content: ""; po=
+sition: absolute; inset: 2px; border: 1px solid transparent; outline: rgb(9=
+6, 94, 92) solid 1px; z-index: 1; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .ms-Fabric--isFocusVisible .editorbx-root-46:focus::after { inset: -2px; =
+outline-color: buttontext; }
+}
+
+.editorbx-root-46:active > span { position: relative; left: 0px; top: 0px; =
+}
+
+.editorbx-root-46.ms-editor-focus { background-color: transparent; outline:=
+ rgb(96, 94, 92) solid 1px; }
+
+.editorbx-root-46:hover { background-color: rgb(243, 242, 241); color: rgb(=
+32, 31, 30); }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-root-46:hover { border-color: highlight; color: highlight; }
+}
+
+.editorbx-root-46:focus { outline: rgb(96, 94, 92) solid 1px; }
+
+.editorbx-root-46:active { background-color: rgb(219, 219, 219); color: rgb=
+(32, 31, 30); }
+
+.editorbx-root-47 { font-family: "Segoe UI", "Segoe UI Web (West European)"=
+, "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", =
+sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; font-weig=
+ht: 400; background-color: rgb(255, 255, 255); min-width: 180px; }
+
+.editorbx-container-48:focus { outline: 0px; }
+
+.editorbx-list-49 { list-style-type: none; margin: 0px; padding: 0px; }
+
+.editorbx-header-50 { font-family: "Segoe UI", "Segoe UI Web (West European=
+)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue"=
+, sans-serif; -webkit-font-smoothing: antialiased; font-size: 12px; font-we=
+ight: 600; color: rgb(0, 120, 212); background: none transparent; border: n=
+one; height: 36px; line-height: 36px; cursor: default; padding: 0px 6px; te=
+xt-align: left; user-select: none; }
+
+.editorbx-title-51 { font-size: 16px; padding: 5px 14px; background-color: =
+rgb(237, 235, 233); }
+
+.editorbx-item-52 { font-family: "Segoe UI", "Segoe UI Web (West European)"=
+, "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", =
+sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; font-weig=
+ht: 400; color: rgb(50, 49, 48); position: relative; box-sizing: border-box=
+; }
+
+.editorbx-divider-53 { display: block; height: 1px; background-color: rgb(2=
+37, 235, 233); position: relative; }
+
+.editorbx-root-54 { outline: transparent; position: relative; font-family: =
+"Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, Blin=
+kMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothin=
+g: antialiased; font-size: 14px; font-weight: 400; color: rgb(161, 159, 157=
+); background-color: transparent; border: none; width: 100%; height: 36px; =
+line-height: 36px; display: block; cursor: default; padding: 0px 8px 0px 4p=
+x; text-align: left; pointer-events: none; }
+
+.ms-Fabric--isFocusVisible .editorbx-root-54:focus::after { content: ""; po=
+sition: absolute; inset: 1px; border: 1px solid rgb(255, 255, 255); outline=
+: rgb(96, 94, 92) solid 1px; z-index: 1; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-root-54 { color: graytext; opacity: 1; }
+}
+
+.editorbx-splitPrimary-55 { outline: transparent; position: relative; font-=
+family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-syst=
+em, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -webkit-font-=
+smoothing: antialiased; font-size: 14px; font-weight: 400; color: rgb(161, =
+159, 157); background-color: transparent; border: none; width: calc(100% - =
+28px); height: 36px; line-height: 36px; display: block; cursor: default; pa=
+dding: 0px 8px 0px 4px; text-align: left; pointer-events: none; }
+
+.ms-Fabric--isFocusVisible .editorbx-splitPrimary-55:focus::after { content=
+: ""; position: absolute; inset: 1px; border: 1px solid rgb(255, 255, 255);=
+ outline: rgb(96, 94, 92) solid 1px; z-index: 1; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-splitPrimary-55 { color: graytext; opacity: 1; }
+}
+
+.editorbx-splitMenu-56 { outline: transparent; position: relative; font-fam=
+ily: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system,=
+ BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smo=
+othing: antialiased; font-size: 14px; font-weight: 400; color: rgb(161, 159=
+, 157); background-color: transparent; border: none; width: 100%; height: 3=
+6px; line-height: 36px; display: block; cursor: default; padding: 0px 8px; =
+text-align: left; flex-basis: 0px; min-width: 28px; pointer-events: none; }
+
+.ms-Fabric--isFocusVisible .editorbx-splitMenu-56:focus::after { content: "=
+"; position: absolute; inset: 1px; border: 1px solid rgb(255, 255, 255); ou=
+tline: rgb(96, 94, 92) solid 1px; z-index: 1; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-splitMenu-56 { color: graytext; opacity: 1; }
+}
+
+.editorbx-anchorLink-57 { padding: 0px 8px 0px 4px; text-rendering: auto; c=
+olor: inherit; letter-spacing: normal; word-spacing: normal; text-transform=
+: none; text-indent: 0px; text-shadow: none; text-decoration: none; box-siz=
+ing: border-box; }
+
+.editorbx-linkContent-58 { white-space: nowrap; height: inherit; display: f=
+lex; align-items: center; max-width: 100%; }
+
+.editorbx-linkContentMenu-59 { white-space: nowrap; height: inherit; displa=
+y: flex; align-items: center; max-width: 100%; justify-content: center; }
+
+.editorbx-icon-60 { display: inline-block; min-height: 1px; max-height: 36p=
+x; font-size: 16px; width: 16px; margin: 0px 4px; vertical-align: middle; f=
+lex-shrink: 0; color: rgb(161, 159, 157); }
+
+@media only screen and (min-width: 0px) and (max-width: 639px) {
+  .editorbx-icon-60 { font-size: 20px; width: 20px; }
+}
+
+.editorbx-iconColor-61 { color: rgb(0, 120, 212); }
+
+.editorbx-checkmarkIcon-62 { display: inline-block; min-height: 1px; max-he=
+ight: 36px; font-size: 16px; width: 16px; margin: 0px 4px; vertical-align: =
+middle; flex-shrink: 0; }
+
+@media only screen and (min-width: 0px) and (max-width: 639px) {
+  .editorbx-checkmarkIcon-62 { font-size: 20px; width: 20px; }
+}
+
+.editorbx-subMenuIcon-63 { height: 36px; line-height: 36px; color: rgb(161,=
+ 159, 157); text-align: center; display: inline-block; vertical-align: midd=
+le; flex-shrink: 0; font-size: 12px; }
+
+.editorbx-subMenuIcon-63:hover { color: rgb(50, 49, 48); }
+
+.editorbx-subMenuIcon-63:active { color: rgb(50, 49, 48); }
+
+@media only screen and (min-width: 0px) and (max-width: 639px) {
+  .editorbx-subMenuIcon-63 { font-size: 16px; }
+}
+
+.editorbx-label-64 { margin: 0px 4px; vertical-align: middle; display: inli=
+ne-block; flex-grow: 1; text-overflow: ellipsis; white-space: nowrap; }
+
+.editorbx-secondaryText-65 { color: rgb(96, 94, 92); padding-left: 20px; te=
+xt-align: right; }
+
+.editorbx-splitContainer-66 { outline: transparent; position: relative; dis=
+play: flex; height: 36px; flex-wrap: nowrap; justify-content: center; align=
+-items: flex-start; }
+
+.ms-Fabric--isFocusVisible .editorbx-splitContainer-66:focus::after { conte=
+nt: ""; position: absolute; inset: 1px; border: 1px solid rgb(255, 255, 255=
+); outline: rgb(96, 94, 92) solid 1px; z-index: 1; }
+
+.editorbx-screenReaderText-67 { position: absolute; width: 1px; height: 1px=
+; margin: -1px; padding: 0px; border: 0px; overflow: hidden; white-space: n=
+owrap; visibility: hidden; }
+
+.editorbx-root-68 { outline: transparent; position: relative; font-family: =
+"Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, Blin=
+kMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothin=
+g: antialiased; font-size: 14px; font-weight: 400; color: rgb(161, 159, 157=
+); background-color: transparent; border: none; width: 100%; height: 36px; =
+line-height: 36px; display: block; cursor: default; padding: 0px 8px 0px 4p=
+x; text-align: left; pointer-events: none; }
+
+.ms-Fabric--isFocusVisible .editorbx-root-68:focus::after { content: ""; po=
+sition: absolute; inset: 1px; border: 1px solid rgb(255, 255, 255); outline=
+: rgb(96, 94, 92) solid 1px; z-index: 1; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-root-68 { color: graytext; opacity: 1; }
+}
+
+.editorbx-root-68:hover { background-color: rgb(243, 242, 241); }
+
+.editorbx-root-68:active { background-color: rgb(225, 223, 221); }
+
+.editorbx-root-69 { font-family: "Segoe UI", "Segoe UI Web (West European)"=
+, "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", =
+sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; font-weig=
+ht: 400; position: absolute; display: flex; z-index: 1000000; box-sizing: b=
+order-box; border-radius: 2px; box-shadow: rgba(0, 0, 0, 0.133) 0px 6.4px 1=
+4.4px 0px, rgba(0, 0, 0, 0.11) 0px 1.2px 3.6px 0px; outline: transparent; }
+
+@media screen and (-ms-high-contrast: active), screen and (forced-colors: a=
+ctive) {
+  .editorbx-root-69 { border-width: 1px; border-style: solid; border-color:=
+ windowtext; }
+}
+
+.editorbx-calloutMain-70 { background-color: rgb(255, 255, 255); overflow: =
+hidden; position: relative; width: 100%; border-radius: 2px; forced-color-a=
+djust: auto; }
+
+.editorbx-css-71:focus { outline: none; }
+
+.editorbx-root-72 { outline: transparent; position: relative; font-family: =
+"Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, Blin=
+kMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothin=
+g: antialiased; font-size: 14px; font-weight: 400; color: rgb(50, 49, 48); =
+background-color: transparent; border: none; width: 100%; height: 36px; lin=
+e-height: 36px; display: block; cursor: pointer; padding: 0px 8px 0px 4px; =
+text-align: left; }
+
+.ms-Fabric--isFocusVisible .editorbx-root-72:focus::after { content: ""; po=
+sition: absolute; inset: 1px; border: 1px solid rgb(255, 255, 255); outline=
+: rgb(96, 94, 92) solid 1px; z-index: 1; }
+
+.editorbx-root-72:hover { background-color: rgb(243, 242, 241); color: rgb(=
+32, 31, 30); }
+
+.editorbx-root-72:hover .ms-ContextualMenu-icon { color: rgb(16, 110, 190);=
+ }
+
+.editorbx-root-72:hover .ms-ContextualMenu-submenuIcon { color: rgb(50, 49,=
+ 48); }
+
+.editorbx-root-72:active { background-color: rgb(237, 235, 233); }
+
+.editorbx-root-72:active .ms-ContextualMenu-icon { color: rgb(0, 90, 158); =
+}
+
+.editorbx-root-72:active .ms-ContextualMenu-submenuIcon { color: rgb(50, 49=
+, 48); }
+
+.ms-Fabric--isFocusVisible .editorbx-root-72:focus { background-color: rgb(=
+255, 255, 255); }
+
+.ms-Fabric--isFocusVisible .editorbx-root-72:focus:hover { background-color=
+: rgb(255, 255, 255); }
+
+.ms-Fabric--isFocusVisible .editorbx-root-72:hover { background: inherit; }
+
+.editorbx-splitPrimary-73 { outline: transparent; position: relative; font-=
+family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-syst=
+em, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -webkit-font-=
+smoothing: antialiased; font-size: 14px; font-weight: 400; color: rgb(50, 4=
+9, 48); background-color: transparent; border: none; width: calc(100% - 28p=
+x); height: 36px; line-height: 36px; display: block; cursor: pointer; paddi=
+ng: 0px 8px 0px 4px; text-align: left; }
+
+.ms-Fabric--isFocusVisible .editorbx-splitPrimary-73:focus::after { content=
+: ""; position: absolute; inset: 1px; border: 1px solid rgb(255, 255, 255);=
+ outline: rgb(96, 94, 92) solid 1px; z-index: 1; }
+
+.editorbx-splitPrimary-73:hover { background-color: rgb(243, 242, 241); col=
+or: rgb(32, 31, 30); }
+
+.editorbx-splitPrimary-73:hover .ms-ContextualMenu-icon { color: rgb(16, 11=
+0, 190); }
+
+.editorbx-splitPrimary-73:hover .ms-ContextualMenu-submenuIcon { color: rgb=
+(50, 49, 48); }
+
+.editorbx-splitPrimary-73:hover ~ .ms-ContextualMenu-splitMenu { background=
+-color: rgb(243, 242, 241); color: rgb(32, 31, 30); }
+
+.editorbx-splitPrimary-73:hover ~ .ms-ContextualMenu-splitMenu .ms-Contextu=
+alMenu-icon { color: rgb(16, 110, 190); }
+
+.editorbx-splitPrimary-73:hover ~ .ms-ContextualMenu-splitMenu .ms-Contextu=
+alMenu-submenuIcon { color: rgb(50, 49, 48); }
+
+.editorbx-splitPrimary-73:active { background-color: rgb(237, 235, 233); }
+
+.editorbx-splitPrimary-73:active .ms-ContextualMenu-icon { color: rgb(0, 90=
+, 158); }
+
+.editorbx-splitPrimary-73:active .ms-ContextualMenu-submenuIcon { color: rg=
+b(50, 49, 48); }
+
+.ms-Fabric--isFocusVisible .editorbx-splitPrimary-73:focus { background-col=
+or: rgb(255, 255, 255); }
+
+.ms-Fabric--isFocusVisible .editorbx-splitPrimary-73:focus:hover { backgrou=
+nd-color: rgb(255, 255, 255); }
+
+.ms-Fabric--isFocusVisible .editorbx-splitPrimary-73:hover { background: in=
+herit; }
+
+.editorbx-splitMenu-74 { outline: transparent; position: relative; font-fam=
+ily: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system,=
+ BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smo=
+othing: antialiased; font-size: 14px; font-weight: 400; color: rgb(50, 49, =
+48); background-color: transparent; border: none; width: 100%; height: 36px=
+; line-height: 36px; display: block; cursor: pointer; padding: 0px 8px; tex=
+t-align: left; flex-basis: 0px; min-width: 28px; }
+
+.ms-Fabric--isFocusVisible .editorbx-splitMenu-74:focus::after { content: "=
+"; position: absolute; inset: 1px; border: 1px solid rgb(255, 255, 255); ou=
+tline: rgb(96, 94, 92) solid 1px; z-index: 1; }
+
+.editorbx-splitMenu-74:hover { background-color: rgb(243, 242, 241); color:=
+ rgb(32, 31, 30); }
+
+.editorbx-splitMenu-74:hover .ms-ContextualMenu-icon { color: rgb(16, 110, =
+190); }
+
+.editorbx-splitMenu-74:hover .ms-ContextualMenu-submenuIcon { color: rgb(50=
+, 49, 48); }
+
+.editorbx-splitMenu-74:active { background-color: rgb(237, 235, 233); }
+
+.editorbx-splitMenu-74:active .ms-ContextualMenu-icon { color: rgb(0, 90, 1=
+58); }
+
+.editorbx-splitMenu-74:active .ms-ContextualMenu-submenuIcon { color: rgb(5=
+0, 49, 48); }
+
+.ms-Fabric--isFocusVisible .editorbx-splitMenu-74:focus { background-color:=
+ rgb(255, 255, 255); }
+
+.ms-Fabric--isFocusVisible .editorbx-splitMenu-74:focus:hover { background-=
+color: rgb(255, 255, 255); }
+
+.ms-Fabric--isFocusVisible .editorbx-splitMenu-74:hover { background: inher=
+it; }
+
+.editorbx-icon-75 { display: inline-block; min-height: 1px; max-height: 36p=
+x; font-size: 16px; width: 16px; margin: 0px 4px; vertical-align: middle; f=
+lex-shrink: 0; }
+
+@media only screen and (min-width: 0px) and (max-width: 639px) {
+  .editorbx-icon-75 { font-size: 20px; width: 20px; }
+}
+
+.editorbx-subMenuIcon-76 { height: 36px; line-height: 36px; color: rgb(96, =
+94, 92); text-align: center; display: inline-block; vertical-align: middle;=
+ flex-shrink: 0; font-size: 12px; }
+
+.editorbx-subMenuIcon-76:hover { color: rgb(50, 49, 48); }
+
+.editorbx-subMenuIcon-76:active { color: rgb(50, 49, 48); }
+
+@media only screen and (min-width: 0px) and (max-width: 639px) {
+  .editorbx-subMenuIcon-76 { font-size: 16px; }
+}
+
+.editorbx-splitContainer-77 { outline: transparent; position: relative; dis=
+play: flex; height: 36px; flex-wrap: nowrap; justify-content: center; align=
+-items: flex-start; }
+
+.ms-Fabric--isFocusVisible .editorbx-splitContainer-77:focus::after { conte=
+nt: ""; position: absolute; inset: 1px; border: 1px solid rgb(255, 255, 255=
+); outline: rgb(96, 94, 92) solid 1px; z-index: 1; }
+
+.ms-Fabric--isFocusVisible .editorbx-splitContainer-77:focus { background-c=
+olor: rgb(255, 255, 255); }
+
+.ms-Fabric--isFocusVisible .editorbx-splitContainer-77:focus:hover { backgr=
+ound-color: rgb(255, 255, 255); }
+
+.editorbx-root-78 { outline: transparent; position: relative; font-family: =
+"Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, Blin=
+kMacSystemFont, Roboto, "Helvetica Neue", sans-serif; -webkit-font-smoothin=
+g: antialiased; font-size: 14px; font-weight: 400; color: rgb(50, 49, 48); =
+background-color: transparent; border: none; width: 100%; height: 36px; lin=
+e-height: 36px; display: block; cursor: pointer; padding: 0px 8px 0px 4px; =
+text-align: left; }
+
+.ms-Fabric--isFocusVisible .editorbx-root-78:focus::after { content: ""; po=
+sition: absolute; inset: 1px; border: 1px solid rgb(255, 255, 255); outline=
+: rgb(96, 94, 92) solid 1px; z-index: 1; }
+
+.editorbx-root-78:hover { background-color: rgb(243, 242, 241); color: rgb(=
+32, 31, 30); }
+
+.editorbx-root-78:hover .ms-ContextualMenu-icon { color: rgb(16, 110, 190);=
+ }
+
+.editorbx-root-78:hover .ms-ContextualMenu-submenuIcon { color: rgb(50, 49,=
+ 48); }
+
+.editorbx-root-78:active { background-color: rgb(225, 223, 221); }
+
+.editorbx-root-78:active .ms-ContextualMenu-icon { color: rgb(0, 90, 158); =
+}
+
+.editorbx-root-78:active .ms-ContextualMenu-submenuIcon { color: rgb(50, 49=
+, 48); }
+
+.ms-Fabric--isFocusVisible .editorbx-root-78:focus { background-color: rgb(=
+255, 255, 255); }
+
+.ms-Fabric--isFocusVisible .editorbx-root-78:focus:hover { background-color=
+: rgb(255, 255, 255); }
+
+.ms-Fabric--isFocusVisible .editorbx-root-78:hover { background: inherit; }
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: cid:css-24a9c6f3-ddb6-4384-bdf2-72bb6cb38743@mhtml.blink
+
+@charset "utf-8";
+
+body { font-family: Verdana, Arial, sans-serif; font-size: 13px; }
+
+.largetext { font-family: Verdana, Arial, sans-serif; font-size: medium; fo=
+nt-weight: bold; }
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: cid:css-43d9083a-1df2-4d57-93c4-0e0c0667f09a@mhtml.blink
+
+@charset "utf-8";
+
+._th-container ._th-item { margin-bottom: 3px; position: relative; width: 0=
+px; height: 0px; cursor: pointer; opacity: 0.3; background-color: aquamarin=
+e; border-radius: 100%; text-align: center; line-height: 30px; transition: =
+all 0.35s ease 0s; right: 30px; }
+
+._th-container ._th-item, ._th-container ._th-click-hover, ._th_cover-all-s=
+how-times ._th_times { box-shadow: black -3px 4px 12px -5px; }
+
+._th-container:hover ._th-item._item-x2 { margin-left: 18px; width: 40px; h=
+eight: 40px; line-height: 40px; }
+
+._th-container:hover ._th-item._item-x-2 { margin-left: 17px; width: 38px; =
+height: 38px; line-height: 38px; }
+
+._th-container:hover ._th-item._item-xx2 { width: 36px; height: 36px; margi=
+n-left: 16px; line-height: 36px; }
+
+._th-container:hover ._th-item._item-xx-2 { width: 32px; height: 32px; line=
+-height: 32px; margin-left: 14px; }
+
+._th-container:hover ._th-item._item-reset { width: 30px; line-height: 30px=
+; height: 30px; margin-left: 10px; }
+
+._th-click-hover { position: relative; transition: all 0.5s ease 0s; height=
+: 45px; width: 45px; cursor: pointer; opacity: 0.3; border-radius: 100%; ba=
+ckground-color: aquamarine; text-align: center; line-height: 45px; right: 0=
+px; }
+
+._th-container:hover { left: -5px; }
+
+._th-container { font-size: 12px; transition: all 0.5s ease 0s; left: -35px=
+; top: 20%; position: fixed; box-sizing: border-box; z-index: 100000; user-=
+select: none; }
+
+._th-container ._th-item:hover { opacity: 0.8; background-color: rgb(95, 18=
+0, 146); color: aliceblue; }
+
+._th-container ._th-item:active { opacity: 0.9; background-color: rgb(27, 5=
+8, 38); color: aliceblue; }
+
+._th-container:hover ._th-click-hover { opacity: 0.8; }
+
+._th-container:hover ._th-item { opacity: 0.6; right: 0px; }
+
+._th-container ._th-click-hover:hover { opacity: 0.8; background-color: rgb=
+(95, 180, 146); color: aliceblue; }
+
+._th_cover-all-show-times { position: fixed; top: 0px; right: 0px; width: 1=
+00%; height: 100%; z-index: 99999; opacity: 1; font-weight: 900; font-size:=
+ 30px; color: rgb(79, 79, 79); background-color: rgba(0, 0, 0, 0.1); }
+
+._th_cover-all-show-times._th_hidden { z-index: -99999; opacity: 0; transit=
+ion: all 1s ease 0s; }
+
+._th_cover-all-show-times ._th_times { width: 300px; height: 300px; border-=
+radius: 50%; background-color: rgba(127, 255, 212, 0.51); text-align: cente=
+r; line-height: 300px; position: absolute; top: 50%; right: 50%; margin-top=
+: -150px; margin-right: -150px; }
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: cid:css-a871b05f-ce80-4aec-b657-4b583f9bd250@mhtml.blink
+
+@charset "utf-8";
+
+.pagetual_pageBar { transition: opacity 0.3s ease-in-out 0s; font-family: A=
+rial, sans-serif !important; }
+
+.pagetual_pageBar.stop { filter: invert(100%); opacity: 1 !important; }
+
+.pagetual_pageBar.hide { display: none !important; }
+
+.pagetual_pageBar:hover { opacity: 1 !important; }
+
+.pagetual_pageBar span { vertical-align: super; }
+
+.pagetual_pageBar a::before, .pagetual_pageBar a::after { content: none; }
+
+.pagetual_pageBar a > span { pointer-events: none; padding: unset; opacity:=
+ 0; transition: all 0.3s ease-in-out 0s; margin-top: 0px !important; }
+
+.pagetual_pageBar a > span:hover { color: red; }
+
+.pagetual_pageBar a:hover > span { opacity: 1; }
+
+.pagetual_pageBar span.prevScreen, .pagetual_pageBar span.nextScreen { disp=
+lay: block !important; }
+
+.pagetual_pageBar a:hover > span.prevScreen { pointer-events: all; margin-t=
+op: -30px !important; }
+
+.pagetual_pageBar a:hover > span.nextScreen { pointer-events: all; margin-t=
+op: 30px !important; }
+
+.pagetual_pageBar span > svg { transition: transform 0.5s ease 0s, opacity =
+0.3s ease 0s; opacity: 0; }
+
+.pagetual_pageBar:hover span > svg { opacity: 1; }
+
+.pagetual_pageBar span > svg.upSvg:hover { transform: rotate(360deg) scale3=
+d(1.2, 1.2, 1.2); }
+
+.pagetual_pageBar span > svg.downSvg:hover { transform: rotate(540deg) scal=
+e3d(1.2, 1.2, 1.2) !important; }
+
+.pagetual_pageBar .pagetual_pageNum { color: rgb(85, 85, 95); }
+
+.pagetual_pageBar .pagetual_pageNum:hover { color: rgb(255, 100, 100); }
+
+.pagetual_tipsWords { font-size: 50px; font-weight: bold; font-family: =E9=
+=BB=91=E4=BD=93, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxy=
+gen, Ubuntu, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Seg=
+oe UI Emoji", "Segoe UI Symbol"; color: rgb(255, 255, 255); min-height: 70p=
+x; max-width: 80%; line-height: 70px; position: fixed; left: 50%; top: 10%;=
+ margin-left: -99999px; padding: 0px 15px; z-index: 999999999; background-c=
+olor: rgb(0, 0, 0); border: 1px solid rgb(48, 48, 48); border-radius: 10px;=
+ opacity: 0; box-shadow: rgb(0, 0, 0) 5px 5px 20px 0px; transition: opacity=
+ 0.3s ease-in-out 0s; pointer-events: none; }
+
+.pagetual_loading { width: 50px; height: 50px; margin: 10px auto; border-ra=
+dius: 100%; display: flex; animation: 1s ease-in-out 0s infinite normal non=
+e running pagetual_loading_scaleout; }
+
+@-webkit-keyframes pagetual_loading_scaleout {=20
+  0% { transform: scale(0); }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+@keyframes pagetual_loading_scaleout {=20
+  0% { transform: scale(0); }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.pagetual_loading_text { white-space: nowrap; animation: 2.6s ease-in-out 0=
+s infinite normal none running pagetual_loading_opacity; }
+
+@-webkit-keyframes pagetual_loading_opacity {=20
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+@keyframes pagetual_loading_opacity {=20
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Location: https://www.hpmuseum.org/mohpcf.png
+
+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
+AABJRU5ErkJggg==
+
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://www.hpmuseum.org/forum/images/smilies/biggrin.gif
+
+R0lGODlhFQAVAPe0APHDEPPMFvbYIPTOGPbZIfPMF/baIvbbI/XVHfrIBP/jG/7bEvTRGvbWH/HE
+EbSun//gF/TPGfbcJPPKFPTSG/vNCPXSG/HDEcXBtv7ZEcjDuZiQfPPLFfLx7vXUG/LHElpNLY54
+EkU2EPHFEvXUHPbdJP/hGXluVPLIE+De2P/eFYJ4YGldQfrFApyUgfbdJfPNF3pnE76WB35mDrWY
+D4JpDvTMDJGIc//cE3txV/nFAsbCt6egj/TPGP/fFopsCtuwCJV1Cu+9BPzPCcaeB9O7Go2EbpB8
+FcWfClA+D+nLFdWrB6eOE/bdJufNG8abBkk5D9e/GpqSf2dbPqmjksadB/bbJFBAEea1A3leDFBA
+EHxnEFVFEdrX0PvKBfvLB/vKBpl6CqWejdXSyvrJBcjEuvrGA/rVEPrGArmzpvnRDWNPDvzRCvLx
+7/vMB0c3EM/LwvHPEr+6raiECPLKFLWvoHRiE/bWHnxjDvHDD56XhNm0DHJnTIZ8Zf7aEb24rPXT
+G//iGVdFEPLGEk4+ENauCX1nEf7XD2FNDquklLWQCW9aD8C7rvzWEGVZO5OLdtG5G6efj/7YEPXJ
+CINwFPrHBPv6+f3iHGJREf39/LqYC//kHYlxEPTQGW1bEvzQCuro5I55E5t6CfTz8c7KwYuBa5aN
+ef/iGv3VDoFuFfrHA+nOGVJDEf/dFHBlSf/cFL2VBvb28kM0EP///////wAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAALQALAAAAAAVABUA
+AAj/AGkJHChwzIODGEYRXDgwEw8QnkKFCGGIkJEuDAemEXFklQkIKl4tOENDkJSMVLhEURAIgo9W
+CzIcQmVjxo2FjFg5eSHhAAEVOPwAYhBhAJsaGwjygdSkhCxZAhos8EDhaYEAk9aUEfgn1aYXsgwQ
+kIUggwVZPWDI4lABSQ6Brooo6ElAwB0SkogOCMCBjhswiFJ0uHKphBUDURFQ7TTg6gQUH8iEiUTK
+ztynmDNnHpRAUSk5lE4dkBWrNGnTpWPJGpGgygkNMUwYID1LdazatFU7UCVjRQpMEMbeto17uKwL
+ZuYkBaFEwGnitk0DaJFFAy0XTBogOJ2bO4A8WN5YYKIFSkscEmej2z4OQMcPMQP1bGlEVPNTB9Nh
+rVj4iJOaxgE89sEI+KHxBBRwMGTKInt8MkQFX3iRQCVCiCLCDhnRUscUeGhSCBBLEBFEEi60keFA
+GPTBgiMsnJBIBwwFBAA7
+
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://www.hpmuseum.org/forum/images/smilies/smile.gif
+
+R0lGODlhFQAVAPe4AP/gF/3TDP7bEvHEEfzQCvzPCf/jG//fFv/eFf/hGf7ZEf3WDv3VDfrGA//h
+GP/cFPrIBPvMB//dFP7aEfvNCLSun//cE/3XD/HFEv3UDf7XD//iGv/iGf7YEPzRCv7ZEP3VDvbY
+IPvKBeDe2PrHA/vLB/rJBY54EvvKBvrGAvTQGvLIE5iQfPXSG/PMFsXBtvvOCMjDufHDEfzSC/Lx
+7vHDEPXVHfLHEkU2EHluVPzOCGldQf/jGpyUgYJ4YPzRC1pNLfrFAqefj8C7rvbWHr2VBvLx78jE
+utm0DE4+EJt6CenOGcabBufNG/nRDfTz8frHBKegj0k5D/3iHPTPGdrX0Oa1A7qYC4JpDrmzppOL
+dvXJCPbZIUc3EMadB5aNeaiECJqSf3xnEPPKFH1nEc7KwWFNDtuwCJGIc1JDEYuBa8aeB/LJFNO7
+GtauCWVZO4FuFb+6rX5mDvPLFXpnE8/LwnxjDqmjkmJREfPNF//kHMWfCtXSyvHPEnleDIZ8ZbWv
+oOnLFfrVEJB8FW9aD3RiE9e/GlA+D6uklOro5PTPGJ6XhJl6CmNPDv3UDIlxEIpsCo55E2dbPvvL
+Br24rPXUG9WrB/LHE/39/G1bEpV1CqeOE1dFEHBlSfbaIvnFAlBAEfTOGPXUHP/kHaWejbWYD4Nw
+FPbWH9G5G/zWEMbCt3txV/PMF1BAEPv6+b6WB7WQCfTMDI2EbnJnTO+9BFVFEUM0EP///////wAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAALgALAAAAAAVABUA
+AAj/AHEJHCiQT4WDL54QXDgQUxQgmSKdOEEmiawqDAdmwTFoSQIACB4IEFSKU5iMd2oZMsABwAEJ
+AhRoABFLDpqFQ9I0MbDBwQEEFiZ0WJAhgAcsLAjOQqWHx8eQAj5cYBDgB4EtjY4IpARnFEsAtmDK
+BGFrBoECFPasEtipDU+ftoIOzWDLQwEYEVCYGUED1BSnIG1FnRrAFgEdESaZYCSkTKGvL2POdGQW
+bQkREGCpiWOq50+5RI3ezWsCgpccMegk8BTilA2pVK3qWHEDwwASr3yMwAOAiy1bolqoUJTHxRw2
+l37LaAAmKZBAIYj8nk7994AaQfzEwNVj0wMblWzdbBpP/pat6ymsdHGFK1GrPgqEiy9/fvknSKQG
+LhKTagGVUNXZ1kAQRfiwkBaPOBEAKy6MQZttJKTAhBR1MPQFIUicRcFlEEBBixI4qJIRLoBIYscV
+bpxhyRqaHNKDESMO9MIfO7yxQw6I0MBQQAA7
+
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: chrome-extension://hokifickgkhplphjiodbggjmoafhignh/fonts/fabric-icons.css
+
+@charset "utf-8";
+
+@font-face { font-family: FabricMDL2Icons; src: url("fabric-icons.woff") fo=
+rmat("woff"); }
+------MultipartBoundary--QbfBJiwpD0efpRrv4NmFGRvOifuakenEZIbDV6qoEJ------
