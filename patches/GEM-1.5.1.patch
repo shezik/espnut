@@ -1,0 +1,44 @@
+diff -r -u ../.pio/libdeps/esp32doit-devkit-v1/GEM/src/GEMPage.h ./GEMPage.h
+--- ../.pio/libdeps/esp32doit-devkit-v1/GEM/src/GEMPage.h	2024-01-04 03:05:26.000000000 +0800
++++ ./GEMPage.h	2024-01-10 14:04:02.813856000 +0800
+@@ -73,7 +73,7 @@
+     GEMItem* getMenuItem(byte index, bool total = false);       // Get pointer to menu item by index (counting hidden ones if total set to true)
+     GEMItem* getCurrentMenuItem();                              // Get pointer to current menu item
+     byte getCurrentMenuItemIndex();                             // Get index of current menu item
+-  private:
++  protected:
+     const char* title;
+     byte currentItemNum = 0;                                    // Currently selected (focused) menu item of the page
+     byte itemsCount = 0;                                        // Items count excluding hidden ones
+diff -r -u ../.pio/libdeps/esp32doit-devkit-v1/GEM/src/GEM_u8g2.cpp ./GEM_u8g2.cpp
+--- ../.pio/libdeps/esp32doit-devkit-v1/GEM/src/GEM_u8g2.cpp	2024-01-04 03:05:26.000000000 +0800
++++ ./GEM_u8g2.cpp	2024-01-10 14:06:41.519762300 +0800
+@@ -248,7 +248,7 @@
+ }
+ 
+ GEM_u8g2& GEM_u8g2::init() {
+-  _u8g2.clear();
++  // _u8g2.clear();
+   _u8g2.setDrawColor(1);
+   _u8g2.setFontPosTop();
+ 
+diff -r -u ../.pio/libdeps/esp32doit-devkit-v1/GEM/src/GEM_u8g2.h ./GEM_u8g2.h
+--- ../.pio/libdeps/esp32doit-devkit-v1/GEM/src/GEM_u8g2.h	2024-01-04 03:05:26.000000000 +0800
++++ ./GEM_u8g2.h	2024-01-10 14:05:01.112172000 +0800
+@@ -148,14 +148,14 @@
+ 
+     /* DRAW OPERATIONS */
+ 
+-    GEM_u8g2& drawMenu();                                     // Draw menu on screen, with menu page set earlier in GEM_u8g2::setMenuPageCurrent()
++    virtual GEM_u8g2& drawMenu();                                     // Draw menu on screen, with menu page set earlier in GEM_u8g2::setMenuPageCurrent()
+ 
+     /* KEY DETECTION */
+ 
+     bool readyForKey();                                       // Check that menu is waiting for the key press
+     GEM_u8g2& registerKeyPress(byte keyCode);                 // Register the key press and trigger corresponding action
+                                                               // Accepts GEM_KEY_NONE, GEM_KEY_UP, GEM_KEY_RIGHT, GEM_KEY_DOWN, GEM_KEY_LEFT, GEM_KEY_CANCEL, GEM_KEY_OK values
+-  private:
++  protected:
+     U8G2& _u8g2;
+     GEMAppearance* _appearanceCurrent = nullptr;
+     GEMAppearance _appearance;
