@@ -23,12 +23,12 @@
 
 #include "GEM_u8g2.h"
 
-// Modifications to GEM_u8g2.cpp in spirik/GEM@^1.4.0:
-// Line 165: `// _u8g2.clear();`
+// Modifications to GEM_u8g2.cpp in spirik/GEM 1.5.1:
+// Line 251: `// _u8g2.clear();`
 
-// Modifications to GEM_u8g2.h in spirik/GEM@^1.4.0:
-// Line 134: virtual void drawMenu();
-// Line 141: protected:
+// Modifications to GEM_u8g2.h in spirik/GEM 1.5.1:
+// Line 151: `virtual GEM_u8g2& drawMenu();`
+// Line 158: `protected:`
 class GEMProxy : public GEM_u8g2 {
     protected:
         void (*drawMenuCallback)() = nullptr;
@@ -40,11 +40,7 @@ class GEMProxy : public GEM_u8g2 {
             drawMenuCallback = callback;
         };
 
-        GEMPage *getMenuPageCurrent() {
-            return _menuPageCurrent;
-        };
-
-        void drawMenu() override {
+        GEM_u8g2& drawMenu() override {
             _u8g2.clearBuffer();
 
             drawTitleBar();
@@ -55,27 +51,22 @@ class GEMProxy : public GEM_u8g2 {
                 drawMenuCallback();
 
             _u8g2.sendBuffer();
+            return *this;
         }
 
-        void setMenuValuesLeftOffset(uint8_t offset) {
-            _menuValuesLeftOffset = offset;
-            // Line 169 - 170, GEM_u8g2.cpp in spirik/GEM@^1.4.0
-            _menuItemTitleLength = (_menuValuesLeftOffset - 5) / _menuItemFont[_menuItemFontSize].width;
-            _menuItemValueLength = (_u8g2.getDisplayWidth() - _menuValuesLeftOffset - 6) / _menuItemFont[_menuItemFontSize].width;
+        GEMAppearance* getCurrentAppearance() {
+            return GEM_u8g2::getCurrentAppearance();
         }
 };
 
-// Modifications to GEMPage.h in spirik/GEM@^1.4.0:
-// Line 59: protected:
+// Modifications to GEMPage.h in spirik/GEM 1.5.1:
+// Line 76: `protected:`
 class GEMPageProxy : public GEMPage {
     public:
         using GEMPage::GEMPage;
 
         void setCurrentItemNum(uint8_t num) {
             currentItemNum = num;
-        }
-        uint8_t getCurrentItemNum() {
-            return currentItemNum;
         }
         // Excluding hidden ones
         uint8_t getItemsCount() {

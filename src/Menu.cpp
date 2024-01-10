@@ -81,6 +81,7 @@ Menu::~Menu() {
     delete ramSizePage; ramSizePage = nullptr;
     delete smallRAMBtn; smallRAMBtn = nullptr;
     delete largeRAMBtn; largeRAMBtn = nullptr;
+    free(editFilenamePageAppearance); editFilenamePageAppearance = nullptr;
     delete editFilenamePage; editFilenamePage = nullptr;
     delete nameFieldItem; nameFieldItem = nullptr;
     delete acceptNameBtn; acceptNameBtn = nullptr;
@@ -147,7 +148,9 @@ void Menu::init(bool showMenuFlag_) {
     largeRAMBtn = new GEMItem("80", [](GEMCallbackData data){context->loadROMRAMSelectedCallback(data.valInt);}, 80);
     ramSizePage->addMenuItem(*smallRAMBtn);
     ramSizePage->addMenuItem(*largeRAMBtn);
+    editFilenamePageAppearance = static_cast<GEMAppearance *>(malloc(sizeof(GEMAppearance)));
     editFilenamePage = new GEMPageProxy("Edit filename", [](){context->editFilenameConfirmedCallback(false);});
+    editFilenamePage->setAppearance(editFilenamePageAppearance);
     nameFieldItem = new GEMItem("", editFilenameBuffer);
     acceptNameBtn = new GEMItem("Accept", [](){context->editFilenameConfirmedCallback(true);});
     editFilenamePage->addMenuItem(*nameFieldItem);
@@ -162,6 +165,8 @@ void Menu::init(bool showMenuFlag_) {
     sm.registerApplySettingsCallback(applySettings);
 
     gem = new GEMProxy(*dp.getU8g2(), GEM_POINTER_ROW, ITEMS_PER_PAGE, ITEM_HEIGHT, PAGE_TOP_OFFSET, VALUES_LEFT_OFFSET);
+    memcpy(editFilenamePageAppearance, gem->getCurrentAppearance(), sizeof(GEMAppearance));
+    editFilenamePageAppearance->menuValuesLeftOffset = 5;
     gem->registerDrawMenuCallback(drawBatteryCallback);
     pm.registerBatPercentChangedCallback([](){context->drawBatteryCallback(); context->dp.getU8g2()->sendBuffer();});
     gem->setSplash(peanut_width, peanut_height, peanut_bits);
@@ -325,7 +330,6 @@ void Menu::enterMenu() {
 
     // gem->reInit();
     // u8g2.setContrast(contrast);  // GEM_uìg2::reInit causes U8g2 to reset contrast
-    gem->setMenuValuesLeftOffset(VALUES_LEFT_OFFSET);
     // mainPage->setCurrentItemNum(0);  // I prefer not to.
     gem->setMenuPageCurrent(*mainPage);
     gem->drawMenu();
@@ -381,7 +385,7 @@ void Menu::enterFileManager(char *path, bool useLastCursorPos, uint8_t cursorPos
 
     if (useLastCursorPos) {
         if (fileManagerPage)
-            cursorPos = fileManagerPage->getCurrentItemNum();
+            cursorPos = fileManagerPage->getCurrentMenuItemIndex();
     } else
         upDirBtnCursorPos = upDirBtnCursorPos_;
 
@@ -410,7 +414,7 @@ void Menu::enterFileManager(char *path, bool useLastCursorPos, uint8_t cursorPos
         strncpy(filePathBuf[itemCount], path.c_str(), sizeof(filePathBuf[itemCount]) - 1);
         filePathBuf[itemCount][sizeof(filePathBuf[itemCount])] = '\0';
 
-        fileList[itemCount] = new GEMItem(filenameBuf[itemCount], [](GEMCallbackData data){context->enterFileManager((char *) data.valPointer, false, 0, context->fileManagerPage->getCurrentItemNum());}, filePathBuf[itemCount]);
+        fileList[itemCount] = new GEMItem(filenameBuf[itemCount], [](GEMCallbackData data){context->enterFileManager((char *) data.valPointer, false, 0, context->fileManagerPage->getCurrentMenuItemIndex());}, filePathBuf[itemCount]);
         fileManagerPage->addMenuItem(*fileList[itemCount]);
         
         itemCount++;
@@ -518,7 +522,6 @@ void Menu::saveStateButtonCallback() {
 }
 
 void Menu::editFilenameCallback() {
-    gem->setMenuValuesLeftOffset(5);
     editFilenamePage->setCurrentItemNum(0);
     gem->setMenuPageCurrent(*editFilenamePage);
     gem->drawMenu();
@@ -541,7 +544,7 @@ void Menu::deleteFileConfirmedCallback(bool accepted) {
 }
 
 void Menu::drawBatteryCallback() {
-    GEMPageProxy *menuPageCurrent = static_cast<GEMPageProxy *>(context->gem->getMenuPageCurrent());
+    GEMPageProxy *menuPageCurrent = static_cast<GEMPageProxy *>(context->gem->getCurrentMenuPage());
     if (!context->showingMenu || !menuPageCurrent || memcmp(menuPageCurrent->getTitle(), "espnut", 6))
         return;  // Not in main menu, don't draw
     context->dp.drawBattery(context->dp.getU8g2()->getDisplayWidth() - context->dp.batteryIconWidth - 1, 1, context->pm.getBatteryPercentage(), context->pm.getBatteryCharging());

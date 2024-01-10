@@ -73,6 +73,7 @@ class Menu {
         GEMItem *smallRAMBtn = nullptr;
         GEMItem *largeRAMBtn = nullptr;
         // Filename editor
+        GEMAppearance *editFilenamePageAppearance = nullptr;
         GEMPageProxy *editFilenamePage = nullptr;
         GEMItem *nameFieldItem = nullptr;
         GEMItem *acceptNameBtn = nullptr;

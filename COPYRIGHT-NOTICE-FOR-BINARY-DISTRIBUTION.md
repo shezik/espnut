@@ -1,13 +1,15 @@
 # Copyright Notice for Binary Distribution
 
 ## Contents
-- [espnut](#espnut)
-- [Nonpareil](#nonpareil)
-- [arduino-esp32](#arduino-esp32)
-- [GEM](#gem)
-- [U8g2](#u8g2)
-- [u8g2_font_6x12_tr](#u8g2_font_6x12_tr)
-- [u8g2_font_tom_thumb_4x6_mr](#u8g2_font_tom_thumb_4x6_mr)
+- [Copyright Notice for Binary Distribution](#copyright-notice-for-binary-distribution)
+  - [Contents](#contents)
+  - [espnut](#espnut)
+  - [Nonpareil](#nonpareil)
+  - [arduino-esp32](#arduino-esp32)
+  - [GEM](#gem)
+  - [U8g2](#u8g2)
+  - [u8g2\_font\_6x12\_tr](#u8g2_font_6x12_tr)
+  - [u8g2\_font\_tom\_thumb\_4x6\_mr](#u8g2_font_tom_thumb_4x6_mr)
 
 ## espnut
 Copyright (C) 2023&ensp;&ensp;shezik
@@ -72,15 +74,15 @@ limitations under the License.
 ## GEM
 **Note that the relevant code used in this project is a MODIFIED version.**
 
-Modifications to GEM_u8g2.h in spirik/GEM@^1.4.0:  
-Line 134: `virtual void drawMenu();`  
-Line 141: `protected:`
+Modifications to GEM_u8g2.h in spirik/GEM 1.5.1:  
+Line 151: `virtual GEM_u8g2& drawMenu();`  
+Line 158: `protected:`
 
-Modifications to GEMPage.h in spirik/GEM@^1.4.0:  
-Line 59: `protected:`
+Modifications to GEMPage.h in spirik/GEM 1.5.1:  
+Line 76: `protected:`
 
-Modifications to GEM_u8g2.cpp in spirik/GEM@^1.4.0:  
-Line 165: `// _u8g2.clear();`
+Modifications to GEM_u8g2.cpp in spirik/GEM 1.5.1:  
+Line 251: `// _u8g2.clear();`
 
 ----------------------------------------------------------------
 
