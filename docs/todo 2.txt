@@ -1,0 +1,5 @@
+Logger
+Read through events
+Decouple modules
+
+By creating multiple key event (or simply generic event) queues, the 'skip key release' and 'critical section' bodges can possibly be eliminated.
