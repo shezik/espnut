@@ -251,8 +251,11 @@ void NutEmuInterface::keyReleased(uint16_t keycodeContent) {
 
 void NutEmuInterface::tick() {
     if (!nv || !emulatorRunFlag) {
-        if (emulatorRunFlag)
+        if (emulatorRunFlag) {
+            kbdMgr.getLastKeycode();
             xSemaphoreGive(kbdMgr.getMutex());
+            // -------- END OF CRITICAL SECTION --------
+        }
         return;
     }
 
