@@ -138,6 +138,16 @@ static void voyager_display_update(nut_reg_t *nut_reg, voyager_display_reg_t *di
 	int digit;
 	int segment;
 
+	if (display->blink)
+	{
+		if (!display->blink_count)  // !! maybe save this blink_count into state file? does not matter that much though
+		{
+			display->blink_state ^= 1;
+			display->blink_count = VOYAGER_DISPLAY_BLINK_DIVISOR;
+		}
+		display->blink_count--;
+	}
+
 	for (digit = 0; digit < VOYAGER_DISPLAY_DIGITS; digit++)
 	{
 		nut_reg->display_segments[digit] = 0;
@@ -157,16 +167,6 @@ static void voyager_display_update(nut_reg_t *nut_reg, voyager_display_reg_t *di
 						nut_reg->display_segments[digit] |= SEGMENT_ANN;
 				}
 			}
-		}
-	}
-
-	if (display->blink)
-	{
-		display->blink_count--;
-		if (!display->blink_count)
-		{
-			display->blink_state ^= 1;
-			display->blink_count = VOYAGER_DISPLAY_BLINK_DIVISOR;
 		}
 	}
 }
