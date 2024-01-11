@@ -1809,7 +1809,7 @@ bool nut_read_object_file (nut_reg_t *nut_reg, const char *fn)
 	f.close();
 
 	fprintf (stderr, "read %d words from '%s'\n", count, fn);
-	return (true);
+	return count;
 }
 
 

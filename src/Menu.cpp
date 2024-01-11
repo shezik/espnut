@@ -457,9 +457,13 @@ void Menu::loadStateFileSelectedCallback(char *path) {
         return;
     }
 
-    if (!context->emu.isProcessorPresent()) {
-        context->emu.newProcessorFromStatefile(NUT_FREQUENCY_HZ, path);
+    if (!context->emu.isProcessorPresent() && !context->emu.newProcessorFromStatefile(NUT_FREQUENCY_HZ, path)) {
+        context->emu.deinit();
+        context->dirGoUp(path);  // This actually modifies filePathBuf in enterFileManager, but I don't think it matters.
+        context->enterFileManager(path, true);
+        return;
     }
+
     context->emu.loadStateFromStatefile(path);  // You can load a mismatching state file for giggles  // !! Show warning?
     exitMenu();
 }
@@ -501,13 +505,20 @@ void Menu::deleteFileCallback(char *path) {
 }
 
 void Menu::loadROMRAMSelectedCallback(int romSize) {
-    if (romSize) {
-        emu.newProcessor(NUT_FREQUENCY_HZ, romSize, selectedROMPath);
-        exitMenu();
-    } else {
-        dirGoUp(selectedROMPath);  // This actually modifies filePathBuf in enterFileManager, but I don't think it matters.
-        enterFileManager(selectedROMPath, true);
+    if (!romSize)
+        goto Cancel;
+
+    if (!emu.newProcessor(NUT_FREQUENCY_HZ, romSize, selectedROMPath)) {
+        emu.deinit();
+        goto Cancel;
     }
+    exitMenu();
+    return;
+
+Cancel:
+    dirGoUp(selectedROMPath);  // This actually modifies filePathBuf in enterFileManager, but I don't think it matters.
+    enterFileManager(selectedROMPath, true);
+    return;
 }
 
 void Menu::saveStateButtonCallback() {
