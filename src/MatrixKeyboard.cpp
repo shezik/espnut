@@ -93,11 +93,13 @@ static void checkPowerBtn(matrix_keyboard_handle_t *handle) {
     if (state == prevState)
         return;
 
+    // The power button has an 100 nF capacitor across acting as hardware debouncer
     prevState = state;
     if (handle->key_event)
         handle->key_event();
 
     uint16_t keycode = MakeKeycodeFromCode(state, 24 /*ON*/);
+    printf_log(MatrixKeyboardTag "Got keycode %d (Power button), adding to queue\n", keycode);
     xSemaphoreTake(handle->mutex, portMAX_DELAY);
     xQueueSend(handle->key_queue, (void *) &keycode, 0);
     xSemaphoreGive(handle->mutex);

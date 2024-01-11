@@ -189,7 +189,7 @@ void DispInterface::drawCheckerboard(bool polarity) {
 
 void DispInterface::sendLowBattery() {
     drawCheckerboard();
-    uint8_t x = floor((u8g2.getDisplayWidth() - batteryIconWidth) / 2), y = floor((u8g2.getDisplayHeight() - batteryIconHeight) / 2);
+    uint8_t x = (u8g2.getDisplayWidth() - batteryIconWidth) / 2, y = (u8g2.getDisplayHeight() - batteryIconHeight) / 2;
     u8g2.setDrawColor(0);
     u8g2.drawBox(x - 1, y - 1, batteryIconWidth + 2, batteryIconHeight + 2);
     drawBattery(x, y, 0, false);

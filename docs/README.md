@@ -1,7 +1,7 @@
-[![](markdownAssets/banner.png)](https://github.com/shezik/espnut)  
-Eric Smith's Nonpareil emulator ported to ESP32. Supports HP Voyager calculators.  
+[![](markdownAssets/banner-dev.png)](https://github.com/shezik/espnut)  
+An ESP32 port of Eric Smith's Nonpareil emulator. Designed for HP Voyager calculator emulation.  
 The successor of shezik/esp15c (now archived).  
-**To update device firmware, check out [espnut-updater](https://github.com/shezik/espnut-updater).**
+**To perform a firmware update, visit [espnut-updater](https://github.com/shezik/espnut-updater).**
 
 ### Features
 - Matrix keyboard driver for ESP32-S3 that doesn't support dedicated GPIO interrupt :)
@@ -18,13 +18,9 @@ The successor of shezik/esp15c (now archived).
 - Apply ROM patches dynamically
 - Add ESP32 cpu frequency options to Menu
 
-### Coming soon
-- ~~PCB & BOM~~
+Schematics are available [here](docs/Schematics).
 
-~~You just have to wait, like, not very soon? ツ~~  
-The thing is that I've decided to only upload [schematics](https://github.com/shezik/espnut/tree/main/docs/Schematics) but not PCB-related files nor the source files of the documents shipped along with units.
-
-----------------
+--------------------------------------------------------------------------------------------------------------------------------
 
 ### Porting to unicore chips
 This project utilizes the auxiliary core of ESP32-S3 to scan the matrix keyboard. You'll need to take care of the `xTaskCreatePinnedToCore` function called in *src/MatrixKeyboard.cpp*, though I suppose that ARDUINO_RUNNING_CORE would also be 0 in this case.

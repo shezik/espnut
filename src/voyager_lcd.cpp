@@ -142,7 +142,7 @@ static void voyager_display_update(nut_reg_t *nut_reg, voyager_display_reg_t *di
 	{
 		nut_reg->display_segments[digit] = 0;
 		if (display->enable &&
-			((!display->blink) || (display->blink_state)))  // !! Important conditions
+			(!display->blink || display->blink_state))  // !! Important conditions
 		{
 			for (segment = 0; segment <= 9; segment++)
 			{
